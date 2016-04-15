@@ -1,0 +1,41 @@
+--
+--
+--      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
+--      Copyright (C) 2015  Frank J Jorgensen
+--
+--      This program is free software: you can redistribute it and/or modify
+--      it under the terms of the GNU General Public License as published by
+--      the Free Software Foundation, either version 3 of the License, or
+--      (at your option) any later version.
+--
+--      This program is distributed in the hope that it will be useful,
+--      but WITHOUT ANY WARRANTY; without even the implied warranty of
+--      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+--      GNU General Public License for more details.
+--
+--      You should have received a copy of the GNU General Public License
+--      along with this program.  If not, see <http://www.gnu.org/licenses/>.
+--
+with "Lua";
+
+project Test is
+
+   -- folder  luatest should be first, because we want to use the scenario-server-player_action.adb
+   -- that is there.
+   --for Source_Dirs use (".", "..\..\src", "..\..\src\socket", "..\..\src\socket\client", "..\..\src\socket\server", "..\adatest");
+   for Source_Dirs use (".", "..\..\src", "..\adatest\polyorb\server", "..\adatest\polyorb\client",
+               "..\..\src", 
+               "..\..\src\polyorb\server", 
+               --"..\..\src\polyorb\client",
+               "..\adatest");
+   for Object_Dir use "build";
+   for Main use ("luatest.adb");
+   for Library_Dir use "..\..\lib";
+
+   package Linker is
+      for Default_Switches ("ada") use ("-L../../lib", "-llua");
+   end Linker;
+
+
+end Test;
+

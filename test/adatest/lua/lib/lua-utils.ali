@@ -1,0 +1,58 @@
+V "GNAT Lib v2014"
+A -O2
+A -gnat12
+A -gnatwa
+A -gnatyg
+A -gnatA
+P SS ZX
+
+RN
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV SPARK_05
+
+U lua.utils%b		lua-utils.adb		f21d213e NE OO PK
+W lua%s			lua.adb			lua.ali
+W system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+
+U lua.utils%s		lua-utils.ads		4ac2a1c8 EE NE OO PK
+W lua%s			lua.adb			lua.ali
+
+D ada.ads		20140406181354 3ffc8e18 ada%s
+D a-unccon.ads		20140406181358 f9eb8f06 ada.unchecked_conversion%s
+D interfac.ads		20140406181358 69adb1b9 interfaces%s
+D i-c.ads		20140406181358 5421119b interfaces.c%s
+D lua.ads		20160118201202 cae74ec4 lua%s
+D lua-utils.ads		20160118201202 8025ef0c lua.utils%s
+D lua-utils.adb		20160118201202 7238ce32 lua.utils%b
+D system.ads		20140406181358 5fc8ae56 system%s
+D s-exctab.ads		20140406181354 54135002 system.exception_table%s
+D s-parame.ads		20140406181358 06da98b2 system.parameters%s
+D s-secsta.ads		20140406181358 86a2856d system.secondary_stack%s
+D s-stalib.ads		20140406181354 fa0a3617 system.standard_library%s
+D s-stoele.ads		20140406181356 2dc34a04 system.storage_elements%s
+D s-stoele.adb		20140406181354 ed88f8fb system.storage_elements%b
+X 5 lua.ads
+4K9*Lua 718e8 6|1r9 13r5 7|1r14 40r5
+30M9*Lua_State<8|64M9> 6|3r36 7r15 7|7r36 22r15
+125U14*Pop 7|16s10 35s10
+228V13*To_Ada{string} 7|14s38 33s38
+255U14*Push 7|29s7
+471U14*Get_Global 7|10s7 28s7
+634U14*PCall 7|11s7 30s7
+X 6 lua-utils.ads
+1K13*Utils 5|4k9 6|13l9 13e14 7|1b18 40l9 40t14
+3V13*Call_Function{string} 3>28 3>47 7|7b13 19l8 19t21
+3m28 State{5|30M9} 7|7b28 10r19 11r14 14r46 16r15
+3a47 Name{string} 7|7b47 10r26
+6V13*Call_Function{string} 7>7 8>7 9>7 7|21b13 38l8 38t21
+7m7 State{5|30M9} 7|22b7 28r19 29r13 30r14 33r46 35r15
+8a7 Name{string} 7|23b7 28r26
+9a7 Arg{string} 7|24b7 29r20
+X 7 lua-utils.adb
+14a10 Result{string} 17r17
+33a10 Result{string} 36r17
+X 8 system.ads
+64M9*Address
+
