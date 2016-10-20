@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 with Text_IO;
 with Player;
+with Hexagon.Area.Server_Area;
 
 package body Server.ServerAPI is
 
@@ -39,19 +40,17 @@ package body Server.ServerAPI is
       P_Game_Saving,
       P_Game_Loading : in Server.Type_Game_Archive_Procedure;
       P_Game_Joining,
-      P_Game_Leaving    : in Server.Type_Game_Joining_Leaving_Procedure;
-      P_Game_Start      : in Server.Type_Game_Start_Procedure;
-      P_Game_Upkeep     : in Server.Type_Game_Upkeep_Procedure;
-      P_Game_Start_Turn : in Server.Type_Game_Turn_Procedure;
-      P_Game_End_Turn   : in Server.Type_Game_Turn_Procedure;
-      P_Game_End        : in Server.Type_Game_End_Procedure)
+      P_Game_Leaving : in Server.Type_Game_Joining_Leaving_Procedure;
+      P_Game_Start   : in Server.Type_Game_Start_Procedure;
+      P_Game_Upkeep  : in Server.Type_Game_Upkeep_Procedure;
+      P_Game_End     : in Server.Type_Game_End_Procedure)
    is
    begin
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Init - enter");
       end if;
 
-      Text_IO.Put_Line("TEST NOT IMPLEMENTED");
+      Text_IO.Put_Line ("TEST NOT IMPLEMENTED");
 
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Init - exit");
@@ -64,7 +63,7 @@ package body Server.ServerAPI is
          Text_IO.Put_Line ("Server.ServerAPI.Start - enter");
       end if;
 
-      Text_IO.Put_Line("TEST NOT IMPLEMENTED");
+      Text_IO.Put_Line ("TEST NOT IMPLEMENTED");
 
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Start - exit");
@@ -77,7 +76,7 @@ package body Server.ServerAPI is
          Text_IO.Put_Line ("Server.ServerAPI.Stop - enter");
       end if;
 
-      Text_IO.Put_Line("TEST NOT IMPLEMENTED");
+      Text_IO.Put_Line ("TEST NOT IMPLEMENTED");
 
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Stop - exit");
@@ -90,7 +89,7 @@ package body Server.ServerAPI is
          Text_IO.Put_Line ("Server.ServerAPI.Run - enter");
       end if;
 
-      Text_IO.Put_Line("TEST NOT IMPLEMENTED");
+      Text_IO.Put_Line ("TEST NOT IMPLEMENTED");
 
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Run - exit");
@@ -102,34 +101,30 @@ package body Server.ServerAPI is
    is
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Get_Server_Info - enter");
+         Text_IO.Put_Line ("Server.ServerAPI.Get_Server_Info - enter");
       end if;
 
-      Text_IO.Put_Line("TEST NOT IMPLEMENTED");
+      Text_IO.Put_Line ("TEST NOT IMPLEMENTED");
 
       P_Server_Info := Utilities.RemoteString_List.Empty_Vector;
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Get_Server_Info - exit");
+         Text_IO.Put_Line ("Server.ServerAPI.Get_Server_Info - exit");
       end if;
    end Get_Server_Info;
 
    procedure Set_Server_Info
-     (P_Server_Info : in    Utilities.RemoteString_List.Vector)
+     (P_Server_Info : in Utilities.RemoteString_List.Vector)
    is
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Set_Server_Info - enter");
+         Text_IO.Put_Line ("Server.ServerAPI.Set_Server_Info - enter");
       end if;
 
-      Text_IO.Put_Line("TEST NOT IMPLEMENTED");
+      Text_IO.Put_Line ("TEST NOT IMPLEMENTED");
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Set_Server_Info - exit");
+         Text_IO.Put_Line ("Server.ServerAPI.Set_Server_Info - exit");
       end if;
    end Set_Server_Info;
 
@@ -173,13 +168,14 @@ package body Server.ServerAPI is
    end Observe_Game;
 
    procedure Create_Piece
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Pos                            : in     Hexagon.Type_Hexagon_Position;
-      P_Piece                          : in     Piece.Type_Piece;
-      P_Piece_Id                       :    out Piece.Type_Piece_Id;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status;
-      P_Force                          : in     Boolean := False)
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Pos         : in     Hexagon.Type_Hexagon_Position;
+      P_Piece       : in     Piece.Type_Piece;
+      P_Piece_Id    :    out Piece.Type_Piece_Id;
+
+      P_Status :    out Status.Type_Status;
+      P_Force  : in     Boolean := False)
    is
       use Utilities.RemoteString;
       use Player;
@@ -193,8 +189,6 @@ package body Server.ServerAPI is
            ("Create_Piece : " &
             " P_Action_Type=" &
             P_Action_Type'Img &
-            " P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
             " P_Player_Id=" &
             P_Player_Id'Img &
             " P_Piece=" &
@@ -220,11 +214,6 @@ package body Server.ServerAPI is
       if P_Action_Type /= 900 then
          Text_IO.Put_Line
            ("P_Action_Type=" & P_Action_Type'Img & " we expected 900");
-      elsif P_Current_Player_Id /= 1 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 1");
       elsif P_Player_Id /= 2 then
          Text_IO.Put_Line
            ("P_Player_Id=" & P_Player_Id'Img & " we expected 2");
@@ -259,7 +248,7 @@ package body Server.ServerAPI is
          Text_IO.Put_Line
            ("P_Piece.Player_Id=" & P_Piece.Player_Id'Img & " we expected '2'");
       elsif not P_Force then
-         Text_IO.Put_Line ("P_Force=" & P_Force'Img & " we expected '2'");
+         Text_IO.Put_Line ("P_Force=" & P_Force'Img & " we expected 'true'");
       else
          Text_IO.Put_Line
            ("Server.Server.Player_Action.Create_Piece (LUA) -                    OK");
@@ -276,11 +265,12 @@ package body Server.ServerAPI is
    end Create_Piece;
 
    procedure Put_Piece
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Pos                            : in     Hexagon.Type_Hexagon_Position;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Pos         : in Hexagon.Type_Hexagon_Position;
+      P_Piece_Id    : in Piece.Type_Piece_Id;
+
+      P_Status : out Status.Type_Status)
    is
       use Player;
       use Hexagon;
@@ -293,8 +283,6 @@ package body Server.ServerAPI is
            ("Put_Piece : " &
             " P_Action_Type=" &
             P_Action_Type'Img &
-            " P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
             " P_Player_Id=" &
             P_Player_Id'Img &
             " P_Pos.A=" &
@@ -310,11 +298,6 @@ package body Server.ServerAPI is
       if P_Action_Type /= 901 then
          Text_IO.Put_Line
            ("P_Action_Type=" & P_Action_Type'Img & " we expected 901");
-      elsif P_Current_Player_Id /= 1 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 1");
       elsif P_Player_Id /= 2 then
          Text_IO.Put_Line
            ("P_Player_Id=" & P_Player_Id'Img & " we expected 2");
@@ -342,11 +325,12 @@ package body Server.ServerAPI is
    end Put_Piece;
 
    procedure Remove_Piece
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Pos                            : in     Hexagon.Type_Hexagon_Position;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Pos         : in Hexagon.Type_Hexagon_Position;
+      P_Piece_Id    : in Piece.Type_Piece_Id;
+
+      P_Status : out Status.Type_Status)
    is
       use Player;
       use Hexagon;
@@ -360,8 +344,6 @@ package body Server.ServerAPI is
            ("Remove_Piece : " &
             " P_Action_Type=" &
             P_Action_Type'Img &
-            " P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
             " P_Player_Id=" &
             P_Player_Id'Img &
             " P_Pos.A=" &
@@ -377,11 +359,6 @@ package body Server.ServerAPI is
       if P_Action_Type /= 902 then
          Text_IO.Put_Line
            ("P_Action_Type=" & P_Action_Type'Img & " we expected 902");
-      elsif P_Current_Player_Id /= 1 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 1");
       elsif P_Player_Id /= 2 then
          Text_IO.Put_Line
            ("P_Player_Id=" & P_Player_Id'Img & " we expected 2");
@@ -408,100 +385,9 @@ package body Server.ServerAPI is
    end Remove_Piece;
 
    procedure Perform_Attack
-     (P_Action_Type                             : in Action.Type_Action_Type;
+     (P_Player_Id                               : in     Player.Type_Player_Id;
+      P_Action_Type                             : in Action.Type_Action_Type;
       P_Attacking_Piece_Id, P_Attacked_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Path                                    : in     Hexagon.Path.Vector;
-      P_Current_Player_Id, P_Player_Id          : in     Player.Type_Player_Id;
-      P_Winner                                  :    out Player.Type_Player_Id;
-      P_Status                                  :    out Status.Type_Status)
-   is
-      Trav_Path : Hexagon.Path.Cursor;
-
-      use Hexagon;
-      use Player;
-      use Piece;
-      use Status;
-      use Hexagon.Path;
-      use Action;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Perform_Attack (Path)- enter");
-         Text_IO.Put_Line
-           (" P_Action_Type=" &
-            P_Action_Type'Img &
-            " P_Attacking_Piece_Id=" &
-            P_Attacking_Piece_Id'Img &
-            " P_Attacked_Piece_Id=" &
-            P_Attacked_Piece_Id'Img &
-            " P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " P_Player_Id=" &
-            P_Player_Id'Img);
-      end if;
-
-      Text_IO.Put_Line ("Server.ServerAPI.Perform_Attack (Path) (LUA) - TEST");
-
-      if P_Action_Type /= 904 then
-         Text_IO.Put_Line
-           ("P_Action_Type=" & P_Action_Type'Img & " we expected 904");
-      elsif P_Current_Player_Id /= 22 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 1");
-      elsif P_Player_Id /= 11 then
-         Text_IO.Put_Line
-           ("P_Player_Id=" & P_Player_Id'Img & " we expected 2");
-      elsif P_Attacking_Piece_Id /= 81 then
-         Text_IO.Put_Line
-           ("P_Attacking_Piece_Id=" &
-            P_Attacking_Piece_Id'Img &
-            " we expected 1");
-      elsif P_Attacked_Piece_Id /= 72 then
-         Text_IO.Put_Line
-           ("P_Attacked_Piece_Id=" &
-            P_Attacked_Piece_Id'Img &
-            " we expected 1");
-      elsif not Hexagon.Path.Element (P_Path, 1).P_Valid or
-        Hexagon.Path.Element (P_Path, 1).A /= 2 or
-        Hexagon.Path.Element (P_Path, 1).B /= 4 or
-        not Hexagon.Path.Element (P_Path, 2).P_Valid or
-        Hexagon.Path.Element (P_Path, 2).A /= 32 or
-        Hexagon.Path.Element (P_Path, 2).B /= 14 or
-        not Hexagon.Path.Element (P_Path, 3).P_Valid or
-        Hexagon.Path.Element (P_Path, 3).A /= 21 or
-        Hexagon.Path.Element (P_Path, 3).B /= 17 or
-        not Hexagon.Path.Element (P_Path, 4).P_Valid or
-        Hexagon.Path.Element (P_Path, 4).A /= 21 or
-        Hexagon.Path.Element (P_Path, 4).B /= 18 or
-        not Hexagon.Path.Element (P_Path, 5).P_Valid or
-        Hexagon.Path.Element (P_Path, 5).A /= 21 or
-        Hexagon.Path.Element (P_Path, 5).B /= 11 or
-        not Hexagon.Path.Element (P_Path, 6).P_Valid or
-        Hexagon.Path.Element (P_Path, 6).A /= 21 or
-        Hexagon.Path.Element (P_Path, 6).B /= 19
-      then
-         Text_IO.Put_Line ("Path Position Element 1 not as excpected");
-      else
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Attack (Path) (LUA) -                      OK");
-      end if;
-
-      P_Status := Status.Ok;
-      P_Winner := Player.Type_Player_Id (1);
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Attack - exit P_Status=" & P_Status'Img);
-      end if;
-   end Perform_Attack;
-
-   procedure Perform_Attack
-     (P_Action_Type                             : in Action.Type_Action_Type;
-      P_Attacking_Piece_Id, P_Attacked_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Attacking_Pos, P_Attacked_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Current_Player_Id, P_Player_Id          : in     Player.Type_Player_Id;
-      P_Winner                                  :    out Player.Type_Player_Id;
       P_Status                                  :    out Status.Type_Status)
    is
       use Player;
@@ -516,22 +402,13 @@ package body Server.ServerAPI is
            ("Perform_Attack : " &
             " P_Action_Type=" &
             P_Action_Type'Img &
-            " P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
+
             " P_Player_Id=" &
             P_Player_Id'Img &
             " P_Attacking_Id=" &
             P_Attacking_Piece_Id'Img &
             " P_Attacked_Id=" &
-            P_Attacked_Piece_Id'Img &
-            " P_Attacking_Pos.A=" &
-            P_Attacking_Pos.A'Img &
-            " P_Attacking_Pos.B=" &
-            P_Attacking_Pos.B'Img &
-            " P_Attacked_Pos.A=" &
-            P_Attacked_Pos.A'Img &
-            " P_Attacked_Pos.B=" &
-            P_Attacked_Pos.B'Img);
+            P_Attacked_Piece_Id'Img);
       end if;
 
       Text_IO.Put_Line ("Server.ServerAPI.Perform_Attack (Pos) (LUA) - TEST");
@@ -539,40 +416,9 @@ package body Server.ServerAPI is
       if P_Action_Type /= 903 then
          Text_IO.Put_Line
            ("P_Action_Type=" & P_Action_Type'Img & " we expected 903");
-      elsif P_Current_Player_Id /= 22 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 22");
       elsif P_Player_Id /= 11 then
          Text_IO.Put_Line
            ("P_Player_Id=" & P_Player_Id'Img & " we expected 11");
-      elsif not P_Attacked_Pos.P_Valid then
-         Text_IO.Put_Line
-           ("P_Attacked_Pos.P_Valid=" &
-            P_Attacked_Pos.P_Valid'Img &
-            " we expected 'True'");
-      elsif P_Attacked_Pos.A /= 41 then
-         Text_IO.Put_Line
-           ("P_Attacked_Pos.A=" & P_Attacked_Pos.A'Img & " we expected '34'");
-      elsif P_Attacked_Pos.B /= 32 then
-         Text_IO.Put_Line
-           ("P_Attacked_Pos.B=" & P_Attacked_Pos.B'Img & " we expected '45'");
-      elsif not P_Attacking_Pos.P_Valid then
-         Text_IO.Put_Line
-           ("P_Attacked_Pos.P_Valid=" &
-            P_Attacking_Pos.P_Valid'Img &
-            " we expected 'True'");
-      elsif P_Attacking_Pos.A /= 61 then
-         Text_IO.Put_Line
-           ("P_Attacking_Pos.A=" &
-            P_Attacking_Pos.A'Img &
-            " we expected '61'");
-      elsif P_Attacking_Pos.B /= 52 then
-         Text_IO.Put_Line
-           ("P_Attacking_Pos.B=" &
-            P_Attacking_Pos.B'Img &
-            " we expected '52'");
       elsif P_Attacking_Piece_Id /= 81 then
          Text_IO.Put_Line
            ("P_Attacking_Piece_Id=" &
@@ -588,7 +434,6 @@ package body Server.ServerAPI is
            ("Server.ServerAPI.Perform_Attack (Pos) (LUA) -                       OK");
       end if;
 
-      P_Winner := Player.Type_Player_Id (1);
       P_Status := Status.Ok;
 
       if Verbose then
@@ -598,85 +443,14 @@ package body Server.ServerAPI is
       end if;
    end Perform_Attack;
 
-   -- client sends us a particular path
-   -- we need to validate it as if we had created it ourselves in the server.
-   -- The path we received must be usable for this turn until it is "consumed"
-   -- otherwise we will return a failiure
-   procedure Perform_Move
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Moving_Piece_Id                : in     Piece.Type_Piece_Id;
-      P_Path                           : in     Hexagon.Path.Vector;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
-   is
-      use Player;
-      use Piece;
-      use Status;
-      use Hexagon;
-      use Action;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Perform_Move (Path) - enter");
-      end if;
-
-      Text_IO.Put_Line ("Server.ServerAPI.Perform_Move (Path) (LUA) - TEST");
-
-      if P_Action_Type /= 906 then
-         Text_IO.Put_Line
-           ("P_Action_Type=" & P_Action_Type'Img & " we expected 905");
-      elsif P_Current_Player_Id /= 6 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 6");
-      elsif P_Player_Id /= 7 then
-         Text_IO.Put_Line
-           ("P_Player_Id=" & P_Player_Id'Img & " we expected 7");
-      elsif P_Moving_Piece_Id /= 121 then
-         Text_IO.Put_Line
-           ("P_Moving_Piece_Id=" & P_Moving_Piece_Id'Img & " we expected 121");
-      elsif not Hexagon.Path.Element (P_Path, 1).P_Valid or
-        Hexagon.Path.Element (P_Path, 1).A /= 2 or
-        Hexagon.Path.Element (P_Path, 1).B /= 4 or
-        not Hexagon.Path.Element (P_Path, 2).P_Valid or
-        Hexagon.Path.Element (P_Path, 2).A /= 32 or
-        Hexagon.Path.Element (P_Path, 2).B /= 14 or
-        not Hexagon.Path.Element (P_Path, 3).P_Valid or
-        Hexagon.Path.Element (P_Path, 3).A /= 21 or
-        Hexagon.Path.Element (P_Path, 3).B /= 17 or
-        not Hexagon.Path.Element (P_Path, 4).P_Valid or
-        Hexagon.Path.Element (P_Path, 4).A /= 21 or
-        Hexagon.Path.Element (P_Path, 4).B /= 18 or
-        not Hexagon.Path.Element (P_Path, 5).P_Valid or
-        Hexagon.Path.Element (P_Path, 5).A /= 21 or
-        Hexagon.Path.Element (P_Path, 5).B /= 11 or
-        not Hexagon.Path.Element (P_Path, 6).P_Valid or
-        Hexagon.Path.Element (P_Path, 6).A /= 21 or
-        Hexagon.Path.Element (P_Path, 6).B /= 19
-      then
-         Text_IO.Put_Line ("Path Position Element 1 not as excpected");
-      else
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Move (Path) (LUA) -                        OK");
-      end if;
-
-      P_Status := Status.Ok;
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Move (Path) - exit P_Status=" &
-            P_Status'Img);
-      end if;
-   end Perform_Move;
-
    procedure Perform_Patch_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Pos                            : in     Hexagon.Type_Hexagon_Position;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Area : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id    : in Piece.Type_Piece_Id;
+      P_Effect      : in Effect.Type_Effect;
+      P_Area        : in Hexagon.Area.Type_Action_Capabilities_A;
+
+      P_Status : out Status.Type_Status)
    is
 
       use Piece;
@@ -698,13 +472,6 @@ package body Server.ServerAPI is
            ("P_Action_Type=" & P_Action_Type'Img & " we expected 920");
       elsif P_Piece_Id /= 33 then
          Text_IO.Put_Line ("P_Piece_Id=" & P_Piece_Id'Img & " we expected 33");
-      elsif P_Pos.A /= 88 or P_Pos.B /= 99 then
-         Text_IO.Put_Line
-           ("P_Pos.A=" &
-            P_Pos.A'Img &
-            " P_Pos.B=" &
-            P_Pos.B'Img &
-            " we expected 88, 99");
       elsif P_Effect.Effect_Name /= 4 or P_Effect.Aux /= 5 then
          Text_IO.Put_Line
            ("P_Effect.Effect_Name=" &
@@ -718,11 +485,6 @@ package body Server.ServerAPI is
         P_Area (2).B /= 4
       then
          Text_IO.Put_Line ("P_Area - not expected result");
-      elsif P_Current_Player_Id /= 67 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 67");
       elsif P_Player_Id /= 78 then
          Text_IO.Put_Line
            ("P_Player_Id=" & P_Player_Id'Img & " we expected 78");
@@ -741,12 +503,13 @@ package body Server.ServerAPI is
    end Perform_Patch_Effect;
 
    procedure Perform_Piece_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Pos                            : in     Hexagon.Type_Hexagon_Position;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id    : in Piece.Type_Piece_Id;
+      P_Pos         : in Hexagon.Type_Hexagon_Position;
+      P_Effect      : in Effect.Type_Effect;
+
+      P_Status : out Status.Type_Status)
    is
 
       use Piece;
@@ -782,11 +545,6 @@ package body Server.ServerAPI is
             " we expected 5, P_Effect.Aux=" &
             P_Effect.Aux'Img &
             " we expected 4");
-      elsif P_Current_Player_Id /= 76 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 76");
       elsif P_Player_Id /= 87 then
          Text_IO.Put_Line
            ("P_Player_Id=" & P_Player_Id'Img & " we expected 87");
@@ -807,11 +565,12 @@ package body Server.ServerAPI is
 -- The from-to we received must be usable for this turn until it is "consumed"
 -- otherwise we will return a failiure
    procedure Perform_Move
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Moving_Piece_Id                : in     Piece.Type_Piece_Id;
-      P_From_Pos, P_To_Pos             : in     Hexagon.Type_Hexagon_Position;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id    : in Piece.Type_Piece_Id;
+      P_To_Pos      : in Hexagon.Type_Hexagon_Position;
+
+      P_Status : out Status.Type_Status)
    is
       A_Moving_Piece : Piece.Server.Type_Piece_Access_Class := null;
       Move_Path      : Hexagon.Path.Vector;
@@ -824,23 +583,10 @@ package body Server.ServerAPI is
    begin
       if Verbose then
          Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Move (from,to)- enter P_Moving_Piece_Id=" &
-            P_Moving_Piece_Id'Img);
-         Text_IO.Put_Line
-           ("Perform_Move : P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
+           ("Server.ServerAPI.Perform_Move (from,to)- enter P_Piece_Id=" &
+            P_Piece_Id'Img &
             " P_Player_Id=" &
-            P_Player_Id'Img &
-            " P_Movinging_Id=" &
-            P_Moving_Piece_Id'Img &
-            " P_From_Pos.A=" &
-            P_From_Pos.A'Img &
-            " P_From_Pos.B=" &
-            P_From_Pos.B'Img &
-            " P_To_Pos.A=" &
-            P_To_Pos.A'Img &
-            " P_To_Pos.B=" &
-            P_To_Pos.B'Img);
+            P_Player_Id'Img);
       end if;
 
       P_Status := Status.Ok;
@@ -850,25 +596,9 @@ package body Server.ServerAPI is
       if P_Action_Type /= 905 then
          Text_IO.Put_Line
            ("P_Action_Type=" & P_Action_Type'Img & " we expected 905");
-      elsif P_Current_Player_Id /= 6 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 6");
       elsif P_Player_Id /= 7 then
          Text_IO.Put_Line
            ("P_Player_Id=" & P_Player_Id'Img & " we expected 7");
-      elsif not P_From_Pos.P_Valid then
-         Text_IO.Put_Line
-           ("P_From_Pos.P_Valid=" &
-            P_From_Pos.P_Valid'Img &
-            " we expected 'True'");
-      elsif P_From_Pos.A /= 22 then
-         Text_IO.Put_Line
-           ("P_From_Pos.A=" & P_From_Pos.A'Img & " we expected '22'");
-      elsif P_From_Pos.B /= 33 then
-         Text_IO.Put_Line
-           ("P_From_Pos.B=" & P_From_Pos.B'Img & " we expected '33'");
       elsif not P_To_Pos.P_Valid then
          Text_IO.Put_Line
            ("P_To_Pos.P_Valid=" &
@@ -880,11 +610,9 @@ package body Server.ServerAPI is
       elsif P_To_Pos.B /= 54 then
          Text_IO.Put_Line
            ("P_To_Pos.B=" & P_To_Pos.B'Img & " we expected '54'");
-      elsif P_Moving_Piece_Id /= 121 then
+      elsif P_Piece_Id /= 121 then
          Text_IO.Put_Line
-           ("P_Moving_Piece_Id=" &
-            P_Moving_Piece_Id'Img &
-            " we expected '81'");
+           ("P_Piece_Id=" & P_Piece_Id'Img & " we expected '81'");
       else
          Text_IO.Put_Line
            ("Server.ServerAPI.Perform_Move (LUA) Pos -                           OK");
@@ -898,11 +626,9 @@ package body Server.ServerAPI is
    end Perform_Move;
 
    procedure Perform_Ranged_Attack
-     (P_Action_Type                             : in Action.Type_Action_Type;
+     (P_Player_Id                               : in     Player.Type_Player_Id;
+      P_Action_Type                             : in Action.Type_Action_Type;
       P_Attacking_Piece_Id, P_Attacked_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Attacking_Pos, P_Attacked_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Current_Player_Id, P_Player_Id          : in     Player.Type_Player_Id;
-      P_Winner                                  :    out Player.Type_Player_Id;
       P_Status                                  :    out Status.Type_Status)
    is
       use Player;
@@ -913,22 +639,13 @@ package body Server.ServerAPI is
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Perform_Ranged_Attack - enter");
          Text_IO.Put_Line
-           ("Perform_Ranged_Attack : P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
+           ("Perform_Ranged_Attack :" &
             " P_Player_Id=" &
             P_Player_Id'Img &
             " P_Attacking_Id=" &
             P_Attacking_Piece_Id'Img &
             " P_Attacked_Id=" &
-            P_Attacked_Piece_Id'Img &
-            " P_Attacking_Pos.A=" &
-            P_Attacking_Pos.A'Img &
-            " P_Attacking_Pos.B=" &
-            P_Attacking_Pos.B'Img &
-            " P_Attacked_Pos.A=" &
-            P_Attacked_Pos.A'Img &
-            " P_Attacked_Pos.B=" &
-            P_Attacked_Pos.B'Img);
+            P_Attacked_Piece_Id'Img);
       end if;
 
       Text_IO.Put_Line ("Server.ServerAPI.Perform_Ranged_Attack (LUA) - TEST");
@@ -936,40 +653,9 @@ package body Server.ServerAPI is
       if P_Action_Type /= 907 then
          Text_IO.Put_Line
            ("P_Action_Type=" & P_Action_Type'Img & " we expected 907");
-      elsif P_Current_Player_Id /= 71 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 71");
       elsif P_Player_Id /= 81 then
          Text_IO.Put_Line
            ("P_Player_Id=" & P_Player_Id'Img & " we expected 81");
-      elsif not P_Attacked_Pos.P_Valid then
-         Text_IO.Put_Line
-           ("P_Attacked_Pos.P_Valid=" &
-            P_Attacked_Pos.P_Valid'Img &
-            " we expected 'True'");
-      elsif P_Attacked_Pos.A /= 53 then
-         Text_IO.Put_Line
-           ("P_Attacked_Pos.A=" & P_Attacked_Pos.A'Img & " we expected '53'");
-      elsif P_Attacked_Pos.B /= 54 then
-         Text_IO.Put_Line
-           ("P_Attacked_Pos.B=" & P_Attacked_Pos.B'Img & " we expected '54'");
-      elsif not P_Attacking_Pos.P_Valid then
-         Text_IO.Put_Line
-           ("P_Attacked_Pos.P_Valid=" &
-            P_Attacking_Pos.P_Valid'Img &
-            " we expected 'True'");
-      elsif P_Attacking_Pos.A /= 41 then
-         Text_IO.Put_Line
-           ("P_Attacking_Pos.A=" &
-            P_Attacking_Pos.A'Img &
-            " we expected '41'");
-      elsif P_Attacking_Pos.B /= 42 then
-         Text_IO.Put_Line
-           ("P_Attacking_Pos.B=" &
-            P_Attacking_Pos.B'Img &
-            " we expected '42'");
       elsif P_Attacking_Piece_Id /= 11 then
          Text_IO.Put_Line
            ("P_Attacking_Piece_Id=" &
@@ -985,7 +671,6 @@ package body Server.ServerAPI is
            ("Server.ServerAPI.Perform_Ranged_Attack (LUA) -                      OK");
       end if;
 
-      P_Winner := Player.Type_Player_Id (1);
       P_Status := Status.Ok;
 
       if Verbose then
@@ -996,13 +681,14 @@ package body Server.ServerAPI is
    end Perform_Ranged_Attack;
 
    procedure Perform_Construction
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Constructing_Piece_Id          : in     Piece.Type_Piece_Id;
-      P_Piece_Pos                      : in     Hexagon.Type_Hexagon_Position;
-      P_Construction_Pos               : in     Hexagon.Type_Hexagon_Position;
-      P_Construction                   : in     Construction.Type_Construction;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id        : in Player.Type_Player_Id;
+      P_Action_Type      : in Action.Type_Action_Type;
+      P_Piece_Id         : in Piece.Type_Piece_Id;
+      P_Piece_Pos        : in Hexagon.Type_Hexagon_Position;
+      P_Construction_Pos : in Hexagon.Type_Hexagon_Position;
+      P_Construction     : in Construction.Type_Construction;
+
+      P_Status : out Status.Type_Status)
    is
       use Player;
       use Hexagon;
@@ -1013,12 +699,11 @@ package body Server.ServerAPI is
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Perform_Construction - enter");
          Text_IO.Put_Line
-           ("Perform_Construction : P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
+           ("Perform_Construction : " &
             " P_Player_Id=" &
             P_Player_Id'Img &
             " P_Constructing_Piece_Id=" &
-            P_Constructing_Piece_Id'Img &
+            P_Piece_Id'Img &
             " P_Piece_Pos.A=" &
             P_Piece_Pos.A'Img &
             " P_Piece_Pos.B=" &
@@ -1037,11 +722,6 @@ package body Server.ServerAPI is
       if P_Action_Type /= 908 then
          Text_IO.Put_Line
            ("P_Action_Type=" & P_Action_Type'Img & " we expected 908");
-      elsif P_Current_Player_Id /= 7 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 7");
       elsif P_Player_Id /= 8 then
          Text_IO.Put_Line
            ("P_Player_Id=" & P_Player_Id'Img & " we expected 8");
@@ -1071,11 +751,9 @@ package body Server.ServerAPI is
            ("P_Construction_Pos.B=" &
             P_Construction_Pos.B'Img &
             " we expected '5'");
-      elsif P_Constructing_Piece_Id /= 1 then
+      elsif P_Piece_Id /= 1 then
          Text_IO.Put_Line
-           ("P_Constructing_Piece_Id=" &
-            P_Constructing_Piece_Id'Img &
-            " we expected '1'");
+           ("P_Constructing_Piece_Id=" & P_Piece_Id'Img & " we expected '1'");
       elsif P_Construction /= 6 then
          Text_IO.Put_Line
            ("P_Construction=" & P_Construction'Img & " we expected '22'");
@@ -1092,13 +770,14 @@ package body Server.ServerAPI is
    end Perform_Construction;
 
    procedure Perform_Demolition
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Demolition_Piece_Id            : in     Piece.Type_Piece_Id;
-      P_Piece_Pos                      : in     Hexagon.Type_Hexagon_Position;
-      P_Demolition_Pos                 : in     Hexagon.Type_Hexagon_Position;
-      P_Construction                   : in     Construction.Type_Construction;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id      : in Player.Type_Player_Id;
+      P_Action_Type    : in Action.Type_Action_Type;
+      P_Piece_Id       : in Piece.Type_Piece_Id;
+      P_Piece_Pos      : in Hexagon.Type_Hexagon_Position;
+      P_Demolition_Pos : in Hexagon.Type_Hexagon_Position;
+      P_Construction   : in Construction.Type_Construction;
+
+      P_Status : out Status.Type_Status)
 
    is
       use Player;
@@ -1110,12 +789,11 @@ package body Server.ServerAPI is
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Perform_Demolition - enter");
          Text_IO.Put_Line
-           ("Perform_Demolition : P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
+           ("Perform_Demolition : " &
             " P_Player_Id=" &
             P_Player_Id'Img &
             " P_Constructing_Piece_Id=" &
-            P_Demolition_Piece_Id'Img &
+            P_Piece_Id'Img &
             " P_Piece_Pos.A=" &
             P_Piece_Pos.A'Img &
             " P_Piece_Pos.B=" &
@@ -1135,11 +813,6 @@ package body Server.ServerAPI is
       if P_Action_Type /= 909 then
          Text_IO.Put_Line
            ("P_Action_Type=" & P_Action_Type'Img & " we expected 909");
-      elsif P_Current_Player_Id /= 77 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 77");
       elsif P_Player_Id /= 88 then
          Text_IO.Put_Line
            ("P_Player_Id=" & P_Player_Id'Img & " we expected 88");
@@ -1169,11 +842,9 @@ package body Server.ServerAPI is
            ("P_Construction_Pos.B=" &
             P_Demolition_Pos.B'Img &
             " we expected '55'");
-      elsif P_Demolition_Piece_Id /= 11 then
+      elsif P_Piece_Id /= 11 then
          Text_IO.Put_Line
-           ("P_Demolition_Piece_Id=" &
-            P_Demolition_Piece_Id'Img &
-            " we expected '11'");
+           ("P_Piece_Id=" & P_Piece_Id'Img & " we expected '11'");
       elsif P_Construction /= 66 then
          Text_IO.Put_Line
            ("P_Construction=" & P_Construction'Img & " we expected '66'");
@@ -1190,11 +861,12 @@ package body Server.ServerAPI is
    end Perform_Demolition;
 
    procedure Grant_Piece_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id    : in Piece.Type_Piece_Id;
+      P_Effect      : in Effect.Type_Effect;
+
+      P_Status : out Status.Type_Status)
    is
       use Player;
       use Piece;
@@ -1204,8 +876,7 @@ package body Server.ServerAPI is
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Grant_Piece_Effect- enter");
          Text_IO.Put_Line
-           ("Grant_Piece_Effect : P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
+           ("Grant_Piece_Effect : " &
             " P_Player_Id=" &
             P_Player_Id'Img &
             " Piece_Id=" &
@@ -1222,11 +893,6 @@ package body Server.ServerAPI is
       if P_Action_Type /= 910 then
          Text_IO.Put_Line
            ("P_Action_Type=" & P_Action_Type'Img & " we expected 910");
-      elsif P_Current_Player_Id /= 1 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 1");
       elsif P_Player_Id /= 2 then
          Text_IO.Put_Line
            ("P_Player_Id=" & P_Player_Id'Img & " we expected 2");
@@ -1252,11 +918,12 @@ package body Server.ServerAPI is
    end Grant_Piece_Effect;
 
    procedure Revoke_Piece_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id    : in Piece.Type_Piece_Id;
+      P_Effect      : in Effect.Type_Effect;
+
+      P_Status : out Status.Type_Status)
    is
       use Player;
       use Piece;
@@ -1266,8 +933,7 @@ package body Server.ServerAPI is
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Revoke_Piece_Effect- enter");
          Text_IO.Put_Line
-           ("Revoke_Piece_Effect : P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
+           ("Revoke_Piece_Effect :" &
             " P_Player_Id=" &
             P_Player_Id'Img &
             " Piece_Id=" &
@@ -1285,11 +951,6 @@ package body Server.ServerAPI is
       if P_Action_Type /= 911 then
          Text_IO.Put_Line
            ("P_Action_Type=" & P_Action_Type'Img & " we expected 911");
-      elsif P_Current_Player_Id /= 2 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 2");
       elsif P_Player_Id /= 3 then
          Text_IO.Put_Line
            ("P_Player_Id=" & P_Player_Id'Img & " we expected 3");
@@ -1315,13 +976,14 @@ package body Server.ServerAPI is
    end Revoke_Piece_Effect;
 
    procedure Grant_Patch_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Pos                            : in     Hexagon.Type_Hexagon_Position;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Area : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id    : in Piece.Type_Piece_Id;
+      P_Pos         : in Hexagon.Type_Hexagon_Position;
+      P_Effect      : in Effect.Type_Effect;
+      P_Area        : in Hexagon.Area.Type_Action_Capabilities_A;
+
+      P_Status : out Status.Type_Status)
    is
       use Player;
       use Piece;
@@ -1333,8 +995,7 @@ package body Server.ServerAPI is
          Text_IO.Put_Line ("Server.ServerAPI.Grant_Patch_Effect- enter");
 
          Text_IO.Put_Line
-           ("Grant_Patch_Effect : P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
+           ("Grant_Patch_Effect : " &
             " P_Player_Id=" &
             P_Player_Id'Img &
             " Piece_Id=" &
@@ -1358,11 +1019,6 @@ package body Server.ServerAPI is
       if P_Action_Type /= 912 then
          Text_IO.Put_Line
            ("P_Action_Type=" & P_Action_Type'Img & " we expected 912");
-      elsif P_Current_Player_Id /= 11 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 11");
       elsif P_Player_Id /= 12 then
          Text_IO.Put_Line
            ("P_Player_Id=" & P_Player_Id'Img & " we expected 12");
@@ -1409,13 +1065,12 @@ package body Server.ServerAPI is
    end Grant_Patch_Effect;
 
    procedure Revoke_Patch_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Pos                            : in     Hexagon.Type_Hexagon_Position;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Area : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece_Id    : in     Piece.Type_Piece_Id;
+      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Status      :    out Status.Type_Status)
    is
       use Hexagon;
       use Player;
@@ -1427,16 +1082,11 @@ package body Server.ServerAPI is
          Text_IO.Put_Line ("Server.ServerAPI.Revoke_Patch_Effect- enter");
 
          Text_IO.Put_Line
-           ("Revoke_Patch_Effect : P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
+           ("Revoke_Patch_Effect : " &
             " P_Player_Id=" &
             P_Player_Id'Img &
             " Piece_Id=" &
             P_Piece_Id'Img &
-            " P_Pos.A=" &
-            P_Pos.A'Img &
-            " P_Pos.B=" &
-            P_Pos.B'Img &
             " P_Effect=" &
             P_Effect.Effect_Name'Img &
             " " &
@@ -1450,24 +1100,12 @@ package body Server.ServerAPI is
       if P_Action_Type /= 913 then
          Text_IO.Put_Line
            ("P_Action_Type=" & P_Action_Type'Img & " we expected 913");
-      elsif P_Current_Player_Id /= 21 then
-         Text_IO.Put_Line
-           ("P_Current_Player_Id=" &
-            P_Current_Player_Id'Img &
-            " we expected 21");
       elsif P_Player_Id /= 22 then
          Text_IO.Put_Line
            ("P_Player_Id=" & P_Player_Id'Img & " we expected 22");
       elsif P_Piece_Id /= 23 then
          Text_IO.Put_Line
            ("P_Piece_Id=" & P_Piece_Id'Img & " we expected '23'");
-      elsif not P_Pos.P_Valid then
-         Text_IO.Put_Line
-           ("P_Pos.P_Valid=" & P_Pos.P_Valid'Img & " excected 'true'");
-      elsif P_Pos.A /= 24 then
-         Text_IO.Put_Line ("P_Pos.A=" & P_Pos.A'Img & " excected '24'");
-      elsif P_Pos.B /= 25 then
-         Text_IO.Put_Line ("P_Pos.B=" & P_Pos.B'Img & " excected '25'");
       elsif P_Effect.Effect_Name /= 26 then
          Text_IO.Put_Line
            ("P_Effect.Effect_Name=" &
@@ -1691,9 +1329,9 @@ package body Server.ServerAPI is
 
       return Type_Piece_Position'
           (Piece.Type_Piece'
-             (Piece.Type_Piece_Id(76),
-              Piece.Type_Piece_Type(1),
-              Piece.Type_Category(Piece.Fighting_Piece),
+             (Piece.Type_Piece_Id (76),
+              Piece.Type_Piece_Type (1),
+              Piece.Type_Category (Piece.Fighting_Piece),
               Utilities.RemoteString.To_Unbounded_String ("Dummy Name"),
               Player.Type_Player_Id (1)),
            Hexagon.Type_Hexagon_Position'
@@ -1845,7 +1483,7 @@ package body Server.ServerAPI is
       end if;
 
       Ret := True;
-      Text_IO.Put_Line("TEST NOT IMPLEMENTED");
+      Text_IO.Put_Line ("TEST NOT IMPLEMENTED");
 
       return Ret;
    end Is_Player_In_Scenario;

@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -24,8 +24,7 @@ package Server.Server.Auto is
      (P_Player_List_Internal : in out Server.Type_Player_List);
 
    procedure Update_Game
-     (P_Current_Player_Id    : in     Player.Type_Player_Id;
-      P_Last_Update_Time     : in out Ada.Real_Time.Time;
+     (P_Last_Update_Time     : in out Ada.Real_Time.Time;
       P_Countdown            : in out Positive;
       P_Player_List_Internal : in out Server.Type_Player_List);
 

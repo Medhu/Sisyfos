@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@ with Piece.Server.House_Piece;
 with Player;
 with Utilities;
 with Landscape;
-with Hexagon.Area.Server_Area;
 with Status;
 with Observation;
 with Effect;
@@ -87,19 +86,16 @@ package Server.Server is
       P_Game_Loading                 : in Type_Game_Archive_Procedure;
       P_Game_Joining, P_Game_Leaving : in Type_Game_Joining_Leaving_Procedure;
 
-      P_Game_Start      : in Type_Game_Start_Procedure;
-      P_Game_Upkeep     : in Type_Game_Upkeep_Procedure;
-      P_Game_Start_Turn : in Type_Game_Turn_Procedure;
-      P_Game_End_Turn   : in Type_Game_Turn_Procedure;
-      P_Game_End        : in Type_Game_End_Procedure);
+      P_Game_Start  : in Type_Game_Start_Procedure;
+      P_Game_Upkeep : in Type_Game_Upkeep_Procedure;
+      P_Game_End    : in Type_Game_End_Procedure);
 
    Game_Creating, Game_Saving, Game_Loading : Type_Game_Archive_Procedure;
 
-   Game_Joining, Game_Leaving     : Type_Game_Joining_Leaving_Procedure;
-   Game_Start                     : Type_Game_Start_Procedure;
-   Game_Upkeep                    : Type_Game_Upkeep_Procedure;
-   Game_Start_Turn, Game_End_Turn : Type_Game_Turn_Procedure;
-   Game_End                       : Type_Game_End_Procedure;
+   Game_Joining, Game_Leaving : Type_Game_Joining_Leaving_Procedure;
+   Game_Start                 : Type_Game_Start_Procedure;
+   Game_Upkeep                : Type_Game_Upkeep_Procedure;
+   Game_End                   : Type_Game_End_Procedure;
 
    task type Type_Game_Engine is
 
@@ -168,156 +164,99 @@ package Server.Server is
            .Vector);
 
       entry Entry_Create_Piece
-        (P_Action_Type : in     Action.Type_Action_Type;
-         P_Pos         : in     Hexagon.Type_Hexagon_Position;
-         P_Piece       : in     Piece.Type_Piece;
-         P_Player_Id   : in     Player.Type_Player_Id;
-         P_Status      :    out Status.Type_Status);
+        (P_Player_Id   : in Player.Type_Player_Id;
+         P_Action_Type : in Action.Type_Action_Type;
+         P_Pos         : in Hexagon.Type_Hexagon_Position;
+         P_Piece       : in Piece.Type_Piece);
 
       entry Entry_Put_Piece
-        (P_Action_Type : in     Action.Type_Action_Type;
-         P_Pos         : in     Hexagon.Type_Hexagon_Position;
-         P_Piece_Id    : in     Piece.Type_Piece_Id;
-         P_Player_Id   : in     Player.Type_Player_Id;
-         P_Status      :    out Status.Type_Status);
+        (P_Player_Id   : in Player.Type_Player_Id;
+         P_Action_Type : in Action.Type_Action_Type;
+         P_Pos         : in Hexagon.Type_Hexagon_Position;
+         P_Piece_Id    : in Piece.Type_Piece_Id);
 
       entry Entry_Remove_Piece
-        (P_Action_Type : in     Action.Type_Action_Type;
-         P_Pos         : in     Hexagon.Type_Hexagon_Position;
-         P_Piece_Id    : in     Piece.Type_Piece_Id;
-         P_Player_Id   : in     Player.Type_Player_Id;
-         P_Status      :    out Status.Type_Status);
+        (P_Player_Id   : in Player.Type_Player_Id;
+         P_Action_Type : in Action.Type_Action_Type;
+         P_Piece_Id    : in Piece.Type_Piece_Id);
 
       entry Entry_Perform_Attack
-        (P_Action_Type : in     Action.Type_Action_Type;
-         P_Attacking_Piece_Id, P_Attacked_Piece_Id : in Piece.Type_Piece_Id;
-         P_Attacking_Pos, P_Attacked_Pos : in Hexagon.Type_Hexagon_Position;
-         P_Player_Id                               : in Player.Type_Player_Id;
-         P_Winner                                  : out Player.Type_Player_Id;
-         P_Status                                  : out Status.Type_Status);
-
-      entry Entry_Perform_Attack
-        (P_Action_Type : in     Action.Type_Action_Type;
-         P_Attacking_Piece_Id, P_Attacked_Piece_Id : in Piece.Type_Piece_Id;
-         P_Path                                    : in Hexagon.Path.Vector;
-         P_Player_Id                               : in Player.Type_Player_Id;
-         P_Winner                                  : out Player.Type_Player_Id;
-         P_Status                                  : out Status.Type_Status);
+        (P_Player_Id                               : in Player.Type_Player_Id;
+         P_Action_Type : in Action.Type_Action_Type;
+         P_Attacking_Piece_Id, P_Attacked_Piece_Id : in Piece.Type_Piece_Id);
 
       entry Entry_Perform_Ranged_Attack
-        (P_Action_Type : in     Action.Type_Action_Type;
-         P_Attacking_Piece_Id, P_Attacked_Piece_Id : in Piece.Type_Piece_Id;
-         P_Attacking_Pos, P_Attacked_Pos : in Hexagon.Type_Hexagon_Position;
-         P_Player_Id                               : in Player.Type_Player_Id;
-         P_Winner                                  : out Player.Type_Player_Id;
-         P_Status                                  : out Status.Type_Status);
+        (P_Player_Id                               : in Player.Type_Player_Id;
+         P_Action_Type : in Action.Type_Action_Type;
+         P_Attacking_Piece_Id, P_Attacked_Piece_Id : in Piece.Type_Piece_Id);
 
       entry Entry_Perform_Move
-        (P_Action_Type        : in     Action.Type_Action_Type;
-         P_Moving_Piece_Id    : in     Piece.Type_Piece_Id;
-         P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
-         P_Player_Id          : in     Player.Type_Player_Id;
-         P_Status             :    out Status.Type_Status);
-
-      entry Entry_Perform_Move
-        (P_Action_Type     : in     Action.Type_Action_Type;
-         P_Moving_Piece_Id : in     Piece.Type_Piece_Id;
-         P_Path            : in     Hexagon.Path.Vector;
-         P_Player_Id       : in     Player.Type_Player_Id;
-         P_Status          :    out Status.Type_Status);
+        (P_Player_Id   : in Player.Type_Player_Id;
+         P_Action_Type : in Action.Type_Action_Type;
+         P_Piece_Id    : in Piece.Type_Piece_Id;
+         P_To_Pos      : in Hexagon.Type_Hexagon_Position);
 
       entry Entry_Perform_Patch_Effect
-        (P_Action_Type : in     Action.Type_Action_Type;
-         P_Piece_Id    : in     Piece.Type_Piece_Id;
-         P_Pos         : in     Hexagon.Type_Hexagon_Position;
-         P_Effect      : in     Effect.Type_Effect;
-         P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-         P_Player_Id   : in     Player.Type_Player_Id;
-         P_Status      :    out Status.Type_Status);
+        (P_Player_Id   : in Player.Type_Player_Id;
+         P_Action_Type : in Action.Type_Action_Type;
+         P_Piece_Id    : in Piece.Type_Piece_Id;
+         P_Effect      : in Effect.Type_Effect;
+         P_Area        : in Hexagon.Area.Type_Action_Capabilities_A);
 
       entry Entry_Perform_Piece_Effect
-        (P_Action_Type : in     Action.Type_Action_Type;
-         P_Piece_Id    : in     Piece.Type_Piece_Id;
-         P_Pos         : in     Hexagon.Type_Hexagon_Position;
-         P_Effect      : in     Effect.Type_Effect;
-         P_Player_Id   : in     Player.Type_Player_Id;
-         P_Status      :    out Status.Type_Status);
+        (P_Player_Id   : in Player.Type_Player_Id;
+         P_Action_Type : in Action.Type_Action_Type;
+         P_Piece_Id    : in Piece.Type_Piece_Id;
+         P_Effect      : in Effect.Type_Effect);
 
       entry Entry_Grant_Piece_Effect
-        (P_Action_Type : in     Action.Type_Action_Type;
-         P_Piece_Id    : in     Piece.Type_Piece_Id;
-         P_Effect      : in     Effect.Type_Effect;
-         P_Player_Id   : in     Player.Type_Player_Id;
-         P_Status      :    out Status.Type_Status);
+        (P_Player_Id   : in Player.Type_Player_Id;
+         P_Action_Type : in Action.Type_Action_Type;
+         P_Piece_Id    : in Piece.Type_Piece_Id;
+         P_Effect      : in Effect.Type_Effect);
 
       entry Entry_Revoke_Piece_Effect
-        (P_Action_Type : in     Action.Type_Action_Type;
-         P_Piece_Id    : in     Piece.Type_Piece_Id;
-         P_Effect      : in     Effect.Type_Effect;
-         P_Player_Id   : in     Player.Type_Player_Id;
-         P_Status      :    out Status.Type_Status);
+        (P_Player_Id   : in Player.Type_Player_Id;
+         P_Action_Type : in Action.Type_Action_Type;
+         P_Piece_Id    : in Piece.Type_Piece_Id;
+         P_Effect      : in Effect.Type_Effect);
 
       entry Entry_Grant_Patch_Effect
-        (P_Action_Type : in     Action.Type_Action_Type;
-         P_Piece_Id    : in     Piece.Type_Piece_Id;
-         P_Pos         : in     Hexagon.Type_Hexagon_Position;
-         P_Effect      : in     Effect.Type_Effect;
-         P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-         P_Player_Id   : in     Player.Type_Player_Id;
-         P_Status      :    out Status.Type_Status);
+        (P_Player_Id   : in Player.Type_Player_Id;
+         P_Action_Type : in Action.Type_Action_Type;
+         P_Piece_Id    : in Piece.Type_Piece_Id;
+         P_Effect      : in Effect.Type_Effect;
+         P_Area        : in Hexagon.Area.Type_Action_Capabilities_A);
 
       entry Entry_Revoke_Patch_Effect
-        (P_Action_Type : in     Action.Type_Action_Type;
-         P_Piece_Id    : in     Piece.Type_Piece_Id;
-         P_Pos         : in     Hexagon.Type_Hexagon_Position;
-         P_Effect      : in     Effect.Type_Effect;
-         P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-         P_Player_Id   : in     Player.Type_Player_Id;
-         P_Status      :    out Status.Type_Status);
-
-      entry Entry_Observation_Area
-        (P_Piece_Id : in     Piece.Type_Piece_Id;
-         P_Ret : out Hexagon.Area.Server_Area.Type_Action_Capabilities_Access);
-
-      entry Entry_Movement_Capability
-        (P_Piece_Id : in     Piece.Type_Piece_Id;
-         P_Ret : out Hexagon.Area.Server_Area.Type_Action_Capabilities_Access);
-
-      entry Entry_Attack_Capability
-        (P_Piece_Id : in     Piece.Type_Piece_Id;
-         P_Ret : out Hexagon.Area.Server_Area.Type_Action_Capabilities_Access);
+        (P_Player_Id   : in Player.Type_Player_Id;
+         P_Action_Type : in Action.Type_Action_Type;
+         P_Piece_Id    : in Piece.Type_Piece_Id;
+         P_Effect      : in Effect.Type_Effect;
+         P_Area        : in Hexagon.Area.Type_Action_Capabilities_A);
 
       -- The player constructs something on patch on the map (e.g a wall)
       entry Entry_Perform_Construction
-        (P_Action_Type           : in     Action.Type_Action_Type;
-         P_Constructing_Piece_Id : in     Piece.Type_Piece_Id;
-         P_Piece_Pos             : in     Hexagon.Type_Hexagon_Position;
-         P_Construction_Pos      : in     Hexagon.Type_Hexagon_Position;
-         P_Construction          : in     Construction.Type_Construction;
-         P_Player_Id             : in     Player.Type_Player_Id;
-         P_Status                :    out Status.Type_Status);
+        (P_Player_Id        : in Player.Type_Player_Id;
+         P_Action_Type      : in Action.Type_Action_Type;
+         P_Piece_Id         : in Piece.Type_Piece_Id;
+         P_Construction_Pos : in Hexagon.Type_Hexagon_Position;
+         P_Construction     : in Construction.Type_Construction);
 
       -- The player demolish something on patch on the map (e.g a wall)
       entry Entry_Perform_Demolition
-        (P_Action_Type         : in     Action.Type_Action_Type;
-         P_Demolition_Piece_Id : in     Piece.Type_Piece_Id;
-         P_Piece_Pos           : in     Hexagon.Type_Hexagon_Position;
-         P_Demolition_Pos      : in     Hexagon.Type_Hexagon_Position;
-         P_Construction        : in     Construction.Type_Construction;
-         P_Player_Id           : in     Player.Type_Player_Id;
-         P_Status              :    out Status.Type_Status);
+        (P_Player_Id      : in Player.Type_Player_Id;
+         P_Action_Type    : in Action.Type_Action_Type;
+         P_Piece_Id       : in Piece.Type_Piece_Id;
+         P_Demolition_Pos : in Hexagon.Type_Hexagon_Position;
+         P_Construction   : in Construction.Type_Construction);
 
       -- The client will call this frequently to get some system data (mostly)
       entry Entry_Get_Updates_Summary
-        (P_Player_Id         : in     Player.Type_Player_Id;
-         P_Current_Player_Id :    out Player.Type_Player_Id;
-         P_Countdown         :    out Positive;
-         P_Game_State        :    out Status.Type_Game_Status;
+        (P_Player_Id       : in     Player.Type_Player_Id;
+         P_Countdown       :    out Positive;
+         P_Game_State      :    out Status.Type_Game_Status;
          P_System_Messages : out Observation.Activity.Activity_Report.Vector);
-
-      entry Entry_End_Turn
-        (P_Player_Id : in     Player.Type_Player_Id;
-         P_Success   :    out Boolean);
 
       entry Entry_Client_Stopped (P_Player_Id : in Player.Type_Player_Id);
 
@@ -340,7 +279,7 @@ package Server.Server is
      (P_Server_Info : out Utilities.RemoteString_List.Vector);
 
    procedure Set_Server_Info
-     (P_Server_Info : in    Utilities.RemoteString_List.Vector);
+     (P_Server_Info : in Utilities.RemoteString_List.Vector);
 
    procedure Observe_Game_Minimum_Details (P_Minimum_Details : in Positive);
 

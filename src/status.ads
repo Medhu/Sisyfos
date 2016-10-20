@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -22,30 +22,59 @@ package Status is
 
    type Type_Status is
      (Ok,
-      Inconsistent_Parameters,
-      Not_Players_Turn,
+   --Perform_Move
       Not_Players_Piece,
-      No_Executing_Piece,
-      Players_Attacks_Himself,
-      No_Target_Piece,
-      Target_Patch_Occupied,
-      Not_Reachable,
-      Patch_Effect_Not_Here,
-      Piece_Effect_Not_Here,
-      No_Movement_Capability,
-      No_Attack_Capability,
-      No_Path_Found,
-      Patch_Occupied,
-      Patch_Empty,
       Patch_Bad_Terrain,
-      Expected_Fighting_Piece,
-      Expected_House_Piece,
-      Piece_Cant_Be_Placed,
-      Not_Allowed_To_Create_Piece,
-      Will_Try,
-      Not_Possible,
-      Out_Of_Moves,
-      Patches_Not_Connected,
+      Patch_Occupied,
+      Target_Patch_Occupied,
+      Not_Before_Perform_Move,
+      No_Path_Found,
+   --
+      Completed_Ok,
+
+   -- Create_Piece
+      Not_Before_Create_Piece,
+
+   -- Put_Piece
+      Not_Before_Put_Piece,
+
+   -- Remove_Piece
+      Not_Before_Remove_Piece,
+
+   --Perform_Attack
+      Not_Before_Perform_Attack,
+
+   --Perform_Ranged_Attack
+      Not_Before_Perform_Ranged_Attack,
+
+   -- Perform_Patch_Effect
+      Not_Before_Perform_Patch_Effect,
+
+   --Perform Piece Effect
+      Not_Before_Perform_Piece_Effect,
+
+   --Perform_Construction
+      Not_Before_Perform_Construction,
+
+   --Perform_Demolition
+      Not_Before_Perform_Demolition,
+
+   --Grant_Piece_Effect
+      Not_Before_Grant_Piece_Effect,
+
+   -- Revoke_Piece_Effect
+      Not_Before_Revoke_Piece_Effect,
+
+   -- Grant_Patch_Effect
+      Not_Before_Grant_Patch_Effect,
+
+   -- Revoke_Patch_Effect
+      Not_Before_Revoke_Patch_Effect,
+
+      Patch_Effect_Not_Here,
+
+      Piece_Effect_Not_Here,
+
       Construction_Exists,
       Construction_Doesnt_Exist);
 
@@ -68,12 +97,13 @@ package Status is
       Saving_Game,
       Loading_Game,
       Ongoing,
-      Switching_Turn,
       Last_Report,
       Stopping,
       Client_Stopped,
       Stopped);
 
    type Type_Game_Status is (Playing, End_Of_Game);
+
+   type Type_Result_Status is (Proceed, Retry, Fail);
 
 end Status;

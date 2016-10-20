@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 --
 
 with Server.Server;
-with Player;
 
 package body Server.Server.Auto is
 
@@ -55,8 +54,7 @@ package body Server.Server.Auto is
    end Check_Opponent_Communications;
 
    procedure Update_Game
-     (P_Current_Player_Id    : in     Player.Type_Player_Id;
-      P_Last_Update_Time     : in out Ada.Real_Time.Time;
+     (P_Last_Update_Time     : in out Ada.Real_Time.Time;
       P_Countdown            : in out Positive;
       P_Player_List_Internal : in out Server.Type_Player_List)
    is
@@ -73,7 +71,7 @@ package body Server.Server.Auto is
          --
          for Trav_Player in P_Player_List_Internal'First .. P_Player_List_Internal'Last loop
             if P_Player_List_Internal (Trav_Player).Active then
-               Piece.Server.Upkeep_All (P_Current_Player_Id, Trav_Player);
+               Piece.Server.Upkeep_All (Trav_Player);
 
                Observe_Game (1);
             end if;

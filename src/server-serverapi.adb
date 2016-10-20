@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 with Hexagon.Server_Map;
 with Text_IO;
-with Server.Server.Player_Action;
+with Server.Server.Piece_Action;
 with Server.Server;
 
 package body Server.ServerAPI is
@@ -41,12 +41,10 @@ package body Server.ServerAPI is
       P_Game_Saving,
       P_Game_Loading : in Server.Type_Game_Archive_Procedure;
       P_Game_Joining,
-      P_Game_Leaving    : in Server.Type_Game_Joining_Leaving_Procedure;
-      P_Game_Start      : in Server.Type_Game_Start_Procedure;
-      P_Game_Upkeep     : in Server.Type_Game_Upkeep_Procedure;
-      P_Game_Start_Turn : in Server.Type_Game_Turn_Procedure;
-      P_Game_End_Turn   : in Server.Type_Game_Turn_Procedure;
-      P_Game_End        : in Server.Type_Game_End_Procedure)
+      P_Game_Leaving : in Server.Type_Game_Joining_Leaving_Procedure;
+      P_Game_Start   : in Server.Type_Game_Start_Procedure;
+      P_Game_Upkeep  : in Server.Type_Game_Upkeep_Procedure;
+      P_Game_End     : in Server.Type_Game_End_Procedure)
    is
    begin
       if Verbose then
@@ -68,8 +66,6 @@ package body Server.ServerAPI is
          P_Game_Leaving,
          P_Game_Start,
          P_Game_Upkeep,
-         P_Game_Start_Turn,
-         P_Game_End_Turn,
          P_Game_End);
 
       if Verbose then
@@ -121,32 +117,28 @@ package body Server.ServerAPI is
    is
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Get_Server_Info - enter");
+         Text_IO.Put_Line ("Server.ServerAPI.Get_Server_Info - enter");
       end if;
 
-      Server.Get_Server_Info(P_Server_Info);
+      Server.Get_Server_Info (P_Server_Info);
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Get_Server_Info - exit");
+         Text_IO.Put_Line ("Server.ServerAPI.Get_Server_Info - exit");
       end if;
    end Get_Server_Info;
 
    procedure Set_Server_Info
-     (P_Server_Info : in    Utilities.RemoteString_List.Vector)
+     (P_Server_Info : in Utilities.RemoteString_List.Vector)
    is
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Set_Server_Info - enter");
+         Text_IO.Put_Line ("Server.ServerAPI.Set_Server_Info - enter");
       end if;
 
-      Server.Set_Server_Info(P_Server_Info);
+      Server.Set_Server_Info (P_Server_Info);
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Set_Server_Info - exit");
+         Text_IO.Put_Line ("Server.ServerAPI.Set_Server_Info - exit");
       end if;
    end Set_Server_Info;
 
@@ -179,28 +171,34 @@ package body Server.ServerAPI is
    end Observe_Game;
 
    procedure Create_Piece
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Pos                            : in     Hexagon.Type_Hexagon_Position;
-      P_Piece                          : in     Piece.Type_Piece;
-      P_Piece_Id                       :    out Piece.Type_Piece_Id;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status;
-      P_Force                          : in     Boolean := False)
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Pos         : in     Hexagon.Type_Hexagon_Position;
+      P_Piece       : in     Piece.Type_Piece;
+      P_Piece_Id    :    out Piece.Type_Piece_Id;
+      P_Status      :    out Status.Type_Status;
+      P_Force       : in     Boolean := False)
    is
+      A_Server_Piece : Piece.Server.Type_Piece_Access_Class;
+
+      Attempt : Integer := 1;
    begin
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Create_Piece - enter");
       end if;
 
-      Server.Player_Action.Create_Piece
-        (P_Action_Type,
-         P_Current_Player_Id,
-         P_Player_Id,
+      Server.Piece_Action.New_Piece (P_Piece, A_Server_Piece);
+
+      Server.Piece_Action.Init_Piece
+        (P_Player_Id,
+         P_Action_Type,
          P_Pos,
-         P_Piece,
-         P_Piece_Id,
+         A_Server_Piece,
          P_Status,
+         Attempt,
          P_Force);
+
+      P_Piece_Id := A_Server_Piece.all.Id;
 
       if Verbose then
          Text_IO.Put_Line
@@ -209,24 +207,25 @@ package body Server.ServerAPI is
    end Create_Piece;
 
    procedure Put_Piece
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Pos                            : in     Hexagon.Type_Hexagon_Position;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Pos         : in     Hexagon.Type_Hexagon_Position;
+      P_Piece_Id    : in     Piece.Type_Piece_Id;
+      P_Status      :    out Status.Type_Status)
    is
+      Attempt : Integer := 1;
    begin
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Put_Piece - enter");
       end if;
 
-      Server.Player_Action.Put_Piece
-        (P_Action_Type,
-         P_Current_Player_Id,
-         P_Player_Id,
+      Server.Piece_Action.Put_Piece
+        (P_Player_Id,
+         P_Action_Type,
          P_Pos,
          P_Piece_Id,
-         P_Status);
+         P_Status,
+         Attempt);
 
       if Verbose then
          Text_IO.Put_Line
@@ -235,24 +234,24 @@ package body Server.ServerAPI is
    end Put_Piece;
 
    procedure Remove_Piece
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Pos                            : in     Hexagon.Type_Hexagon_Position;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Pos         : in     Hexagon.Type_Hexagon_Position;
+      P_Piece_Id    : in     Piece.Type_Piece_Id;
+      P_Status      :    out Status.Type_Status)
    is
+      Attempt : Integer := 1;
    begin
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Remove_Piece - enter");
       end if;
 
-      Server.Player_Action.Remove_Piece
-        (P_Action_Type,
-         P_Current_Player_Id,
-         P_Player_Id,
-         P_Pos,
+      Server.Piece_Action.Remove_Piece
+        (P_Player_Id,
+         P_Action_Type,
          P_Piece_Id,
-         P_Status);
+         P_Status,
+         Attempt);
 
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Remove_Piece - exit");
@@ -260,62 +259,25 @@ package body Server.ServerAPI is
    end Remove_Piece;
 
    procedure Perform_Attack
-     (P_Action_Type                             : in Action.Type_Action_Type;
+     (P_Player_Id                               : in     Player.Type_Player_Id;
+      P_Action_Type                             : in Action.Type_Action_Type;
       P_Attacking_Piece_Id, P_Attacked_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Path                                    : in     Hexagon.Path.Vector;
-      P_Current_Player_Id, P_Player_Id          : in     Player.Type_Player_Id;
-      P_Winner                                  :    out Player.Type_Player_Id;
       P_Status                                  :    out Status.Type_Status)
    is
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Attack (Path)- enter P_Attacking_Piece_Id=" &
-            P_Attacking_Piece_Id'Img &
-            " P_Attacked_Piece_Id=" &
-            P_Attacked_Piece_Id'Img);
-      end if;
-
-      Server.Player_Action.Perform_Attack
-        (P_Action_Type,
-         P_Attacking_Piece_Id,
-         P_Attacked_Piece_Id,
-         P_Path,
-         P_Current_Player_Id,
-         P_Player_Id,
-         P_Winner,
-         P_Status);
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Attack - exit P_Status=" & P_Status'Img);
-      end if;
-   end Perform_Attack;
-
-   procedure Perform_Attack
-     (P_Action_Type                             : in Action.Type_Action_Type;
-      P_Attacking_Piece_Id, P_Attacked_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Attacking_Pos, P_Attacked_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Current_Player_Id, P_Player_Id          : in     Player.Type_Player_Id;
-      P_Winner                                  :    out Player.Type_Player_Id;
-      P_Status                                  :    out Status.Type_Status)
-   is
+      Attempt : Integer := 1;
    begin
       if Verbose then
          Text_IO.Put_Line
            ("Server.ServerAPI.Perform_Attack (from, to) - enter");
       end if;
 
-      Server.Player_Action.Perform_Attack
-        (P_Action_Type,
+      Server.Piece_Action.Perform_Attack
+        (P_Player_Id,
+         P_Action_Type,
          P_Attacking_Piece_Id,
          P_Attacked_Piece_Id,
-         P_Attacking_Pos,
-         P_Attacked_Pos,
-         P_Current_Player_Id,
-         P_Player_Id,
-         P_Winner,
-         P_Status);
+         P_Status,
+         Attempt);
 
       if Verbose then
          Text_IO.Put_Line
@@ -324,42 +286,72 @@ package body Server.ServerAPI is
       end if;
    end Perform_Attack;
 
-   procedure Perform_Move
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Moving_Piece_Id                : in     Piece.Type_Piece_Id;
-      P_Path                           : in     Hexagon.Path.Vector;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+   procedure Perform_Ranged_Attack
+     (P_Player_Id                               : in     Player.Type_Player_Id;
+      P_Action_Type                             : in Action.Type_Action_Type;
+      P_Attacking_Piece_Id, P_Attacked_Piece_Id : in     Piece.Type_Piece_Id;
+      P_Status                                  :    out Status.Type_Status)
    is
+      Attempt : Integer := 1;
    begin
       if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Perform_Move (Path) - enter");
+         Text_IO.Put_Line ("Server.ServerAPI.Perform_Ranged_Attack - enter");
       end if;
 
-      Server.Player_Action.Perform_Move
-        (P_Action_Type,
-         P_Moving_Piece_Id,
-         P_Path,
-         P_Current_Player_Id,
-         P_Player_Id,
-         P_Status);
+      Server.Piece_Action.Perform_Ranged_Attack
+        (P_Player_Id,
+         P_Action_Type,
+         P_Attacking_Piece_Id,
+         P_Attacked_Piece_Id,
+         P_Status,
+         Attempt);
 
       if Verbose then
          Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Move (Path) - exit P_Status=" &
+           ("Server.ServerAPI.Perform_Ranged_Attack - exit P_Status=" &
+            P_Status'Img);
+      end if;
+   end Perform_Ranged_Attack;
+
+   procedure Perform_Move
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece_Id    : in     Piece.Type_Piece_Id;
+      P_To_Pos      : in     Hexagon.Type_Hexagon_Position;
+      P_Status      :    out Status.Type_Status)
+   is
+      Attempt : Integer := 1;
+   begin
+      if Verbose then
+         Text_IO.Put_Line
+           ("Server.ServerAPI.Perform_Move (from,to)- enter P_Piece_Id=" &
+            P_Piece_Id'Img);
+      end if;
+
+      Server.Piece_Action.Perform_Move
+        (P_Player_Id,
+         P_Action_Type,
+         P_Piece_Id,
+         P_To_Pos,
+         P_Status,
+         Attempt);
+
+      if Verbose then
+         Text_IO.Put_Line
+           ("Server.ServerAPI.Perform_Move (from,to)- exit P_Status=" &
             P_Status'Img);
       end if;
    end Perform_Move;
 
    procedure Perform_Patch_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Pos                            : in     Hexagon.Type_Hexagon_Position;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Area : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece_Id    : in     Piece.Type_Piece_Id;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Status      :    out Status.Type_Status)
    is
+      Attempt : Integer := 1;
    begin
       if Verbose then
          Text_IO.Put_Line
@@ -367,15 +359,14 @@ package body Server.ServerAPI is
             P_Piece_Id'Img);
       end if;
 
-      Server.Player_Action.Perform_Patch_Effect
-        (P_Action_Type,
+      Server.Piece_Action.Perform_Patch_Effect
+        (P_Player_Id,
+         P_Action_Type,
          P_Piece_Id,
-         P_Pos,
          P_Effect,
          P_Area,
-         P_Current_Player_Id,
-         P_Player_Id,
-         P_Status);
+         P_Status,
+         Attempt);
 
       if Verbose then
          Text_IO.Put_Line
@@ -385,13 +376,14 @@ package body Server.ServerAPI is
    end Perform_Patch_Effect;
 
    procedure Perform_Piece_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Pos                            : in     Hexagon.Type_Hexagon_Position;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece_Id    : in     Piece.Type_Piece_Id;
+      P_Pos         : in     Hexagon.Type_Hexagon_Position;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Status      :    out Status.Type_Status)
    is
+      Attempt : Integer := 1;
    begin
       if Verbose then
          Text_IO.Put_Line
@@ -399,14 +391,13 @@ package body Server.ServerAPI is
             P_Piece_Id'Img);
       end if;
 
-      Server.Player_Action.Perform_Piece_Effect
-        (P_Action_Type,
+      Server.Piece_Action.Perform_Piece_Effect
+        (P_Player_Id,
+         P_Action_Type,
          P_Piece_Id,
-         P_Pos,
          P_Effect,
-         P_Current_Player_Id,
-         P_Player_Id,
-         P_Status);
+         P_Status,
+         Attempt);
 
       if Verbose then
          Text_IO.Put_Line
@@ -415,76 +406,125 @@ package body Server.ServerAPI is
       end if;
    end Perform_Piece_Effect;
 
-   procedure Perform_Move
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Moving_Piece_Id                : in     Piece.Type_Piece_Id;
-      P_From_Pos, P_To_Pos             : in     Hexagon.Type_Hexagon_Position;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+   procedure Grant_Piece_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece_Id    : in     Piece.Type_Piece_Id;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Status      :    out Status.Type_Status)
    is
+      Attempt : Integer := 1;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Move (from,to)- enter P_Moving_Piece_Id=" &
-            P_Moving_Piece_Id'Img);
+         Text_IO.Put_Line ("Server.ServerAPI.Grant_Piece_Effect- enter");
       end if;
 
-      Server.Player_Action.Perform_Move
-        (P_Action_Type,
-         P_Moving_Piece_Id,
-         P_From_Pos,
-         P_To_Pos,
-         P_Current_Player_Id,
-         P_Player_Id,
-         P_Status);
+      Server.Piece_Action.Grant_Piece_Effect
+        (P_Player_Id,
+         P_Action_Type,
+         P_Piece_Id,
+         P_Effect,
+         P_Status,
+         Attempt);
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Move (from,to)- exit P_Status=" &
-            P_Status'Img);
+         Text_IO.Put_Line ("Server.ServerAPI.Grant_Piece_Effect- exit");
       end if;
-   end Perform_Move;
+   end Grant_Piece_Effect;
 
-   procedure Perform_Ranged_Attack
-     (P_Action_Type                             : in Action.Type_Action_Type;
-      P_Attacking_Piece_Id, P_Attacked_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Attacking_Pos, P_Attacked_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Current_Player_Id, P_Player_Id          : in     Player.Type_Player_Id;
-      P_Winner                                  :    out Player.Type_Player_Id;
-      P_Status                                  :    out Status.Type_Status)
+   procedure Revoke_Piece_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece_Id    : in     Piece.Type_Piece_Id;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Status      :    out Status.Type_Status)
    is
+      Attempt : Integer := 1;
    begin
       if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Perform_Ranged_Attack - enter");
+         Text_IO.Put_Line ("Server.ServerAPI.Revoke_Piece_Effect- enter");
       end if;
 
-      Server.Player_Action.Perform_Ranged_Attack
-        (P_Action_Type,
-         P_Attacking_Piece_Id,
-         P_Attacked_Piece_Id,
-         P_Attacking_Pos,
-         P_Attacked_Pos,
-         P_Current_Player_Id,
-         P_Player_Id,
-         P_Winner,
-         P_Status);
+      Server.Piece_Action.Revoke_Piece_Effect
+        (P_Player_Id,
+         P_Action_Type,
+         P_Piece_Id,
+         P_Effect,
+         P_Status,
+         Attempt);
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Ranged_Attack - exit P_Status=" &
-            P_Status'Img);
+         Text_IO.Put_Line ("Server.ServerAPI.Revoke_Piece_Effect- exit");
       end if;
-   end Perform_Ranged_Attack;
+   end Revoke_Piece_Effect;
+
+   procedure Grant_Patch_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece_Id    : in     Piece.Type_Piece_Id;
+      P_Pos         : in     Hexagon.Type_Hexagon_Position;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Status      :    out Status.Type_Status)
+   is
+      Attempt : Integer := 1;
+   begin
+      if Verbose then
+         Text_IO.Put_Line ("Server.ServerAPI.Grant_Patch_Effect- enter");
+      end if;
+
+      Server.Piece_Action.Grant_Patch_Effect
+        (P_Player_Id,
+         P_Action_Type,
+         P_Piece_Id,
+         P_Effect,
+         P_Area,
+         P_Status,
+         Attempt);
+
+      if Verbose then
+         Text_IO.Put_Line ("Server.ServerAPI.Grant_Patch_Effect- exit");
+      end if;
+   end Grant_Patch_Effect;
+
+   procedure Revoke_Patch_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece_Id    : in     Piece.Type_Piece_Id;
+      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Status      :    out Status.Type_Status)
+   is
+      Attempt : Integer := 1;
+   begin
+      if Verbose then
+         Text_IO.Put_Line ("Server.ServerAPI.Revoke_Patch_Effect- enter");
+      end if;
+
+      Server.Piece_Action.Revoke_Patch_Effect
+        (P_Player_Id,
+         P_Action_Type,
+         P_Piece_Id,
+         P_Effect,
+         P_Area,
+         P_Status,
+         Attempt);
+
+      if Verbose then
+         Text_IO.Put_Line ("Server.ServerAPI.Revoke_Patch_Effect- exit");
+      end if;
+   end Revoke_Patch_Effect;
 
    procedure Perform_Construction
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Constructing_Piece_Id          : in     Piece.Type_Piece_Id;
-      P_Piece_Pos                      : in     Hexagon.Type_Hexagon_Position;
-      P_Construction_Pos               : in     Hexagon.Type_Hexagon_Position;
-      P_Construction                   : in     Construction.Type_Construction;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id        : in     Player.Type_Player_Id;
+      P_Action_Type      : in     Action.Type_Action_Type;
+      P_Piece_Id         : in     Piece.Type_Piece_Id;
+      P_Piece_Pos        : in     Hexagon.Type_Hexagon_Position;
+      P_Construction_Pos : in     Hexagon.Type_Hexagon_Position;
+      P_Construction     : in     Construction.Type_Construction;
+      P_Status           :    out Status.Type_Status)
    is
+      Attempt : Integer := 1;
    begin
       if Verbose then
          Text_IO.Put_Line
@@ -500,15 +540,14 @@ package body Server.ServerAPI is
             P_Construction'Img);
       end if;
 
-      Server.Player_Action.Perform_Construction
-        (P_Action_Type,
-         P_Constructing_Piece_Id,
-         P_Piece_Pos,
+      Server.Piece_Action.Perform_Construction
+        (P_Player_Id,
+         P_Action_Type,
+         P_Piece_Id,
          P_Construction_Pos,
          P_Construction,
-         P_Current_Player_Id,
-         P_Player_Id,
-         P_Status);
+         P_Status,
+         Attempt);
 
       if Verbose then
          Text_IO.Put_Line
@@ -518,15 +557,16 @@ package body Server.ServerAPI is
    end Perform_Construction;
 
    procedure Perform_Demolition
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Demolition_Piece_Id            : in     Piece.Type_Piece_Id;
-      P_Piece_Pos                      : in     Hexagon.Type_Hexagon_Position;
-      P_Demolition_Pos                 : in     Hexagon.Type_Hexagon_Position;
-      P_Construction                   : in     Construction.Type_Construction;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
+     (P_Player_Id      : in     Player.Type_Player_Id;
+      P_Action_Type    : in     Action.Type_Action_Type;
+      P_Piece_Id       : in     Piece.Type_Piece_Id;
+      P_Piece_Pos      : in     Hexagon.Type_Hexagon_Position;
+      P_Demolition_Pos : in     Hexagon.Type_Hexagon_Position;
+      P_Construction   : in     Construction.Type_Construction;
+      P_Status         :    out Status.Type_Status)
 
    is
+      Attempt : Integer := 1;
    begin
       if Verbose then
          Text_IO.Put_Line
@@ -542,15 +582,14 @@ package body Server.ServerAPI is
             P_Construction'Img);
       end if;
 
-      Server.Player_Action.Perform_Demolition
-        (P_Action_Type,
-         P_Demolition_Piece_Id,
-         P_Piece_Pos,
+      Server.Piece_Action.Perform_Demolition
+        (P_Player_Id,
+         P_Action_Type,
+         P_Piece_Id,
          P_Demolition_Pos,
          P_Construction,
-         P_Current_Player_Id,
-         P_Player_Id,
-         P_Status);
+         P_Status,
+         Attempt);
 
       if Verbose then
          Text_IO.Put_Line
@@ -558,173 +597,6 @@ package body Server.ServerAPI is
             P_Status'Img);
       end if;
    end Perform_Demolition;
-
-   procedure Grant_Piece_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
-   is
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Grant_Piece_Effect- enter");
-      end if;
-
-      Server.Player_Action.Grant_Piece_Effect
-        (P_Action_Type,
-         P_Piece_Id,
-         P_Effect,
-         P_Current_Player_Id,
-         P_Player_Id,
-         P_Status);
-
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Grant_Piece_Effect- exit");
-      end if;
-   end Grant_Piece_Effect;
-
-   procedure Revoke_Piece_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
-   is
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Revoke_Piece_Effect- enter");
-      end if;
-
-      Server.Player_Action.Revoke_Piece_Effect
-        (P_Action_Type,
-         P_Piece_Id,
-         P_Effect,
-         P_Current_Player_Id,
-         P_Player_Id,
-         P_Status);
-
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Revoke_Piece_Effect- exit");
-      end if;
-   end Revoke_Piece_Effect;
-
-   procedure Grant_Patch_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Pos                            : in     Hexagon.Type_Hexagon_Position;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Area : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
-   is
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Grant_Patch_Effect- enter");
-      end if;
-
-      Server.Player_Action.Grant_Patch_Effect
-        (P_Action_Type,
-         P_Piece_Id,
-         P_Pos,
-         P_Effect,
-         P_Area,
-         P_Current_Player_Id,
-         P_Player_Id,
-         P_Status);
-
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Grant_Patch_Effect- exit");
-      end if;
-   end Grant_Patch_Effect;
-
-   procedure Revoke_Patch_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece_Id                       : in     Piece.Type_Piece_Id;
-      P_Pos                            : in     Hexagon.Type_Hexagon_Position;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Area : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Current_Player_Id, P_Player_Id : in     Player.Type_Player_Id;
-      P_Status                         :    out Status.Type_Status)
-   is
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Revoke_Patch_Effect- enter");
-      end if;
-
-      Server.Player_Action.Revoke_Patch_Effect
-        (P_Action_Type,
-         P_Piece_Id,
-         P_Pos,
-         P_Effect,
-         P_Area,
-         P_Current_Player_Id,
-         P_Player_Id,
-         P_Status);
-
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Revoke_Patch_Effect- exit");
-      end if;
-   end Revoke_Patch_Effect;
-
-   function End_Turn (P_Player_Id : in Player.Type_Player_Id) return Boolean is
-      Ret : Boolean;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.End_Turn - enter Player_Id=" & P_Player_Id'Img);
-      end if;
-
-      Ret := Server.Player_Action.End_Turn (P_Player_Id);
-
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.End_Turn - exit");
-      end if;
-
-      return Ret;
-   end End_Turn;
-
-   function Observation_Area
-     (P_Piece_Id : in Piece.Type_Piece_Id)
-      return Hexagon.Area.Type_Action_Capabilities
-   is
-
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Observation_Area - enter");
-      end if;
-
-      return Server.Player_Action.Observation_Area (P_Piece_Id);
-
-   end Observation_Area;
-
-   function Movement_Capability
-     (P_Piece_Id : in Piece.Type_Piece_Id)
-      return Hexagon.Area.Server_Area.Type_Action_Capabilities_Access
-   is
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Movement_Capability - enter");
-      end if;
-
-      return Server.Player_Action.Movement_Capability (P_Piece_Id);
-
-   end Movement_Capability;
-
-   function Attack_Capability
-     (P_Piece_Id : in Piece.Type_Piece_Id)
-      return Hexagon.Area.Server_Area.Type_Action_Capabilities_Access
-   is
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Attack_Capability - enter P_Piece_Id=" &
-            P_Piece_Id'Img);
-      end if;
-
-      return Server.Player_Action.Attack_Capability (P_Piece_Id);
-
-   end Attack_Capability;
 
    function Find_Piece_In_List
      (P_Piece_Id : in Piece.Type_Piece_Id) return Type_Piece_Position

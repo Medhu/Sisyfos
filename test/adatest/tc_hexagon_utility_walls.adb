@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013  Frank J Jorgensen
+--      Copyright (C) 2013-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ with Hexagon.Area.Server_Area;
 with Text_IO;
 with Hexagon.Server_Map;
 with Piece.Server;
-with Server.Server;
+with Server.ServerAPI;
 with Client.Server_Adm;
 with Player;
 with Hexagon.Client_Map;
@@ -41,12 +41,13 @@ with Test_ServerRCI;
 with Construction;
 
 package body Tc_Hexagon_Utility_Walls is
-   Verbose : constant Boolean := True;
+   Verbose : constant Boolean := False;
 
    Player_Id_1, Player_Id_2   : Player.Type_Player_Id;
    Map_Player_1, Map_Player_2 : Hexagon.Client_Map.Type_Client_Map_Info;
    Test_Class1                : Test_Piece.Type_My_Test_Piece_Access_Class;
    Test_Class2                : Test_Piece.Type_My_Test_House_Access_Class;
+   Test_List                  : aliased Test_Piece.Type_Test_List;
 
    Test_Capability_Area,
    Test_Capability_Area2,
@@ -62,12 +63,16 @@ package body Tc_Hexagon_Utility_Walls is
       Adm_Status : Status.Type_Adm_Status;
 
       Player_Name_List : Utilities.RemoteString_List.Vector;
+      Command_Line  : Utilities.RemoteString.Type_Command_Parameters;
 
       use Hexagon.Area;
    begin
       if Verbose then
          Text_IO.Put_Line ("TC_hexagon_utility.Set_Up - enter");
       end if;
+
+      Test_ServerRCI.Init (Command_Line);
+      Test_Piece.Test_List := Test_List'Access;
 
       Test_Class1               := new Test_Piece.Type_My_Test_Piece;
       Test_Class1.Id            := Piece.Undefined_Piece_Id;
@@ -79,7 +84,7 @@ package body Tc_Hexagon_Utility_Walls is
       Test_Class2.Type_Of_Piece := Piece.Undefined_Piece_Type;
       Test_Class2.Player_Id     := Player.Undefined_Player_Id;
 
-      Server.Server.Init
+      Server.ServerAPI.Init
         (Test_Class1.all,
          Test_Class2.all,
          Test_Piece.Landscapes_Type_Info_List,
@@ -94,10 +99,8 @@ package body Tc_Hexagon_Utility_Walls is
          Test_Piece.Test_Leaving_Game'Access,
          Test_Piece.Test_Start_Game'Access,
          Test_Piece.Test_Upkeep_Game'Access,
-         Test_Piece.Test_Start_Turn'Access,
-         Test_Piece.Test_End_Turn'Access,
          Test_Piece.Test_End_Game'Access);
-      Server.Server.Start;
+      Server.ServerAPI.Start;
 
       Utilities.RemoteString_List.Append(Player_Name_List, Utilities.RemoteString.To_Unbounded_String ("User A"));
       Utilities.RemoteString_List.Append(Player_Name_List, Utilities.RemoteString.To_Unbounded_String ("User B"));
@@ -276,7 +279,7 @@ package body Tc_Hexagon_Utility_Walls is
          Text_IO.Put_Line ("TC_hexagon_utility.Tear_Down - enter");
       end if;
 
-      Server.Server.Stop;
+      Server.ServerAPI.Stop;
 
       if Verbose then
          Text_IO.Put_Line ("TC_hexagon_utility.Tear_Down - exit");
@@ -326,22 +329,17 @@ package body Tc_Hexagon_Utility_Walls is
         (A_Wall_Patch.all.Constructions_Here,
          Test_Piece.Construction_Wall5);
 
-      Hexagon.Utility.Find_Accurate_Path
+      Hexagon.Utility.Find_Path
         (1,
-         From_A,
-         From_B,
-         To_A,
-         To_B,
-         Test_Capability_Area,
-         Hexagon.Utility.Move,
+         Test_Piece.Sentry_Piece,
+         Hexagon.Type_Hexagon_Position'(True, From_A, From_B),
+         Hexagon.Type_Hexagon_Position'(True, To_A, To_B),
          Ret_Status,
          Path);
 
       Result := True;
       Trav   := Hexagon.Path.First (Path);
       while Hexagon.Path.Has_Element (Trav) loop
-         Text_IO.Put_Line
-           ("A=" & Hexagon.Path.Element (Trav).A'Img & "B=" & Hexagon.Path.Element (Trav).B'Img);
          if Hexagon.Path.Element (Trav).A /= Answer (Hexagon.Path.To_Index (Trav)).A or
            Hexagon.Path.Element (Trav).B /= Answer (Hexagon.Path.To_Index (Trav)).B
          then
@@ -397,22 +395,17 @@ package body Tc_Hexagon_Utility_Walls is
         (A_Wall_Patch.all.Constructions_Here,
          Test_Piece.Construction_Wall2);
 
-      Hexagon.Utility.Find_Accurate_Path
+      Hexagon.Utility.Find_Path
         (1,
-         From_A,
-         From_B,
-         To_A,
-         To_B,
-         Test_Capability_Area,
-         Hexagon.Utility.Move,
+         Test_Piece.Sentry_Piece,
+         Hexagon.Type_Hexagon_Position'(True, From_A, From_B),
+         Hexagon.Type_Hexagon_Position'(True, To_A, To_B),
          Ret_Status,
          Path);
 
       Result := True;
       Trav   := Hexagon.Path.First (Path);
       while Hexagon.Path.Has_Element (Trav) loop
-         Text_IO.Put_Line
-           ("A=" & Hexagon.Path.Element (Trav).A'Img & "B=" & Hexagon.Path.Element (Trav).B'Img);
          if Hexagon.Path.Element (Trav).A /= Answer (Hexagon.Path.To_Index (Trav)).A or
            Hexagon.Path.Element (Trav).B /= Answer (Hexagon.Path.To_Index (Trav)).B
          then
@@ -467,22 +460,17 @@ package body Tc_Hexagon_Utility_Walls is
         (A_Wall_Patch.all.Constructions_Here,
          Test_Piece.Construction_Wall6);
 
-      Hexagon.Utility.Find_Accurate_Path
+      Hexagon.Utility.Find_Path
         (1,
-         From_A,
-         From_B,
-         To_A,
-         To_B,
-         Test_Capability_Area,
-         Hexagon.Utility.Move,
+         Test_Piece.Sentry_Piece,
+         Hexagon.Type_Hexagon_Position'(True, From_A, From_B),
+         Hexagon.Type_Hexagon_Position'(True, To_A, To_B),
          Ret_Status,
          Path);
 
       Result := True;
       Trav   := Hexagon.Path.First (Path);
       while Hexagon.Path.Has_Element (Trav) loop
-         Text_IO.Put_Line
-           ("A=" & Hexagon.Path.Element (Trav).A'Img & "B=" & Hexagon.Path.Element (Trav).B'Img);
          if Hexagon.Path.Element (Trav).A /= Answer (Hexagon.Path.To_Index (Trav)).A or
            Hexagon.Path.Element (Trav).B /= Answer (Hexagon.Path.To_Index (Trav)).B
          then
@@ -536,22 +524,17 @@ package body Tc_Hexagon_Utility_Walls is
         (A_Wall_Patch.all.Constructions_Here,
          Test_Piece.Construction_Wall3);
 
-      Hexagon.Utility.Find_Accurate_Path
+      Hexagon.Utility.Find_Path
         (1,
-         From_A,
-         From_B,
-         To_A,
-         To_B,
-         Test_Capability_Area,
-         Hexagon.Utility.Move,
+         Test_Piece.Sentry_Piece,
+         Hexagon.Type_Hexagon_Position'(True, From_A, From_B),
+         Hexagon.Type_Hexagon_Position'(True, To_A, To_B),
          Ret_Status,
          Path);
 
       Result := True;
       Trav   := Hexagon.Path.First (Path);
       while Hexagon.Path.Has_Element (Trav) loop
-         Text_IO.Put_Line
-           ("A=" & Hexagon.Path.Element (Trav).A'Img & "B=" & Hexagon.Path.Element (Trav).B'Img);
          if Hexagon.Path.Element (Trav).A /= Answer (Hexagon.Path.To_Index (Trav)).A or
            Hexagon.Path.Element (Trav).B /= Answer (Hexagon.Path.To_Index (Trav)).B
          then
@@ -608,22 +591,17 @@ package body Tc_Hexagon_Utility_Walls is
         (A_Wall_Patch.all.Constructions_Here,
          Test_Piece.Construction_Wall1);
 
-      Hexagon.Utility.Find_Accurate_Path
+      Hexagon.Utility.Find_Path
         (1,
-         From_A,
-         From_B,
-         To_A,
-         To_B,
-         Test_Capability_Area,
-         Hexagon.Utility.Move,
+         Test_Piece.Sentry_Piece,
+         Hexagon.Type_Hexagon_Position'(True, From_A, From_B),
+         Hexagon.Type_Hexagon_Position'(True, To_A, To_B),
          Ret_Status,
          Path);
 
       Result := True;
       Trav   := Hexagon.Path.First (Path);
       while Hexagon.Path.Has_Element (Trav) loop
-         Text_IO.Put_Line
-           ("A=" & Hexagon.Path.Element (Trav).A'Img & "B=" & Hexagon.Path.Element (Trav).B'Img);
          if Hexagon.Path.Element (Trav).A /= Answer (Hexagon.Path.To_Index (Trav)).A or
            Hexagon.Path.Element (Trav).B /= Answer (Hexagon.Path.To_Index (Trav)).B
          then
@@ -677,22 +655,17 @@ package body Tc_Hexagon_Utility_Walls is
         (A_Wall_Patch.all.Constructions_Here,
          Test_Piece.Construction_Wall4);
 
-      Hexagon.Utility.Find_Accurate_Path
+      Hexagon.Utility.Find_Path
         (1,
-         From_A,
-         From_B,
-         To_A,
-         To_B,
-         Test_Capability_Area,
-         Hexagon.Utility.Move,
+         Test_Piece.Sentry_Piece,
+         Hexagon.Type_Hexagon_Position'(True, From_A, From_B),
+         Hexagon.Type_Hexagon_Position'(True, To_A, To_B),
          Ret_Status,
          Path);
 
       Result := True;
       Trav   := Hexagon.Path.First (Path);
       while Hexagon.Path.Has_Element (Trav) loop
-         Text_IO.Put_Line
-           ("A=" & Hexagon.Path.Element (Trav).A'Img & "B=" & Hexagon.Path.Element (Trav).B'Img);
          if Hexagon.Path.Element (Trav).A /= Answer (Hexagon.Path.To_Index (Trav)).A or
            Hexagon.Path.Element (Trav).B /= Answer (Hexagon.Path.To_Index (Trav)).B
          then
@@ -748,22 +721,17 @@ package body Tc_Hexagon_Utility_Walls is
         (A_Wall_Patch.all.Constructions_Here,
          Test_Piece.Construction_Wall2);
 
-      Hexagon.Utility.Find_Accurate_Path
+      Hexagon.Utility.Find_Path
         (1,
-         From_A,
-         From_B,
-         To_A,
-         To_B,
-         Test_Capability_Area,
-         Hexagon.Utility.Move,
+         Test_Piece.Sentry_Piece,
+         Hexagon.Type_Hexagon_Position'(True, From_A, From_B),
+         Hexagon.Type_Hexagon_Position'(True, To_A, To_B),
          Ret_Status,
          Path);
 
       Result := True;
       Trav   := Hexagon.Path.First (Path);
       while Hexagon.Path.Has_Element (Trav) loop
-         Text_IO.Put_Line
-           ("A=" & Hexagon.Path.Element (Trav).A'Img & "B=" & Hexagon.Path.Element (Trav).B'Img);
          if Hexagon.Path.Element (Trav).A /= Answer (Hexagon.Path.To_Index (Trav)).A or
            Hexagon.Path.Element (Trav).B /= Answer (Hexagon.Path.To_Index (Trav)).B
          then
@@ -817,22 +785,17 @@ package body Tc_Hexagon_Utility_Walls is
         (A_Wall_Patch.all.Constructions_Here,
          Test_Piece.Construction_Wall5);
 
-      Hexagon.Utility.Find_Accurate_Path
+      Hexagon.Utility.Find_Path
         (1,
-         From_A,
-         From_B,
-         To_A,
-         To_B,
-         Test_Capability_Area,
-         Hexagon.Utility.Move,
+         Test_Piece.Sentry_Piece,
+         Hexagon.Type_Hexagon_Position'(True, From_A, From_B),
+         Hexagon.Type_Hexagon_Position'(True, To_A, To_B),
          Ret_Status,
          Path);
 
       Result := True;
       Trav   := Hexagon.Path.First (Path);
       while Hexagon.Path.Has_Element (Trav) loop
-         Text_IO.Put_Line
-           ("A=" & Hexagon.Path.Element (Trav).A'Img & "B=" & Hexagon.Path.Element (Trav).B'Img);
          if Hexagon.Path.Element (Trav).A /= Answer (Hexagon.Path.To_Index (Trav)).A or
            Hexagon.Path.Element (Trav).B /= Answer (Hexagon.Path.To_Index (Trav)).B
          then
@@ -888,22 +851,17 @@ package body Tc_Hexagon_Utility_Walls is
         (A_Wall_Patch.all.Constructions_Here,
          Test_Piece.Construction_Wall3);
 
-      Hexagon.Utility.Find_Accurate_Path
+      Hexagon.Utility.Find_Path
         (1,
-         From_A,
-         From_B,
-         To_A,
-         To_B,
-         Test_Capability_Area,
-         Hexagon.Utility.Move,
+         Test_Piece.Sentry_Piece,
+         Hexagon.Type_Hexagon_Position'(True, From_A, From_B),
+         Hexagon.Type_Hexagon_Position'(True, To_A, To_B),
          Ret_Status,
          Path);
 
       Result := True;
       Trav   := Hexagon.Path.First (Path);
       while Hexagon.Path.Has_Element (Trav) loop
-         Text_IO.Put_Line
-           ("A=" & Hexagon.Path.Element (Trav).A'Img & "B=" & Hexagon.Path.Element (Trav).B'Img);
          if Hexagon.Path.Element (Trav).A /= Answer (Hexagon.Path.To_Index (Trav)).A or
            Hexagon.Path.Element (Trav).B /= Answer (Hexagon.Path.To_Index (Trav)).B
          then
@@ -957,22 +915,17 @@ package body Tc_Hexagon_Utility_Walls is
         (A_Wall_Patch.all.Constructions_Here,
          Test_Piece.Construction_Wall6);
 
-      Hexagon.Utility.Find_Accurate_Path
+      Hexagon.Utility.Find_Path
         (1,
-         From_A,
-         From_B,
-         To_A,
-         To_B,
-         Test_Capability_Area,
-         Hexagon.Utility.Move,
+         Test_Piece.Sentry_Piece,
+         Hexagon.Type_Hexagon_Position'(True, From_A, From_B),
+         Hexagon.Type_Hexagon_Position'(True, To_A, To_B),
          Ret_Status,
          Path);
 
       Result := True;
       Trav   := Hexagon.Path.First (Path);
       while Hexagon.Path.Has_Element (Trav) loop
-         Text_IO.Put_Line
-           ("A=" & Hexagon.Path.Element (Trav).A'Img & "B=" & Hexagon.Path.Element (Trav).B'Img);
          if Hexagon.Path.Element (Trav).A /= Answer (Hexagon.Path.To_Index (Trav)).A or
            Hexagon.Path.Element (Trav).B /= Answer (Hexagon.Path.To_Index (Trav)).B
          then
@@ -1028,22 +981,17 @@ package body Tc_Hexagon_Utility_Walls is
         (A_Wall_Patch.all.Constructions_Here,
          Test_Piece.Construction_Wall4);
 
-      Hexagon.Utility.Find_Accurate_Path
+      Hexagon.Utility.Find_Path
         (1,
-         From_A,
-         From_B,
-         To_A,
-         To_B,
-         Test_Capability_Area,
-         Hexagon.Utility.Move,
+         Test_Piece.Sentry_Piece,
+         Hexagon.Type_Hexagon_Position'(True, From_A, From_B),
+         Hexagon.Type_Hexagon_Position'(True, To_A, To_B),
          Ret_Status,
          Path);
 
       Result := True;
       Trav   := Hexagon.Path.First (Path);
       while Hexagon.Path.Has_Element (Trav) loop
-         Text_IO.Put_Line
-           ("A=" & Hexagon.Path.Element (Trav).A'Img & "B=" & Hexagon.Path.Element (Trav).B'Img);
          if Hexagon.Path.Element (Trav).A /= Answer (Hexagon.Path.To_Index (Trav)).A or
            Hexagon.Path.Element (Trav).B /= Answer (Hexagon.Path.To_Index (Trav)).B
          then
@@ -1097,22 +1045,17 @@ package body Tc_Hexagon_Utility_Walls is
         (A_Wall_Patch.all.Constructions_Here,
          Test_Piece.Construction_Wall1);
 
-      Hexagon.Utility.Find_Accurate_Path
+      Hexagon.Utility.Find_Path
         (1,
-         From_A,
-         From_B,
-         To_A,
-         To_B,
-         Test_Capability_Area,
-         Hexagon.Utility.Move,
+         Test_Piece.Sentry_Piece,
+         Hexagon.Type_Hexagon_Position'(True, From_A, From_B),
+         Hexagon.Type_Hexagon_Position'(True, To_A, To_B),
          Ret_Status,
          Path);
 
       Result := True;
       Trav   := Hexagon.Path.First (Path);
       while Hexagon.Path.Has_Element (Trav) loop
-         Text_IO.Put_Line
-           ("A=" & Hexagon.Path.Element (Trav).A'Img & "B=" & Hexagon.Path.Element (Trav).B'Img);
          if Hexagon.Path.Element (Trav).A /= Answer (Hexagon.Path.To_Index (Trav)).A or
            Hexagon.Path.Element (Trav).B /= Answer (Hexagon.Path.To_Index (Trav)).B
          then

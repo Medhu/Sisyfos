@@ -1,7 +1,7 @@
 --
 --
---      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013  Frank J Jorgensen
+--      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -17,19 +17,7 @@
 --      along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with AUnit.Run;
-with AUnit.Reporter.Text;
-with Ts_Action_Points;
 
---------------
--- Harness8 --
---------------
+with Server.Generic_ServerRCI;
+package Socket_ServerRCI is new Server.Generic_ServerRCI;
 
-procedure Harness8 is
-
-   procedure Run is new AUnit.Run.Test_Runner (Ts_Action_Points.Suite);
-   Reporter : AUnit.Reporter.Text.Text_Reporter;
-
-begin
-   Run (Reporter);
-end Harness8;

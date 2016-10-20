@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -21,11 +21,9 @@ with Text_IO;
 with Hexagon.Server_Map;
 with Ada.Real_Time;
 with Ada.Task_Identification, Ada.Exceptions;
-with Ada.Strings.Unbounded;
-with Ada.Streams;
-with Ada.Streams.Stream_IO;
 with Effect.Server;
-with Server.Server.Player_Action;
+with Server.Server.Piece_Action;
+with Server.Server.Cmd;
 with Server.Server.Auto;
 with Server.Server.Archive;
 
@@ -34,25 +32,19 @@ package body Server.Server is
    Verbose : constant Boolean := False;
 
    procedure Init
-     (P_Fighting_Piece_Class,
-      P_House_Piece_Class : in Piece.Server.Type_Piece'Class;
+     (P_Fighting_Piece_Class, P_House_Piece_Class : in Piece.Server.Type_Piece'Class;
    --
       P_Landscape_Info    : in Landscape.Server.Type_Landscape_Type_Info_List;
-      P_Piece_Info : in Piece.Server.Fighting_Piece.Type_Piece_Type_Info_List;
-      P_House_Info : in Piece.Server.House_Piece.Type_House_Type_Info_List;
-      P_Construction_Info : in Construction.Server
-        .Type_Construction_Type_Info_List;
-      P_Effect_Info : in Effect.Server.Type_Effect_Type_Info_List;
+      P_Piece_Info        : in Piece.Server.Fighting_Piece.Type_Piece_Type_Info_List;
+      P_House_Info        : in Piece.Server.House_Piece.Type_House_Type_Info_List;
+      P_Construction_Info : in Construction.Server.Type_Construction_Type_Info_List;
+      P_Effect_Info       : in Effect.Server.Type_Effect_Type_Info_List;
 
-      P_Game_Creating,
-      P_Game_Saving,
-      P_Game_Loading                 : in Type_Game_Archive_Procedure;
-      P_Game_Joining, P_Game_Leaving : in Type_Game_Joining_Leaving_Procedure;
-      P_Game_Start                   : in Type_Game_Start_Procedure;
-      P_Game_Upkeep                  : in Type_Game_Upkeep_Procedure;
-      P_Game_Start_Turn              : in Type_Game_Turn_Procedure;
-      P_Game_End_Turn                : in Type_Game_Turn_Procedure;
-      P_Game_End                     : in Type_Game_End_Procedure)
+      P_Game_Creating, P_Game_Saving, P_Game_Loading : in Type_Game_Archive_Procedure;
+      P_Game_Joining, P_Game_Leaving                 : in Type_Game_Joining_Leaving_Procedure;
+      P_Game_Start                                   : in Type_Game_Start_Procedure;
+      P_Game_Upkeep                                  : in Type_Game_Upkeep_Procedure;
+      P_Game_End                                     : in Type_Game_End_Procedure)
    is
 
    begin
@@ -60,13 +52,11 @@ package body Server.Server is
          Text_IO.Put_Line ("Server.Server.Init - enter");
       end if;
 
-      Text_IO.Put_Line
-        ("Sisyfos Server - v0.4. Copyright (C) 2015  Frank J Jorgensen");
+      Text_IO.Put_Line ("Sisyfos Server - v0.5. Copyright (C) 2015-2016  Frank J Jorgensen");
       Text_IO.Put_Line
         ("This program comes with ABSOLUTELY NO WARRANTY; for details see attached gpl.txt");
       Text_IO.Put_Line ("or <http://www.gnu.org/licenses/>");
-      Text_IO.Put_Line
-        ("This is free software, and you are welcome to redistribute it");
+      Text_IO.Put_Line ("This is free software, and you are welcome to redistribute it");
       Text_IO.Put_Line ("under certain conditions; see attached file gpl.txt");
       Text_IO.Put_Line ("or <http://www.gnu.org/licenses/>");
       Text_IO.New_Line;
@@ -86,11 +76,9 @@ package body Server.Server is
       Game_Joining := P_Game_Joining;
       Game_Leaving := P_Game_Leaving;
       --
-      Game_Start      := P_Game_Start;
-      Game_Upkeep     := P_Game_Upkeep;
-      Game_Start_Turn := P_Game_Start_Turn;
-      Game_End_Turn   := P_Game_End_Turn;
-      Game_End        := P_Game_End;
+      Game_Start  := P_Game_Start;
+      Game_Upkeep := P_Game_Upkeep;
+      Game_End    := P_Game_End;
 
       if Verbose then
          Text_IO.Put_Line ("Server.Server.Init - exit");
@@ -105,39 +93,18 @@ package body Server.Server is
    Minimum_Details : Positive := 1;
 
    function Get_Player_Name
-     (P_Player_Id : in Player.Type_Player_Id)
-      return Utilities.RemoteString.Type_String
+     (P_Player_Id : in Player.Type_Player_Id) return Utilities.RemoteString.Type_String
    is
    begin
       return Player_List_Internal (P_Player_Id).Player_Name;
    end Get_Player_Name;
 
-   function Next_Players_Turn
-     (P_Player_Id : in Player.Type_Player_Id) return Player.Type_Player_Id
-   is
-      Next_Player_Id : Player.Type_Player_Id;
-
-      use Player;
-   begin
-      if Player_List_Internal (P_Player_Id + 1).In_Scenario then
-         Next_Player_Id := P_Player_Id + 1;
-      else
-         Next_Player_Id := 1;
-      end if;
-
-      return Next_Player_Id;
-   end Next_Players_Turn;
-
-   function Is_Player_In_Scenario
-     (P_Player_Id : in Player.Type_Player_Id) return Boolean
-   is
+   function Is_Player_In_Scenario (P_Player_Id : in Player.Type_Player_Id) return Boolean is
    begin
       return Player_List_Internal (P_Player_Id).In_Scenario;
    end Is_Player_In_Scenario;
 
-   procedure Update_Server_Info_Maps
-     (P_Server_Info : in out Utilities.RemoteString_List.Vector)
-   is
+   procedure Update_Server_Info_Maps (P_Server_Info : in out Utilities.RemoteString_List.Vector) is
    begin
       Utilities.Delete_Starting_With
         (P_Server_Info,
@@ -152,9 +119,7 @@ package body Server.Server is
       Utilities.Get_Files (P_Server_Info, "saved", "Saved:");
    end Update_Server_Info_Maps;
 
-   procedure Set_Server_Info
-     (P_Server_Info : in Utilities.RemoteString_List.Vector)
-   is
+   procedure Set_Server_Info (P_Server_Info : in Utilities.RemoteString_List.Vector) is
    begin
       if Verbose then
          Text_IO.Put_Line ("Server.Server.Set_Server_Info - enter");
@@ -167,9 +132,7 @@ package body Server.Server is
       end if;
    end Set_Server_Info;
 
-   procedure Get_Server_Info
-     (P_Server_Info : out Utilities.RemoteString_List.Vector)
-   is
+   procedure Get_Server_Info (P_Server_Info : out Utilities.RemoteString_List.Vector) is
    begin
       if Verbose then
          Text_IO.Put_Line ("Server.Server.Get_Server_Info - enter");
@@ -185,15 +148,13 @@ package body Server.Server is
    procedure Observe_Game_Minimum_Details (P_Minimum_Details : in Positive) is
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Server.Observe_Game_Minimum_Details - enter");
+         Text_IO.Put_Line ("Server.Server.Observe_Game_Minimum_Details - enter");
       end if;
 
       Minimum_Details := P_Minimum_Details;
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Server.Observe_Game_Minimum_Details - exit");
+         Text_IO.Put_Line ("Server.Server.Observe_Game_Minimum_Details - exit");
       end if;
    end Observe_Game_Minimum_Details;
 
@@ -209,9 +170,7 @@ package body Server.Server is
 
       if P_Detail >= Minimum_Details then
          -- Prepare any report regarding visible/invisible and pieces
-         for Trav_Player in
-           Player_List_Internal'First .. Player_List_Internal'Last
-         loop
+         for Trav_Player in Player_List_Internal'First .. Player_List_Internal'Last loop
 
             if Player_List_Internal (Trav_Player).Active then
                Observation.Observation_Of_Patches.Observations_Of_Patches.Clear
@@ -224,30 +183,22 @@ package body Server.Server is
                     .Current_Player_Pieces_Observations
                     .Observed_Pieces);
 
-               Observation.Observation_Of_Pieces_Info
-                 .Observations_Of_Pieces_Info
-                 .Clear
+               Observation.Observation_Of_Pieces_Info.Observations_Of_Pieces_Info.Clear
                  (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                     .Current_Player_Pieces_Observations
                     .Observed_Pieces_Info);
 
-               Observation.Observation_Of_Pieces_Effects
-                 .Observations_Of_Pieces_Effects
-                 .Clear
+               Observation.Observation_Of_Pieces_Effects.Observations_Of_Pieces_Effects.Clear
                  (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                     .Current_Player_Pieces_Observations
                     .Observed_Pieces_Effects);
 
-               Observation.Observation_Of_Patches_Effects
-                 .Observations_Of_Patches_Effects
-                 .Clear
+               Observation.Observation_Of_Patches_Effects.Observations_Of_Patches_Effects.Clear
                  (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                     .Current_Player_Pieces_Observations
                     .Observed_Patches_Effects);
 
-               Observation.Observation_Of_Construction
-                 .Observations_Of_Construction
-                 .Clear
+               Observation.Observation_Of_Construction.Observations_Of_Construction.Clear
                  (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                     .Current_Player_Pieces_Observations
                     .Observed_Constructions);
@@ -261,29 +212,22 @@ package body Server.Server is
                -- send delta
                --
                declare
-                  Frame_Observation : Observation.Observation_Of_Patches
-                    .Changes_To_Patches
+                  Frame_Observation : Observation.Observation_Of_Patches.Changes_To_Patches.Vector;
+                  Frame_Observed_Pieces : Observation.Observation_Of_Pieces.Changes_To_Pieces
                     .Vector;
-                  Frame_Observed_Pieces : Observation.Observation_Of_Pieces
-                    .Changes_To_Pieces
+                  Frame_Pieces_Info : Observation.Observation_Of_Pieces_Info.Changes_To_Pieces_Info
                     .Vector;
-                  Frame_Pieces_Info : Observation.Observation_Of_Pieces_Info
-                    .Changes_To_Pieces_Info
-                    .Vector;
-                  Frame_Pieces_Effects : Observation
-                    .Observation_Of_Pieces_Effects
+                  Frame_Pieces_Effects : Observation.Observation_Of_Pieces_Effects
                     .Changes_To_Pieces_Effects
                     .Vector;
-                  Frame_Patches_Effects : Observation
-                    .Observation_Of_Patches_Effects
+                  Frame_Patches_Effects : Observation.Observation_Of_Patches_Effects
                     .Changes_To_Patches_Effects
                     .Vector;
                   Frame_Constructions : Observation.Observation_Of_Construction
                     .Changes_To_Construction
                     .Vector;
-                  Frame_Activity_Info : Observation.Activity.Activity_Report
-                    .Vector;
-                  Frame : Observation.Frames.Type_Visibility_Frames;
+                  Frame_Activity_Info : Observation.Activity.Activity_Report.Vector;
+                  Frame               : Observation.Frames.Type_Visibility_Frames;
 
                   use Ada.Containers;
                begin
@@ -305,8 +249,7 @@ package body Server.Server is
                        .Observed_Pieces,
                      Frame_Observed_Pieces);
 
-                  Observation.Observation_Of_Pieces_Info
-                    .Find_Delta_Observed_Pieces_Info
+                  Observation.Observation_Of_Pieces_Info.Find_Delta_Observed_Pieces_Info
                     (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                        .Current_Player_Pieces_Observations
                        .Observed_Pieces_Info,
@@ -333,8 +276,7 @@ package body Server.Server is
                        .Observed_Patches_Effects,
                      Frame_Patches_Effects);
 
-                  Observation.Observation_Of_Construction
-                    .Find_Delta_Construction
+                  Observation.Observation_Of_Construction.Find_Delta_Construction
                     (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                        .Current_Player_Pieces_Observations
                        .Observed_Constructions,
@@ -345,43 +287,29 @@ package body Server.Server is
 
                   Frame_Activity_Info :=
                     Observation.Activity.Activity_Report.Copy
-                      (Player_List_Internal
-                         (Player.Type_Player_Id (Trav_Player))
-                         .Activity_Reports);
+                      (Player_List_Internal (Player.Type_Player_Id (Trav_Player)).Activity_Reports);
                   Observation.Activity.Activity_Report.Clear
-                    (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
-                       .Activity_Reports);
+                    (Player_List_Internal (Player.Type_Player_Id (Trav_Player)).Activity_Reports);
 
-                  if Observation.Observation_Of_Patches.Changes_To_Patches
-                      .Length
+                  if Observation.Observation_Of_Patches.Changes_To_Patches.Length
                       (Frame_Observation) /=
                     0 or
                     Observation.Observation_Of_Pieces.Changes_To_Pieces.Length
                         (Frame_Observed_Pieces) /=
                       0 or
-                    Observation.Observation_Of_Pieces_Info
-                        .Changes_To_Pieces_Info
-                        .Length
+                    Observation.Observation_Of_Pieces_Info.Changes_To_Pieces_Info.Length
                         (Frame_Pieces_Info) /=
                       0 or
-                    Observation.Observation_Of_Patches_Effects
-                        .Changes_To_Patches_Effects
-                        .Length
+                    Observation.Observation_Of_Patches_Effects.Changes_To_Patches_Effects.Length
                         (Frame_Patches_Effects) /=
                       0 or
-                    Observation.Observation_Of_Pieces_Effects
-                        .Changes_To_Pieces_Effects
-                        .Length
+                    Observation.Observation_Of_Pieces_Effects.Changes_To_Pieces_Effects.Length
                         (Frame_Pieces_Effects) /=
                       0 or
-                    Observation.Observation_Of_Construction
-                        .Changes_To_Construction
-                        .Length
+                    Observation.Observation_Of_Construction.Changes_To_Construction.Length
                         (Frame_Constructions) /=
                       0 or
-                    Observation.Activity.Activity_Report.Length
-                        (Frame_Activity_Info) /=
-                      0
+                    Observation.Activity.Activity_Report.Length (Frame_Activity_Info) /= 0
                   then
 
                      Frame.Observed_Patches     := Frame_Observation;
@@ -393,73 +321,56 @@ package body Server.Server is
                      Frame.Activities_Info      := Frame_Activity_Info;
 
                      Observation.Frames.Piece_Visibility_Frames.Append
-                       (Player_List_Internal
-                          (Player.Type_Player_Id (Trav_Player))
+                       (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                           .Visibility_Frames,
                         Frame);
 
                      Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                        .Previous_Player_Pieces_Observations
                        .Observed_Patches :=
-                       Observation.Observation_Of_Patches
-                         .Observations_Of_Patches
-                         .Copy
-                         (Player_List_Internal
-                            (Player.Type_Player_Id (Trav_Player))
+                       Observation.Observation_Of_Patches.Observations_Of_Patches.Copy
+                         (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                             .Current_Player_Pieces_Observations
                             .Observed_Patches);
 
                      Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                        .Previous_Player_Pieces_Observations
                        .Observed_Pieces :=
-                       Observation.Observation_Of_Pieces.Observations_Of_Pieces
-                         .Copy
-                         (Player_List_Internal
-                            (Player.Type_Player_Id (Trav_Player))
+                       Observation.Observation_Of_Pieces.Observations_Of_Pieces.Copy
+                         (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                             .Current_Player_Pieces_Observations
                             .Observed_Pieces);
 
                      Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                        .Previous_Player_Pieces_Observations
                        .Observed_Pieces_Info :=
-                       Observation.Observation_Of_Pieces_Info
-                         .Observations_Of_Pieces_Info
-                         .Copy
-                         (Player_List_Internal
-                            (Player.Type_Player_Id (Trav_Player))
+                       Observation.Observation_Of_Pieces_Info.Observations_Of_Pieces_Info.Copy
+                         (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                             .Current_Player_Pieces_Observations
                             .Observed_Pieces_Info);
 
                      Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                        .Previous_Player_Pieces_Observations
                        .Observed_Patches_Effects :=
-                       Observation.Observation_Of_Patches_Effects
-                         .Observations_Of_Patches_Effects
+                       Observation.Observation_Of_Patches_Effects.Observations_Of_Patches_Effects
                          .Copy
-                         (Player_List_Internal
-                            (Player.Type_Player_Id (Trav_Player))
+                         (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                             .Current_Player_Pieces_Observations
                             .Observed_Patches_Effects);
 
                      Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                        .Previous_Player_Pieces_Observations
                        .Observed_Constructions :=
-                       Observation.Observation_Of_Construction
-                         .Observations_Of_Construction
-                         .Copy
-                         (Player_List_Internal
-                            (Player.Type_Player_Id (Trav_Player))
+                       Observation.Observation_Of_Construction.Observations_Of_Construction.Copy
+                         (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                             .Current_Player_Pieces_Observations
                             .Observed_Constructions);
 
                      Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                        .Previous_Player_Pieces_Observations
                        .Observed_Pieces_Effects :=
-                       Observation.Observation_Of_Pieces_Effects
-                         .Observations_Of_Pieces_Effects
-                         .Copy
-                         (Player_List_Internal
-                            (Player.Type_Player_Id (Trav_Player))
+                       Observation.Observation_Of_Pieces_Effects.Observations_Of_Pieces_Effects.Copy
+                         (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                             .Current_Player_Pieces_Observations
                             .Observed_Pieces_Effects);
 
@@ -483,21 +394,17 @@ package body Server.Server is
       use Player;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Server.Opponents_Activity_Report_Append - enter");
+         Text_IO.Put_Line ("Server.Server.Opponents_Activity_Report_Append - enter");
       end if;
 
-      for Trav_Opponent_Players in
-        Player_List_Internal'First .. Player_List_Internal'Last
-      loop
+      for Trav_Opponent_Players in Player_List_Internal'First .. Player_List_Internal'Last loop
 
          if Player_List_Internal (Trav_Opponent_Players).In_Scenario and
            Trav_Opponent_Players /= P_Player_Id
          then
             if P_Detail >= Minimum_Details then
                Observation.Activity.Activity_Report.Append
-                 (Player_List_Internal (Trav_Opponent_Players)
-                    .Activity_Reports,
+                 (Player_List_Internal (Trav_Opponent_Players).Activity_Reports,
                   Observation.Activity.Type_Activity_Report'
                     (Trav_Opponent_Players, P_Activity_Description));
             end if;
@@ -506,8 +413,7 @@ package body Server.Server is
       end loop;
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Server.Opponents_Activity_Report_Append - exit");
+         Text_IO.Put_Line ("Server.Server.Opponents_Activity_Report_Append - exit");
       end if;
    end Opponents_Activity_Report_Append;
 
@@ -519,13 +425,10 @@ package body Server.Server is
       use Player;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Server.Opponents_System_Report_Append - enter");
+         Text_IO.Put_Line ("Server.Server.Opponents_System_Report_Append - enter");
       end if;
 
-      for Trav_Opponent_Players in
-        Player_List_Internal'First .. Player_List_Internal'Last
-      loop
+      for Trav_Opponent_Players in Player_List_Internal'First .. Player_List_Internal'Last loop
 
          if Player_List_Internal (Trav_Opponent_Players).In_Scenario and
            Trav_Opponent_Players /= P_Player_Id
@@ -542,8 +445,7 @@ package body Server.Server is
       end loop;
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Server.Opponents_System_Report_Append - enter");
+         Text_IO.Put_Line ("Server.Server.Opponents_System_Report_Append - enter");
       end if;
    end Opponents_System_Report_Append;
 
@@ -555,19 +457,19 @@ package body Server.Server is
    begin
       if Verbose then
          Text_IO.Put_Line
-           ("Server.Server.Player_Activity_Report_Append - enter");
+           ("Server.Server.Player_Activity_Report_Append - enter: '" &
+            Utilities.RemoteString.To_String (P_Activity_Description) &
+            "'");
       end if;
 
       if P_Detail >= Minimum_Details then
          Observation.Activity.Activity_Report.Append
            (Player_List_Internal (P_Player_Id).Activity_Reports,
-            Observation.Activity.Type_Activity_Report'
-              (P_Player_Id, P_Activity_Description));
+            Observation.Activity.Type_Activity_Report'(P_Player_Id, P_Activity_Description));
       end if;
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Server.Player_Activity_Report_Append - exit");
+         Text_IO.Put_Line ("Server.Server.Player_Activity_Report_Append - exit");
       end if;
    end Player_Activity_Report_Append;
 
@@ -578,20 +480,17 @@ package body Server.Server is
    is
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Server.Player_System_Report_Append - enter");
+         Text_IO.Put_Line ("Server.Server.Player_System_Report_Append - enter");
       end if;
 
       if P_Detail >= Minimum_Details then
          Observation.Activity.Activity_Report.Append
            (Player_List_Internal (P_Player_Id).System_Messages,
-            Observation.Activity.Type_Activity_Report'
-              (P_Player_Id, P_Activity_Description));
+            Observation.Activity.Type_Activity_Report'(P_Player_Id, P_Activity_Description));
       end if;
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Server.Player_System_Report_Append - enter");
+         Text_IO.Put_Line ("Server.Server.Player_System_Report_Append - enter");
       end if;
    end Player_System_Report_Append;
 
@@ -601,12 +500,8 @@ package body Server.Server is
 
       Run : Status.Type_Engine_State := Status.Starting;
 
-      Current_Player_Id                  : Player.Type_Player_Id := 1;
-      Countdown                          : Positive              := 1;
+      Countdown                          : Positive := 1;
       Last_Update_Time, Last_Worker_Time : Ada.Real_Time.Time;
-
-      A_Piece  : Piece.Server.Type_Piece_Access_Class;
-      Piece_Id : Piece.Type_Piece_Id;
 
       Scenario_Name    : Utilities.RemoteString.Type_String;
       Create_File_Name : Utilities.RemoteString.Type_String;
@@ -614,6 +509,7 @@ package body Server.Server is
       Load_File_Name   : Utilities.RemoteString.Type_String;
 
       --
+      Cmd_List : Server.Cmd.Cmd_List_Pkg.Vector;
 
       use Status;
       use Ada.Real_Time;
@@ -639,15 +535,12 @@ package body Server.Server is
       Last_Update_Time := Ada.Real_Time.Clock;
       Last_Worker_Time := Last_Update_Time;
 
-      -- Must initialise as we don't know which players will be activated (this needs some improvement
-      -- this is clearly not foolproof...)
-      for Trav_Player in
-        Player_List_Internal'First .. Player_List_Internal'Last
-      loop
+   -- Must initialise as we don't know which players will be activated (this needs some improvement
+   -- this is clearly not foolproof...)
+      for Trav_Player in Player_List_Internal'First .. Player_List_Internal'Last loop
          Player_List_Internal (Trav_Player).Last_Update_Summary :=
            Last_Update_Time + Ada.Real_Time.Milliseconds (Time_Interval * 4);
-         Player_List_Internal (Trav_Player).Last_System_Warning :=
-           Last_Update_Time;
+         Player_List_Internal (Trav_Player).Last_System_Warning := Last_Update_Time;
       end loop;
 
       while Run /= Status.Stopped loop
@@ -699,31 +592,22 @@ package body Server.Server is
                      Trav_Player_Names : Utilities.RemoteString_List.Cursor;
                      I                 : Positive := 1;
                   begin
-                     Trav_Player_Names :=
-                       Utilities.RemoteString_List.First (P_Player_Name_List);
-                     while Utilities.RemoteString_List.Has_Element
-                         (Trav_Player_Names)
-                     loop
+                     Trav_Player_Names := Utilities.RemoteString_List.First (P_Player_Name_List);
+                     while Utilities.RemoteString_List.Has_Element (Trav_Player_Names) loop
 
-                        Player_List_Internal (Player.Type_Player_Id (I))
-                          .Player_Name :=
-                          Utilities.RemoteString_List.Element
-                            (Trav_Player_Names);
-                        Player_List_Internal (Player.Type_Player_Id (I))
-                          .Active :=
-                          False;
+                        Player_List_Internal (Player.Type_Player_Id (I)).Player_Name :=
+                          Utilities.RemoteString_List.Element (Trav_Player_Names);
+                        Player_List_Internal (Player.Type_Player_Id (I)).Active := False;
 
                         Utilities.RemoteString_List.Append
                           (Server_Info,
                            Utilities.RemoteString.To_Unbounded_String
                              ("Registered Player" & I'Img & ":") &
                            Utilities.RemoteString.To_String
-                             (Player_List_Internal (Player.Type_Player_Id (I))
-                                .Player_Name));
+                             (Player_List_Internal (Player.Type_Player_Id (I)).Player_Name));
 
                         I                 := I + 1;
-                        Trav_Player_Names :=
-                          Utilities.RemoteString_List.Next (Trav_Player_Names);
+                        Trav_Player_Names := Utilities.RemoteString_List.Next (Trav_Player_Names);
                      end loop;
 
                   end;
@@ -773,12 +657,8 @@ package body Server.Server is
 
                if Run = Status.Ongoing then
                   P_Player_Id := 0;
-                  for Trav in
-                    Player_List_Internal'First .. Player_List_Internal'Last
-                  loop
-                     if Player_List_Internal (Trav).Player_Name =
-                       P_Player_Name
-                     then
+                  for Trav in Player_List_Internal'First .. Player_List_Internal'Last loop
+                     if Player_List_Internal (Trav).Player_Name = P_Player_Name then
                         if not Player_List_Internal (Trav).Active then
                            P_Player_Id                        := Trav;
                            Player_List_Internal (Trav).Active := True;
@@ -787,16 +667,13 @@ package body Server.Server is
                            Server.Opponents_System_Report_Append
                              (1,
                               P_Player_Id,
-                              Utilities.RemoteString.To_String
-                                (P_Player_Name) &
-                              Utilities.RemoteString.To_Unbounded_String
-                                (" has joined the game"));
+                              Utilities.RemoteString.To_String (P_Player_Name) &
+                              Utilities.RemoteString.To_Unbounded_String (" has joined the game"));
                         else
                            P_Status := Status.Already_Joined;
                         end if;
                      end if;
                   end loop;
-
                   if P_Player_Id = 0 then
                      P_Status := Status.Not_Playing;
                   else
@@ -816,14 +693,13 @@ package body Server.Server is
                if Run = Status.Ongoing then
                   if Player_List_Internal (P_Player_Id).Active then
                      Player_List_Internal (P_Player_Id).Active := False;
-                     P_Status := Status.Adm_Ok;
+                     P_Status                                  := Status.Adm_Ok;
 
                      Server.Opponents_System_Report_Append
                        (1,
                         P_Player_Id,
                         Utilities.RemoteString.To_String (P_Player_Name) &
-                        Utilities.RemoteString.To_Unbounded_String
-                          (" has left the game"));
+                        Utilities.RemoteString.To_Unbounded_String (" has left the game"));
 
                      Run := Status.Leaving_Game;
                   else
@@ -842,9 +718,8 @@ package body Server.Server is
                P_Status      :    out Status.Type_Adm_Status) do
 
                if Run = Status.Ongoing then
-                  P_Player_Name :=
-                    Player_List_Internal (P_Player_Id).Player_Name;
-                  P_Status := Status.Adm_Ok;
+                  P_Player_Name := Player_List_Internal (P_Player_Id).Player_Name;
+                  P_Status      := Status.Adm_Ok;
                else
                   P_Status := Status.Not_Playing;
                end if;
@@ -856,11 +731,8 @@ package body Server.Server is
          or
             accept Entry_Get_Activity_Reports
               (P_Player_Id            : in     Player.Type_Player_Id;
-               P_Activity_Report_List :    out Observation.Activity
-                 .Activity_Report
-                 .Vector) do
-               P_Activity_Report_List :=
-                 Player_List_Internal (P_Player_Id).Activity_Reports;
+               P_Activity_Report_List :    out Observation.Activity.Activity_Report.Vector) do
+               P_Activity_Report_List := Player_List_Internal (P_Player_Id).Activity_Reports;
                Observation.Activity.Activity_Report.Clear
                  (Player_List_Internal (P_Player_Id).Activity_Reports);
             end Entry_Get_Activity_Reports;
@@ -869,12 +741,9 @@ package body Server.Server is
             -- pieces
             accept Entry_Get_Pieces_Report
               (P_Player_Id         : in     Player.Type_Player_Id;
-               P_Visibility_Frames :    out Observation.Frames
-                 .Piece_Visibility_Frames
-                 .Vector) do
+               P_Visibility_Frames :    out Observation.Frames.Piece_Visibility_Frames.Vector) do
 
-               P_Visibility_Frames :=
-                 Player_List_Internal (P_Player_Id).Visibility_Frames;
+               P_Visibility_Frames := Player_List_Internal (P_Player_Id).Visibility_Frames;
 
                Observation.Frames.Clear_Frames
                  (Player_List_Internal (P_Player_Id).Visibility_Frames);
@@ -888,679 +757,887 @@ package body Server.Server is
             end Entry_Get_Pieces_Report;
          or
             accept Entry_Create_Piece
-              (P_Action_Type : in     Action.Type_Action_Type;
-               P_Pos         : in     Hexagon.Type_Hexagon_Position;
-               P_Piece       : in     Piece.Type_Piece;
-               P_Player_Id   : in     Player.Type_Player_Id;
-               P_Status      :    out Status.Type_Status) do
+              (P_Player_Id   : in Player.Type_Player_Id; -- The player that placed this order
+               P_Action_Type : in Action.Type_Action_Type;
+               P_Pos         : in Hexagon.Type_Hexagon_Position;
+               P_Piece       : in Piece.Type_Piece) do
 
-               Server.Player_Action.Create_Piece
-                 (P_Action_Type,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Pos,
-                  P_Piece,
-                  Piece_Id,
-                  P_Status);
-               if P_Status = Status.Ok then
-                  A_Piece :=
-                    Piece.Server.Type_Piece_Access_Class
-                      (Piece.Server.Find_Piece_In_List (Piece_Id)
-                         .Actual_Piece);
-                  Observe_Game (1);
+               if Verbose then
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Create_Piece - enter");
+               end if;
 
-               elsif P_Status = Status.Not_Allowed_To_Create_Piece then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("You are not allowed to place this piece now"));
+               declare
+                  A_Piece_Server : Piece.Server.Type_Piece_Access_Class;
+               begin
 
-               elsif P_Status = Piece_Cant_Be_Placed then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("You can't place this piece here"));
+                  Server.Piece_Action.New_Piece (P_Piece, A_Piece_Server);
 
-               elsif P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to place pieces now"));
+                  if Piece.Server.Validate_Create_Piece
+                      (P_Player_Id,
+                       P_Action_Type,
+                       P_Pos,
+                       Piece.Server.Type_Piece'Class (A_Piece_Server.all))
+                  then
 
+                     Server.Cmd.Create_Piece
+                       (Cmd_List,
+                        P_Player_Id,
+                        P_Action_Type,
+                        P_Pos,
+                        A_Piece_Server);
+                  end if;
+
+               end;
+
+               if Verbose then
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Create_Piece - exit");
                end if;
 
             end Entry_Create_Piece;
          or
             accept Entry_Put_Piece
-              (P_Action_Type : in     Action.Type_Action_Type;
-               P_Pos         : in     Hexagon.Type_Hexagon_Position;
-               P_Piece_Id    : in     Piece.Type_Piece_Id;
-               P_Player_Id   : in     Player.Type_Player_Id;
-               P_Status      :    out Status.Type_Status) do
+              (P_Player_Id   : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type;
+               P_Pos         : in Hexagon.Type_Hexagon_Position;
+               P_Piece_Id    : in Piece.Type_Piece_Id) do
 
-               Server.Player_Action.Put_Piece
-                 (P_Action_Type,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Pos,
-                  P_Piece_Id,
-                  P_Status);
+               if Verbose then
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Put_Piece - enter");
+               end if;
 
-               if P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to place pieces now"));
+               declare
+                  A_Piece_Server : Piece.Server.Type_Piece_Access_Class;
+               begin
 
+                  A_Piece_Server := Piece.Server.Find_Piece_In_List (P_Piece_Id).Actual_Piece;
+
+                  if not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to put a piece that is not yours"));
+                  else
+                     if Piece.Server.Validate_Put_Piece
+                         (P_Player_Id,
+                          P_Action_Type,
+                          P_Pos,
+                          Piece.Server.Type_Piece'Class (A_Piece_Server.all))
+                     then
+                        Server.Cmd.Put_Piece
+                          (Cmd_List,
+                           P_Player_Id,
+                           P_Action_Type,
+                           P_Pos,
+                           A_Piece_Server.all.Id);
+                     end if;
+                  end if;
+               exception
+                  when Piece.Server.Piece_Not_Found_Piece_Position =>
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("Put Piece Piece Id:" & P_Piece_Id'Img & " Command will be cancelled."));
+               end;
+
+               if Verbose then
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Put_Piece - exit");
                end if;
 
             end Entry_Put_Piece;
          or
             accept Entry_Remove_Piece
-              (P_Action_Type : in     Action.Type_Action_Type;
-               P_Pos         : in     Hexagon.Type_Hexagon_Position;
-               P_Piece_Id    : in     Piece.Type_Piece_Id;
-               P_Player_Id   : in     Player.Type_Player_Id;
-               P_Status      :    out Status.Type_Status) do
+              (P_Player_Id   : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type;
+               P_Piece_Id    : in Piece.Type_Piece_Id) do
 
-               Server.Player_Action.Remove_Piece
-                 (P_Action_Type,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Pos,
-                  P_Piece_Id,
-                  P_Status);
-
-               if P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to remove pieces now"));
-
+               if Verbose then
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Remove_Piece - enter");
                end if;
+
+               declare
+                  A_Piece_Server : Piece.Server.Type_Piece_Access_Class;
+               begin
+
+                  A_Piece_Server := Piece.Server.Find_Piece_In_List (P_Piece_Id).Actual_Piece;
+
+                  if not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to remove a piece that is not yours"));
+                  else
+                     if Piece.Server.Validate_Remove_Piece
+                         (P_Player_Id,
+                          P_Action_Type,
+                          Piece.Server.Type_Piece'Class (A_Piece_Server.all))
+                     then
+                        Server.Cmd.Remove_Piece
+                          (Cmd_List,
+                           P_Player_Id,
+                           P_Action_Type,
+                           A_Piece_Server.all.Id);
+                     end if;
+                  end if;
+               exception
+                  when Piece.Server.Piece_Not_Found_Piece_Position =>
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("Remove Piece Piece Id:" &
+                           P_Piece_Id'Img &
+                           " Command will be cancelled."));
+               end;
+
+               if Verbose then
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Remove_Piece - exit");
+               end if;
+
             end Entry_Remove_Piece;
          or
             accept Entry_Perform_Attack
-              (P_Action_Type : in Action.Type_Action_Type;
-               P_Attacking_Piece_Id,
-               P_Attacked_Piece_Id : in Piece.Type_Piece_Id;
-               P_Attacking_Pos,
-               P_Attacked_Pos : in     Hexagon.Type_Hexagon_Position;
-               P_Player_Id    : in     Player.Type_Player_Id;
-               P_Winner       :    out Player.Type_Player_Id;
-               P_Status       :    out Status.Type_Status) do
+              (P_Player_Id                               : in Player.Type_Player_Id;
+               P_Action_Type                             : in Action.Type_Action_Type;
+               P_Attacking_Piece_Id, P_Attacked_Piece_Id : in Piece.Type_Piece_Id) do
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Perform_Attack - enter");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Attack - enter P_Attacking_Piece_Id="
+                                   & P_Attacking_Piece_Id'Img & " P_Attacked_Piece_Id=" & P_Attacked_Piece_Id'Img);
                end if;
 
-               Server.Player_Action.Perform_Attack
-                 (P_Action_Type,
-                  P_Attacking_Piece_Id,
-                  P_Attacked_Piece_Id,
-                  P_Attacking_Pos,
-                  P_Attacked_Pos,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Winner,
-                  P_Status);
+               declare
+                  An_Attacking_Piece_Server : Piece.Server.Type_Piece_Access_Class;
+                  An_Attacked_Piece_Server  : Piece.Server.Type_Piece_Access_Class;
+               begin
 
-               if P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to attack now"));
+                  An_Attacking_Piece_Server :=
+                    Piece.Server.Find_Piece_In_List (P_Attacking_Piece_Id).Actual_Piece;
+                  An_Attacked_Piece_Server :=
+                    Piece.Server.Find_Piece_In_List (P_Attacked_Piece_Id).Actual_Piece;
 
-               end if;
+                  if An_Attacking_Piece_Server.all.Category /= Piece.Fighting_Piece then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to attack with a piece that can't attack"));
+
+                  elsif An_Attacked_Piece_Server.all.Category /= Piece.Fighting_Piece then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to attack a piece that can't be attacked"));
+
+                  elsif not Piece.Server.Is_Players_Piece
+                      (Piece.Server.Type_Piece (An_Attacking_Piece_Server.all),
+                       P_Player_Id)
+                  then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to attack with a piece that is not yours"));
+
+                  -- check if player attacks himself
+                  elsif Piece.Server.Is_Players_Piece
+                      (Piece.Server.Type_Piece (An_Attacked_Piece_Server.all),
+                       P_Player_Id)
+                  then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to attack a piece that is yours"));
+
+                  else
+
+                     if Piece.Server.Fighting_Piece.Validate_Perform_Attack
+                         (P_Player_Id,
+                          P_Action_Type,
+                          Piece.Server.Fighting_Piece.Type_Piece'Class
+                            (An_Attacking_Piece_Server.all),
+                          Piece.Server.Fighting_Piece.Type_Piece'Class
+                            (An_Attacked_Piece_Server.all))
+                     then
+                        Server.Cmd.Perform_Attack
+                          (Cmd_List,
+                           P_Player_Id,
+                           P_Action_Type,
+                           An_Attacking_Piece_Server.all.Id,
+                           An_Attacked_Piece_Server.all.Id);
+                     end if;
+                  end if;
+               exception
+                  when Piece.Server.Piece_Not_Found_Piece_Position =>
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("Perform Attack either Attacking Piece Id:" &
+                           P_Attacking_Piece_Id'Img &
+                           " or Attacked Piece Id:" &
+                           P_Attacked_Piece_Id'Img &
+                           " not valid. Command will be cancelled."));
+               end;
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Perform_Attack - exit");
-               end if;
-
-            end Entry_Perform_Attack;
-         or
-            accept Entry_Perform_Attack
-              (P_Action_Type : in Action.Type_Action_Type;
-               P_Attacking_Piece_Id,
-               P_Attacked_Piece_Id : in     Piece.Type_Piece_Id;
-               P_Path              : in     Hexagon.Path.Vector;
-               P_Player_Id         : in     Player.Type_Player_Id;
-               P_Winner            :    out Player.Type_Player_Id;
-               P_Status            :    out Status.Type_Status) do
-
-               if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Perform_Attack (path)- enter");
-               end if;
-
-               Server.Player_Action.Perform_Attack
-                 (P_Action_Type,
-                  P_Attacking_Piece_Id,
-                  P_Attacked_Piece_Id,
-                  P_Path,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Winner,
-                  P_Status);
-
-               if P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to attack now"));
-
-               end if;
-
-               if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Perform_Attack (path) - exit");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Attack - exit");
                end if;
 
             end Entry_Perform_Attack;
          or
             accept Entry_Perform_Ranged_Attack
-              (P_Action_Type : in Action.Type_Action_Type;
-               P_Attacking_Piece_Id,
-               P_Attacked_Piece_Id : in Piece.Type_Piece_Id;
-               P_Attacking_Pos,
-               P_Attacked_Pos : in     Hexagon.Type_Hexagon_Position;
-               P_Player_Id    : in     Player.Type_Player_Id;
-               P_Winner       :    out Player.Type_Player_Id;
-               P_Status       :    out Status.Type_Status) do
+              (P_Player_Id                               : in Player.Type_Player_Id;
+               P_Action_Type                             : in Action.Type_Action_Type;
+               P_Attacking_Piece_Id, P_Attacked_Piece_Id : in Piece.Type_Piece_Id) do
 
                if Verbose then
                   Text_IO.Put_Line
                     ("Server.Server.Game_Engine.Entry_Perform_Ranged_Attack - enter");
                end if;
 
-               Server.Player_Action.Perform_Ranged_Attack
-                 (P_Action_Type,
-                  P_Attacking_Piece_Id,
-                  P_Attacked_Piece_Id,
-                  P_Attacking_Pos,
-                  P_Attacked_Pos,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Winner,
-                  P_Status);
+               declare
+                  An_Attacking_Piece_Server : Piece.Server.Type_Piece_Access_Class;
+                  An_Attacked_Piece_Server  : Piece.Server.Type_Piece_Access_Class;
+               begin
 
-               if P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to attack now"));
+                  An_Attacking_Piece_Server :=
+                    Piece.Server.Find_Piece_In_List (P_Attacking_Piece_Id).Actual_Piece;
+                  An_Attacked_Piece_Server :=
+                    Piece.Server.Find_Piece_In_List (P_Attacked_Piece_Id).Actual_Piece;
 
-               end if;
+                  if An_Attacking_Piece_Server.all.Category /= Piece.Fighting_Piece then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to attack with a piece that can't attack"));
+
+                  elsif An_Attacked_Piece_Server.all.Category /= Piece.Fighting_Piece then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to attack a piece that can't be attacked"));
+
+                  elsif not Piece.Server.Is_Players_Piece
+                      (Piece.Server.Type_Piece (An_Attacking_Piece_Server.all),
+                       P_Player_Id)
+                  then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to attack with a piece that is not yours"));
+
+                  -- check if player attacks himself
+                  elsif Piece.Server.Is_Players_Piece
+                      (Piece.Server.Type_Piece (An_Attacked_Piece_Server.all),
+                       P_Player_Id)
+                  then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to attack a piece that is yours"));
+
+                  else
+                     if Piece.Server.Fighting_Piece.Validate_Perform_Ranged_Attack
+                         (P_Player_Id,
+                          P_Action_Type,
+                          Piece.Server.Fighting_Piece.Type_Piece'Class
+                            (An_Attacking_Piece_Server.all),
+                          Piece.Server.Fighting_Piece.Type_Piece'Class
+                            (An_Attacked_Piece_Server.all))
+                     then
+                        Server.Cmd.Perform_Ranged_Attack
+                          (Cmd_List,
+                           P_Player_Id,
+                           P_Action_Type,
+                           An_Attacking_Piece_Server.all.Id,
+                           An_Attacked_Piece_Server.all.Id);
+                     end if;
+                  end if;
+               exception
+                  when Piece.Server.Piece_Not_Found_Piece_Position =>
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("Perform Ranged Attack either Attacking Piece Id:" &
+                           P_Attacking_Piece_Id'Img &
+                           " or Attacked Piece Id:" &
+                           P_Attacked_Piece_Id'Img &
+                           " not valid. Command will be cancelled."));
+               end;
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Perform_Ranged_Attack - exit");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Ranged_Attack - exit");
                end if;
-
             end Entry_Perform_Ranged_Attack;
          or
             accept Entry_Perform_Move
-              (P_Action_Type        : in     Action.Type_Action_Type;
-               P_Moving_Piece_Id    : in     Piece.Type_Piece_Id;
-               P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
-               P_Player_Id          : in     Player.Type_Player_Id;
-               P_Status             :    out Status.Type_Status) do
+              (P_Player_Id   : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type;
+               P_Piece_Id    : in Piece.Type_Piece_Id;
+               P_To_Pos      : in Hexagon.Type_Hexagon_Position) do
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Enter_Perform_Move - enter");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Enter_Perform_Move - enter");
                end if;
 
-               Server.Player_Action.Perform_Move
-                 (P_Action_Type,
-                  P_Moving_Piece_Id,
-                  P_From_Pos,
-                  P_To_Pos,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Status);
+               declare
+                  A_Moving_Piece_Server : Piece.Server.Type_Piece_Access_Class;
+               begin
 
-               if P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to move now"));
-               end if;
+                  A_Moving_Piece_Server :=
+                    Piece.Server.Find_Piece_In_List (P_Piece_Id).Actual_Piece;
+
+                  if A_Moving_Piece_Server.all.Category /= Piece.Fighting_Piece then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to move with a piece that can't move"));
+
+                  elsif not Piece.Server.Is_Players_Piece
+                      (Piece.Server.Type_Piece (A_Moving_Piece_Server.all),
+                       P_Player_Id)
+                  then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to move a piece that is not yours"));
+
+                  else
+                     if Piece.Server.Fighting_Piece.Validate_Perform_Move
+                         (P_Player_Id,
+                          P_Action_Type,
+                          Piece.Server.Fighting_Piece.Type_Piece'Class (A_Moving_Piece_Server.all),
+                          P_To_Pos)
+                     then
+                        Server.Cmd.Perform_Move
+                          (Cmd_List,
+                           P_Player_Id,
+                           P_Action_Type,
+                           A_Moving_Piece_Server.all.Id,
+                           P_To_Pos);
+                     end if;
+                  end if;
+               exception
+                  when Piece.Server.Piece_Not_Found_Piece_Position =>
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("Perform Move Piece Id:" &
+                           P_Piece_Id'Img &
+                           " not valid. Command will be cancelled."));
+               end;
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Enter_Perform_Move - exit");
-               end if;
-
-            end Entry_Perform_Move;
-         or
-            accept Entry_Perform_Move
-              (P_Action_Type     : in     Action.Type_Action_Type;
-               P_Moving_Piece_Id : in     Piece.Type_Piece_Id;
-               P_Path            : in     Hexagon.Path.Vector;
-               P_Player_Id       : in     Player.Type_Player_Id;
-               P_Status          :    out Status.Type_Status) do
-
-               if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Enter_Perform_Move (Path) - enter");
-               end if;
-
-               Server.Player_Action.Perform_Move
-                 (P_Action_Type,
-                  P_Moving_Piece_Id,
-                  P_Path,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Status);
-
-               if P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to move now"));
-
-               end if;
-
-               if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Enter_Perform_Move (Path) - exit");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Enter_Perform_Move - exit");
                end if;
 
             end Entry_Perform_Move;
          or
             accept Entry_Perform_Patch_Effect
-              (P_Action_Type : in     Action.Type_Action_Type;
-               P_Piece_Id    : in     Piece.Type_Piece_Id;
-               P_Pos         : in     Hexagon.Type_Hexagon_Position;
-               P_Effect      : in     Effect.Type_Effect;
-               P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-               P_Player_Id   : in     Player.Type_Player_Id;
-               P_Status      :    out Status.Type_Status) do
+              (P_Player_Id   : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type;
+               P_Piece_Id    : in Piece.Type_Piece_Id;
+               P_Effect      : in Effect.Type_Effect;
+               P_Area        : in Hexagon.Area.Type_Action_Capabilities_A) do
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Perform_Patch_Effect - enter");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Patch_Effect - enter");
                end if;
 
-               Server.Player_Action.Perform_Patch_Effect
-                 (P_Action_Type,
-                  P_Piece_Id,
-                  P_Pos,
-                  P_Effect,
-                  P_Area,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Status);
+               declare
+                  A_Piece_Server : Piece.Server.Type_Piece_Access_Class;
+               begin
 
-               if P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to move now"));
+                  A_Piece_Server := Piece.Server.Find_Piece_In_List (P_Piece_Id).Actual_Piece;
 
-               end if;
+                  if not Piece.Server.Is_Players_Piece
+                      (Piece.Server.Type_Piece (A_Piece_Server.all),
+                       P_Player_Id)
+                  then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to perform a patch effect with a piece that is not yours"));
+
+                  else
+                     if Piece.Server.Validate_Perform_Patch_Effect
+                         (P_Player_Id,
+                          P_Action_Type,
+                          Piece.Server.Type_Piece'Class (A_Piece_Server.all),
+                          P_Effect,
+                          P_Area)
+                     then
+                        Server.Cmd.Perform_Patch_Effect
+                          (Cmd_List,
+                           P_Player_Id,
+                           P_Action_Type,
+                           A_Piece_Server.all.Id,
+                           P_Effect,
+                           P_Area);
+                     end if;
+                  end if;
+               exception
+                  when Piece.Server.Piece_Not_Found_Piece_Position =>
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("Perform Patch Effect Piece Id:" &
+                           P_Piece_Id'Img &
+                           " not valid. Command will be cancelled."));
+               end;
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Perform_Patch_Effect - exit");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Patch_Effect - exit");
                end if;
 
             end Entry_Perform_Patch_Effect;
          or
             accept Entry_Perform_Piece_Effect
-              (P_Action_Type : in     Action.Type_Action_Type;
-               P_Piece_Id    : in     Piece.Type_Piece_Id;
-               P_Pos         : in     Hexagon.Type_Hexagon_Position;
-               P_Effect      : in     Effect.Type_Effect;
-               P_Player_Id   : in     Player.Type_Player_Id;
-               P_Status      :    out Status.Type_Status) do
+              (P_Player_Id   : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type;
+               P_Piece_Id    : in Piece.Type_Piece_Id;
+               P_Effect      : in Effect.Type_Effect) do
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Perform_Piece_Effect - enter");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Piece_Effect - enter");
                end if;
 
-               Server.Player_Action.Perform_Piece_Effect
-                 (P_Action_Type,
-                  P_Piece_Id,
-                  P_Pos,
-                  P_Effect,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Status);
+               declare
+                  A_Piece_Server : Piece.Server.Type_Piece_Access_Class;
+               begin
 
-               if P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to move now"));
+                  A_Piece_Server := Piece.Server.Find_Piece_In_List (P_Piece_Id).Actual_Piece;
 
-               end if;
+                  if not Piece.Server.Is_Players_Piece
+                      (Piece.Server.Type_Piece (A_Piece_Server.all),
+                       P_Player_Id)
+                  then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to perform a piece effect with a piece that is not yours"));
+
+                  else
+
+                     if Piece.Server.Validate_Perform_Piece_Effect
+                         (P_Player_Id,
+                          P_Action_Type,
+                          Piece.Server.Type_Piece'Class (A_Piece_Server.all),
+                          P_Effect)
+                     then
+                        Server.Cmd.Perform_Piece_Effect
+                          (Cmd_List,
+                           P_Player_Id,
+                           P_Action_Type,
+                           A_Piece_Server.all.Id,
+                           P_Effect);
+                     end if;
+                  end if;
+               exception
+                  when Piece.Server.Piece_Not_Found_Piece_Position =>
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("Perform Piece Effect Piece Id:" &
+                           P_Piece_Id'Img &
+                           " not valid. Command will be cancelled."));
+               end;
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Perform_Piece_Effect - exit");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Piece_Effect - exit");
                end if;
 
             end Entry_Perform_Piece_Effect;
          or
             accept Entry_Grant_Piece_Effect
-              (P_Action_Type : in     Action.Type_Action_Type;
-               P_Piece_Id    : in     Piece.Type_Piece_Id;
-               P_Effect      : in     Effect.Type_Effect;
-               P_Player_Id   : in     Player.Type_Player_Id;
-               P_Status      :    out Status.Type_Status) do
+              (P_Player_Id   : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type;
+               P_Piece_Id    : in Piece.Type_Piece_Id;
+               P_Effect      : in Effect.Type_Effect) do
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Grant_Piece_Effect - enter");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Grant_Piece_Effect - enter");
                end if;
 
-               Server.Player_Action.Grant_Piece_Effect
-                 (P_Action_Type,
-                  P_Piece_Id,
-                  P_Effect,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Status);
+               declare
+                  A_Piece_Server : Piece.Server.Type_Piece_Access_Class;
+               begin
 
-               if P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to move now"));
+                  A_Piece_Server := Piece.Server.Find_Piece_In_List (P_Piece_Id).Actual_Piece;
 
-               end if;
+                  if not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to grant effect to a piece that is not yours"));
+
+                  else
+                     if Piece.Server.Validate_Grant_Piece_Effect
+                         (P_Player_Id,
+                          P_Action_Type,
+                          Piece.Server.Type_Piece'Class (A_Piece_Server.all),
+                          P_Effect)
+                     then
+                        Server.Cmd.Grant_Piece_Effect
+                          (Cmd_List,
+                           P_Player_Id,
+                           P_Action_Type,
+                           A_Piece_Server.all.Id,
+                           P_Effect);
+                     end if;
+                  end if;
+               exception
+                  when Piece.Server.Piece_Not_Found_Piece_Position =>
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("Grant Piece Effect Piece Id:" &
+                           P_Piece_Id'Img &
+                           " not valid. Command will be cancelled."));
+               end;
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Grant_Piece_Effect - exit");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Grant_Piece_Effect - exit");
                end if;
             end Entry_Grant_Piece_Effect;
          or
             accept Entry_Revoke_Piece_Effect
-              (P_Action_Type : in     Action.Type_Action_Type;
-               P_Piece_Id    : in     Piece.Type_Piece_Id;
-               P_Effect      : in     Effect.Type_Effect;
-               P_Player_Id   : in     Player.Type_Player_Id;
-               P_Status      :    out Status.Type_Status) do
+              (P_Player_Id   : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type;
+               P_Piece_Id    : in Piece.Type_Piece_Id;
+               P_Effect      : in Effect.Type_Effect) do
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Revoke_Piece_Effect - enter");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Revoke_Piece_Effect - enter");
                end if;
 
-               Server.Player_Action.Revoke_Piece_Effect
-                 (P_Action_Type,
-                  P_Piece_Id,
-                  P_Effect,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Status);
+               declare
+                  A_Piece_Server : Piece.Server.Type_Piece_Access_Class;
+               begin
 
-               if P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to move now"));
+                  A_Piece_Server := Piece.Server.Find_Piece_In_List (P_Piece_Id).Actual_Piece;
 
-               end if;
+                  if not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to revoke effect from a piece that is not yours"));
+                  else
+                     if Piece.Server.Validate_Revoke_Piece_Effect
+                         (P_Player_Id,
+                          P_Action_Type,
+                          Piece.Server.Type_Piece'Class (A_Piece_Server.all),
+                          P_Effect)
+                     then
+
+                        Server.Cmd.Revoke_Piece_Effect
+                          (Cmd_List,
+                           P_Player_Id,
+                           P_Action_Type,
+                           A_Piece_Server.all.Id,
+                           P_Effect);
+                     end if;
+                  end if;
+               exception
+                  when Piece.Server.Piece_Not_Found_Piece_Position =>
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("Revoke Piece Effect Piece Id:" &
+                           P_Piece_Id'Img &
+                           " not valid. Command will be cancelled."));
+               end;
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Revoke_Piece_Effect - exit");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Revoke_Piece_Effect - exit");
                end if;
             end Entry_Revoke_Piece_Effect;
          or
             accept Entry_Grant_Patch_Effect
-              (P_Action_Type : in     Action.Type_Action_Type;
-               P_Piece_Id    : in     Piece.Type_Piece_Id;
-               P_Pos         : in     Hexagon.Type_Hexagon_Position;
-               P_Effect      : in     Effect.Type_Effect;
-               P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-               P_Player_Id   : in     Player.Type_Player_Id;
-               P_Status      :    out Status.Type_Status) do
+              (P_Player_Id   : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type;
+               P_Piece_Id    : in Piece.Type_Piece_Id;
+               P_Effect      : in Effect.Type_Effect;
+               P_Area        : in Hexagon.Area.Type_Action_Capabilities_A) do
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Grant_Patch_Effect - enter");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Grant_Patch_Effect - enter");
                end if;
 
-               Server.Player_Action.Grant_Patch_Effect
-                 (P_Action_Type,
-                  P_Piece_Id,
-                  P_Pos,
-                  P_Effect,
-                  P_Area,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Status);
+               declare
+                  A_Piece_Server : Piece.Server.Type_Piece_Access_Class;
+               begin
 
-               if P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to move now"));
+                  A_Piece_Server := Piece.Server.Find_Piece_In_List (P_Piece_Id).Actual_Piece;
 
-               end if;
+                  if not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to grant an effect to a patch with a piece that is not yours"));
+
+                  else
+                     if Piece.Server.Validate_Grant_Patch_Effect
+                         (P_Player_Id,
+                          P_Action_Type,
+                          Piece.Server.Type_Piece'Class (A_Piece_Server.all),
+                          P_Area,
+                          P_Effect)
+                     then
+
+                        Server.Cmd.Grant_Patch_Effect
+                          (Cmd_List,
+                           P_Player_Id,
+                           P_Action_Type,
+                           A_Piece_Server.all.Id,
+                           P_Effect,
+                           P_Area);
+                     end if;
+                  end if;
+               exception
+                  when Piece.Server.Piece_Not_Found_Piece_Position =>
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("Grant Patch Effect Piece Id:" &
+                           P_Piece_Id'Img &
+                           " not valid. Command will be cancelled."));
+               end;
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Grant_Patch_Effect - exit");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Grant_Patch_Effect - exit");
                end if;
             end Entry_Grant_Patch_Effect;
          or
             accept Entry_Revoke_Patch_Effect
-              (P_Action_Type : in     Action.Type_Action_Type;
-               P_Piece_Id    : in     Piece.Type_Piece_Id;
-               P_Pos         : in     Hexagon.Type_Hexagon_Position;
-               P_Effect      : in     Effect.Type_Effect;
-               P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-               P_Player_Id   : in     Player.Type_Player_Id;
-               P_Status      :    out Status.Type_Status) do
+              (P_Player_Id   : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type;
+               P_Piece_Id    : in Piece.Type_Piece_Id;
+               P_Effect      : in Effect.Type_Effect;
+               P_Area        : in Hexagon.Area.Type_Action_Capabilities_A) do
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Revoke_Patch_Effect - enter");
-               end if;
-
-               Server.Player_Action.Revoke_Patch_Effect
-                 (P_Action_Type,
-                  P_Piece_Id,
-                  P_Pos,
-                  P_Effect,
-                  P_Area,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Status);
-
-               if P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to move now"));
-
-               end if;
-
-               if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Revoke_Patch_Effect - exit");
-               end if;
-            end Entry_Revoke_Patch_Effect;
-         or
-            accept Entry_Observation_Area
-              (P_Piece_Id : in     Piece.Type_Piece_Id;
-               P_Ret      :    out Hexagon.Area.Server_Area
-                 .Type_Action_Capabilities_Access) do
-               if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Observation_Area - enter");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Revoke_Patch_Effect - enter");
                end if;
 
                declare
-                  A_Piece_Class : Piece.Server.Type_Piece_Access_Class;
+                  A_Piece_Server : Piece.Server.Type_Piece_Access_Class;
                begin
-                  A_Piece_Class :=
-                    Piece.Server.Type_Piece_Access_Class
-                      (Piece.Server.Find_Piece_In_List (P_Piece_Id)
-                         .Actual_Piece);
-                  P_Ret := Piece.Server.Observation_Area (A_Piece_Class.all);
+
+                  A_Piece_Server := Piece.Server.Find_Piece_In_List (P_Piece_Id).Actual_Piece;
+
+                  if not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to revoke an effect from a patch with a piece that is not yours"));
+
+                  else
+                     if Piece.Server.Validate_Revoke_Patch_Effect
+                         (P_Player_Id,
+                          P_Action_Type,
+                          Piece.Server.Type_Piece'Class (A_Piece_Server.all),
+                          P_Area,
+                          P_Effect)
+                     then
+                        Server.Cmd.Revoke_Patch_Effect
+                          (Cmd_List,
+                           P_Player_Id,
+                           P_Action_Type,
+                           A_Piece_Server.all.Id,
+                           P_Effect,
+                           P_Area);
+                     end if;
+                  end if;
+               exception
+                  when Piece.Server.Piece_Not_Found_Piece_Position =>
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("Revoke Piece Effect Piece Id:" &
+                           P_Piece_Id'Img &
+                           " not valid. Command will be cancelled."));
                end;
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Observation_Area - exit");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Revoke_Patch_Effect - exit");
                end if;
-
-            end Entry_Observation_Area;
-         or
-            accept Entry_Movement_Capability
-              (P_Piece_Id : in     Piece.Type_Piece_Id;
-               P_Ret      :    out Hexagon.Area.Server_Area
-                 .Type_Action_Capabilities_Access) do
-
-               if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Movement_Capability - enter");
-               end if;
-
-               P_Ret := Server.Player_Action.Movement_Capability (P_Piece_Id);
-
-               if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Movement_Capability - exit");
-               end if;
-
-            end Entry_Movement_Capability;
-         or
-            accept Entry_Attack_Capability
-              (P_Piece_Id : in     Piece.Type_Piece_Id;
-               P_Ret      :    out Hexagon.Area.Server_Area
-                 .Type_Action_Capabilities_Access) do
-
-               if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Attack_Capability - enter");
-               end if;
-
-               P_Ret := Server.Player_Action.Attack_Capability (P_Piece_Id);
-
-               if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Attack_Capability - exit");
-               end if;
-
-            end Entry_Attack_Capability;
-
+            end Entry_Revoke_Patch_Effect;
          or
             accept Entry_Perform_Construction
-              (P_Action_Type           : in     Action.Type_Action_Type;
-               P_Constructing_Piece_Id : in     Piece.Type_Piece_Id;
-               P_Piece_Pos             : in     Hexagon.Type_Hexagon_Position;
-               P_Construction_Pos      : in     Hexagon.Type_Hexagon_Position;
-               P_Construction          : in     Construction.Type_Construction;
-               P_Player_Id             : in     Player.Type_Player_Id;
-               P_Status                :    out Status.Type_Status) do
+              (P_Player_Id        : in Player.Type_Player_Id;
+               P_Action_Type      : in Action.Type_Action_Type;
+               P_Piece_Id         : in Piece.Type_Piece_Id;
+               P_Construction_Pos : in Hexagon.Type_Hexagon_Position;
+               P_Construction     : in Construction.Type_Construction) do
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Perform_Construction - enter");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Construction - enter");
                end if;
 
-               Server.Player_Action.Perform_Construction
-                 (P_Action_Type,
-                  P_Constructing_Piece_Id,
-                  P_Piece_Pos,
-                  P_Construction_Pos,
-                  P_Construction,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Status);
+               declare
+                  A_Piece_Server : Piece.Server.Type_Piece_Access_Class;
+               begin
 
-               if P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to move now"));
+                  A_Piece_Server := Piece.Server.Find_Piece_In_List (P_Piece_Id).Actual_Piece;
 
-               end if;
+                  if A_Piece_Server.all.Category /= Piece.House_Piece then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to construct with a piece that can't construct"));
+
+                  elsif not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to construct with a piece that is not yours"));
+                  elsif not P_Construction_Pos.P_Valid then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to construct on a position that is not valid"));
+                  else
+
+                     if Piece.Server.House_Piece.Validate_Perform_Construction
+                         (P_Player_Id,
+                          P_Action_Type,
+                          Piece.Server.House_Piece.Type_House'Class (A_Piece_Server.all),
+                          P_Construction_Pos,
+                          P_Construction)
+                     then
+
+                        Server.Cmd.Perform_Construction
+                          (Cmd_List,
+                           P_Player_Id,
+                           P_Action_Type,
+                           A_Piece_Server.all.Id,
+                           P_Construction_Pos,
+                           P_Construction);
+                     end if;
+                  end if;
+               exception
+                  when Piece.Server.Piece_Not_Found_Piece_Position =>
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("Perform Construction Piece Id:" &
+                           P_Piece_Id'Img &
+                           " not valid. Command will be cancelled."));
+               end;
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Perform_Construction - exit");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Construction - exit");
                end if;
 
             end Entry_Perform_Construction;
          or
             accept Entry_Perform_Demolition
-              (P_Action_Type         : in     Action.Type_Action_Type;
-               P_Demolition_Piece_Id : in     Piece.Type_Piece_Id;
-               P_Piece_Pos           : in     Hexagon.Type_Hexagon_Position;
-               P_Demolition_Pos      : in     Hexagon.Type_Hexagon_Position;
-               P_Construction        : in     Construction.Type_Construction;
-               P_Player_Id           : in     Player.Type_Player_Id;
-               P_Status              :    out Status.Type_Status) do
+              (P_Player_Id      : in Player.Type_Player_Id;
+               P_Action_Type    : in Action.Type_Action_Type;
+               P_Piece_Id       : in Piece.Type_Piece_Id;
+               P_Demolition_Pos : in Hexagon.Type_Hexagon_Position;
+               P_Construction   : in Construction.Type_Construction) do
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Perform_Demolition - enter");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Demolition - enter");
                end if;
 
-               Server.Player_Action.Perform_Demolition
-                 (P_Action_Type,
-                  P_Demolition_Piece_Id,
-                  P_Piece_Pos,
-                  P_Demolition_Pos,
-                  P_Construction,
-                  Current_Player_Id,
-                  P_Player_Id,
-                  P_Status);
+               declare
+                  A_Piece_Server : Piece.Server.Type_Piece_Access_Class;
+               begin
 
-               if P_Status = Status.Not_Players_Turn then
-                  Player_System_Report_Append
-                    (Observation.Activity.Internal_Details,
-                     P_Player_Id,
-                     Utilities.RemoteString.To_Unbounded_String
-                       ("It is unfortunately not your turn to move now"));
+                  A_Piece_Server := Piece.Server.Find_Piece_In_List (P_Piece_Id).Actual_Piece;
 
-               end if;
+                  if A_Piece_Server.Category /= Piece.House_Piece then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to construct with a piece that can't construct"));
+
+                  elsif not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to demolish with a piece that is not yours"));
+                  elsif not P_Demolition_Pos.P_Valid then
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("You attempted to demolish on a position that is not valid"));
+                  else
+
+                     if Piece.Server.House_Piece.Validate_Perform_Demolition
+                         (P_Player_Id,
+                          P_Action_Type,
+                          Piece.Server.House_Piece.Type_House'Class (A_Piece_Server.all),
+                          P_Demolition_Pos,
+                          P_Construction)
+                     then
+                        Server.Cmd.Perform_Demolition
+                          (Cmd_List,
+                           P_Player_Id,
+                           P_Action_Type,
+                           A_Piece_Server.all.Id,
+                           P_Demolition_Pos,
+                           P_Construction);
+                     end if;
+                  end if;
+               exception
+                  when Piece.Server.Piece_Not_Found_Piece_Position =>
+                     Server.Player_Activity_Report_Append
+                       (1,
+                        P_Player_Id,
+                        Utilities.RemoteString.To_Unbounded_String
+                          ("Perform Demolition Piece Id:" &
+                           P_Piece_Id'Img &
+                           " not valid. Command will be cancelled."));
+               end;
 
                if Verbose then
-                  Text_IO.Put_Line
-                    ("Server.Server.Game_Engine.Entry_Perform_Demolition - exit");
+                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Demolition - exit");
                end if;
 
             end Entry_Perform_Demolition;
          or
             accept Entry_Get_Updates_Summary
-              (P_Player_Id         : in     Player.Type_Player_Id;
-               P_Current_Player_Id :    out Player.Type_Player_Id;
-               P_Countdown         :    out Positive;
-               P_Game_State        :    out Status.Type_Game_Status;
-               P_System_Messages   : out Observation.Activity.Activity_Report
-                 .Vector) do
+              (P_Player_Id       : in     Player.Type_Player_Id;
+               P_Countdown       :    out Positive;
+               P_Game_State      :    out Status.Type_Game_Status;
+               P_System_Messages :    out Observation.Activity.Activity_Report.Vector) do
 
-               P_Countdown         := Countdown;
-               P_Current_Player_Id := Current_Player_Id;
-               P_Game_State        := Game_State;
+               P_Countdown  := Countdown;
+               P_Game_State := Game_State;
 
                P_System_Messages :=
                  Observation.Activity.Activity_Report.Copy
@@ -1568,31 +1645,17 @@ package body Server.Server is
                Observation.Activity.Activity_Report.Clear
                  (Player_List_Internal (P_Player_Id).System_Messages);
 
-               Player_List_Internal (P_Player_Id).Last_Update_Summary :=
-                 Ada.Real_Time.Clock;
+               Player_List_Internal (P_Player_Id).Last_Update_Summary := Ada.Real_Time.Clock;
 
                -- keep track of who got win loss messages
                if Game_State = Status.End_Of_Game then
-                  Player_List_Internal (P_Player_Id).Game_State_Reported :=
-                    True;
+                  Player_List_Internal (P_Player_Id).Game_State_Reported := True;
                end if;
 
             end Entry_Get_Updates_Summary;
 
          or
-            accept Entry_End_Turn
-              (P_Player_Id : in     Player.Type_Player_Id;
-               P_Success   :    out Boolean) do
-               if P_Player_Id = Current_Player_Id then
-                  P_Success := True;
-                  Run       := Status.Switching_Turn;
-               else
-                  P_Success := False;
-               end if;
-            end Entry_End_Turn;
-         or
-            accept Entry_Client_Stopped
-              (P_Player_Id : in Player.Type_Player_Id) do
+            accept Entry_Client_Stopped (P_Player_Id : in Player.Type_Player_Id) do
 
                Run := Status.Client_Stopped;
 
@@ -1600,8 +1663,7 @@ package body Server.Server is
                Opponents_System_Report_Append
                  (Observation.Activity.Internal_Details,
                   P_Player_Id,
-                  Utilities.RemoteString.To_Unbounded_String
-                    ("Your opponent quit unexpectedly"));
+                  Utilities.RemoteString.To_Unbounded_String ("Your opponent quit unexpectedly"));
 
                Observe_Game (1);
 
@@ -1622,42 +1684,26 @@ package body Server.Server is
          if Run = Status.Ongoing then
             -- in "Ongoing" the game is running.
 
+            Server.Piece_Action.Execute_Cmds (Cmd_List);
+
             Server.Game_Upkeep.all;
 
             -- should only be done ones every 3 second
             Server.Auto.Check_Opponent_Communications (Player_List_Internal);
 
-            Server.Auto.Update_Game
-              (Current_Player_Id,
-               Last_Update_Time,
-               Countdown,
-               Player_List_Internal);
+            Server.Auto.Update_Game (Last_Update_Time, Countdown, Player_List_Internal);
 
-            Server.Game_End.all (Game_State);
+            begin
+               Server.Game_End.all (Game_State);
+            exception
+               when others =>
+                  Text_IO.Put_Line (Text_IO.Current_Error, "Server.Server.Game_Engine: Game_End");
+                  raise;
+            end;
 
             if Game_State = Status.End_Of_Game then
                Run := Status.Last_Report;
             end if;
-
-         elsif Run = Switching_Turn then
-            Server.Game_End_Turn.all (Current_Player_Id);
-
-            Player_System_Report_Append
-              (Observation.Activity.Internal_Details,
-               Current_Player_Id,
-               Utilities.RemoteString.To_Unbounded_String ("Your turn ended"));
-
-            Current_Player_Id := Next_Players_Turn (Current_Player_Id);
-
-            Server.Game_Start_Turn.all (Current_Player_Id);
-
-            Player_System_Report_Append
-              (Observation.Activity.Internal_Details,
-               Current_Player_Id,
-               Utilities.RemoteString.To_Unbounded_String
-                 ("It is now your turn"));
-
-            Run := Status.Ongoing;
 
          elsif Run = Status.Starting then
             Utilities.Delete_Starting_With
@@ -1678,12 +1724,31 @@ package body Server.Server is
                Create_File_Name,
                Scenario_Name,
                Player_List_Internal,
-               Countdown,
-               Current_Player_Id);
+               Countdown);
 
-            Server.Game_Creating.all (Create_File_Name, Scenario_Name);
+            begin
+               Server.Game_Creating.all (Create_File_Name, Scenario_Name);
+            exception
+               when others =>
+                  Text_IO.Put_Line
+                    (Text_IO.Current_Error,
+                     "Server.Server.Game_Engine: Game_Creating");
+                  Text_IO.Put_Line
+                    (Text_IO.Current_Error,
+                     "Create_File_Name:" &
+                     Utilities.RemoteString.To_String (Create_File_Name) &
+                     " Scenario_Name:" &
+                     Utilities.RemoteString.To_String (Scenario_Name));
+                  raise;
+            end;
 
-            Server.Game_Start.all;
+            begin
+               Server.Game_Start.all;
+            exception
+               when others =>
+                  Text_IO.Put_Line (Text_IO.Current_Error, "Server.Server.Game_Engine: Game_Start");
+                  raise;
+            end;
 
             Run := Status.Ongoing;
             Utilities.Delete_Starting_With
@@ -1705,18 +1770,13 @@ package body Server.Server is
                Utilities.RemoteString.To_Unbounded_String ("Run:" & Run'Img));
             --
 
-            for Player_Index in
-              Player_List_Internal'First .. Player_List_Internal'Last
-            loop
-               Text_IO.Put_Line ("Player_Index=" & Player_Index'Img);
+            for Player_Index in Player_List_Internal'First .. Player_List_Internal'Last loop
 
                Utilities.Delete_Starting_With
                  (Server_Info,
                   Utilities.RemoteString.To_Unbounded_String
                     ("Player " &
-                     Utilities.Number_To_Fixed_String
-                       (Natural (Player_Index),
-                        2) &
+                     Utilities.Number_To_Fixed_String (Natural (Player_Index), 2) &
                      ":"));
 
                if Player_List_Internal (Player_Index).Active then
@@ -1724,15 +1784,21 @@ package body Server.Server is
                     (Server_Info,
                      Utilities.RemoteString.To_Unbounded_String
                        ("Player " &
-                        Utilities.Number_To_Fixed_String
-                          (Natural (Player_Index),
-                           2) &
+                        Utilities.Number_To_Fixed_String (Natural (Player_Index), 2) &
                         ":"));
                end if;
             end loop;
 
             --
-            Server.Game_Joining.all;
+            begin
+               Server.Game_Joining.all;
+            exception
+               when others =>
+                  Text_IO.Put_Line
+                    (Text_IO.Current_Error,
+                     "Server.Server.Game_Engine: Game_Joining");
+                  raise;
+            end;
 
             Observe_Game (1);
          elsif Run = Status.Leaving_Game then
@@ -1747,16 +1813,12 @@ package body Server.Server is
                Utilities.RemoteString.To_Unbounded_String ("Run:" & Run'Img));
             --
 
-            for Player_Index in
-              Player_List_Internal'First .. Player_List_Internal'Last
-            loop
+            for Player_Index in Player_List_Internal'First .. Player_List_Internal'Last loop
                Utilities.Delete_Starting_With
                  (Server_Info,
                   Utilities.RemoteString.To_Unbounded_String
                     ("Player " &
-                     Utilities.Number_To_Fixed_String
-                       (Natural (Player_Index),
-                        2) &
+                     Utilities.Number_To_Fixed_String (Natural (Player_Index), 2) &
                      ":"));
 
                if Player_List_Internal (Player_Index).Active then
@@ -1764,9 +1826,7 @@ package body Server.Server is
                     (Server_Info,
                      Utilities.RemoteString.To_Unbounded_String
                        ("Player " &
-                        Utilities.Number_To_Fixed_String
-                          (Natural (Player_Index),
-                           2) &
+                        Utilities.Number_To_Fixed_String (Natural (Player_Index), 2) &
                         ":"));
                end if;
 
@@ -1774,7 +1834,15 @@ package body Server.Server is
 
             --
 
-            Server.Game_Leaving.all;
+            begin
+               Server.Game_Leaving.all;
+            exception
+               when others =>
+                  Text_IO.Put_Line
+                    (Text_IO.Current_Error,
+                     "Server.Server.Game_Engine: Game_Leaving");
+                  raise;
+            end;
 
             Observe_Game (1);
          elsif Run = Status.Saving_Game then
@@ -1792,10 +1860,23 @@ package body Server.Server is
                Save_File_Name,
                Scenario_Name,
                Player_List_Internal,
-               Countdown,
-               Current_Player_Id);
+               Countdown);
 
-            Server.Game_Saving.all (Save_File_Name, Scenario_Name);
+            begin
+               Server.Game_Saving.all (Save_File_Name, Scenario_Name);
+            exception
+               when others =>
+                  Text_IO.Put_Line
+                    (Text_IO.Current_Error,
+                     "Server.Server.Game_Engine: Game_Saving");
+                  Text_IO.Put_Line
+                    (Text_IO.Current_Error,
+                     "Save_File_Name:" &
+                     Utilities.RemoteString.To_String (Save_File_Name) &
+                     " Scenario_Name:" &
+                     Utilities.RemoteString.To_String (Scenario_Name));
+                  raise;
+            end;
 
             Update_Server_Info_Maps (Server_Info);
 
@@ -1817,14 +1898,25 @@ package body Server.Server is
                Load_File_Name,
                Scenario_Name,
                Player_List_Internal,
-               Countdown,
-               Current_Player_Id);
+               Countdown);
 
-            Server.Game_Loading.all (Load_File_Name, Scenario_Name);
+            begin
+               Server.Game_Loading.all (Load_File_Name, Scenario_Name);
+            exception
+               when others =>
+                  Text_IO.Put_Line
+                    (Text_IO.Current_Error,
+                     "Server.Server.Game_Engine: Game_Loading");
+                  Text_IO.Put_Line
+                    (Text_IO.Current_Error,
+                     "Load_File_Name:" &
+                     Utilities.RemoteString.To_String (Load_File_Name) &
+                     " Scenario_Name:" &
+                     Utilities.RemoteString.To_String (Scenario_Name));
+                  raise;
+            end;
 
-            for Trav_Player in
-              Player_List_Internal'First .. Player_List_Internal'Last
-            loop
+            for Trav_Player in Player_List_Internal'First .. Player_List_Internal'Last loop
                if Player_List_Internal (Trav_Player).In_Scenario and
                  Player_List_Internal (Trav_Player).Is_Observing
                then
@@ -1854,18 +1946,12 @@ package body Server.Server is
                Res : Boolean := True;
             begin
 
-               for Trav in
-                 Player_List_Internal'First .. Player_List_Internal'Last
-               loop
-                  if Player_List_Internal (Player.Type_Player_Id (Trav))
-                      .Active
-                  then
+               for Trav in Player_List_Internal'First .. Player_List_Internal'Last loop
+                  if Player_List_Internal (Player.Type_Player_Id (Trav)).Active then
                      Res :=
                        Res and
-                       Player_List_Internal (Player.Type_Player_Id (Trav))
-                         .Game_State_Reported and
-                       Player_List_Internal (Player.Type_Player_Id (Trav))
-                         .Last_Report;
+                       Player_List_Internal (Player.Type_Player_Id (Trav)).Game_State_Reported and
+                       Player_List_Internal (Player.Type_Player_Id (Trav)).Last_Report;
                   end if;
                end loop;
 
@@ -1890,12 +1976,8 @@ package body Server.Server is
       Text_IO.Put_Line ("Server stopped");
    exception
       when E : others =>
-         Text_IO.Put_Line
-           (Text_IO.Current_Error,
-            "Task " &
-            Image (Current_Task) &
-            " terminating because of exception " &
-            Exception_Name (E));
+         Text_IO.Put_Line (Text_IO.Current_Error, "Task: " & Image (Current_Task));
+         Text_IO.Put_Line (Text_IO.Current_Error, Exception_Information (E));
    end Type_Game_Engine;
 
    procedure Start is

@@ -1,3 +1,22 @@
+--
+--
+--      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
+--      Copyright (C) 2015-2016  Frank J Jorgensen
+--
+--      This program is free software: you can redistribute it and/or modify
+--      it under the terms of the GNU General Public License as published by
+--      the Free Software Foundation, either version 3 of the License, or
+--      (at your option) any later version.
+--
+--      This program is distributed in the hope that it will be useful,
+--      but WITHOUT ANY WARRANTY; without even the implied warranty of
+--      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+--      GNU General Public License for more details.
+--
+--      You should have received a copy of the GNU General Public License
+--      along with this program.  If not, see <http://www.gnu.org/licenses/>.
+--
+
 with Lua;
 package Server.Lua_Interface is
    Verbose : constant Boolean := False;
@@ -23,29 +42,23 @@ package Server.Lua_Interface is
    function Remove_Piece (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Remove_Piece, "Remove_Piece");
 
-   function Perform_Attack_Pos (P_Lua_State : in Lua.Lua_State) return Integer;
-   pragma Export (C, Perform_Attack_Pos, "Perform_Attack_Pos");
-
-   function Perform_Attack_Path
-     (P_Lua_State : in Lua.Lua_State) return Integer;
-   pragma Export (C, Perform_Attack_Path, "Perform_Attack_Path");
-
-   function Perform_Move_Pos (P_Lua_State : in Lua.Lua_State) return Integer;
-   pragma Export (C, Perform_Move_Pos, "Perform_Move_Pos");
-
-   function Perform_Move_Path (P_Lua_State : in Lua.Lua_State) return Integer;
-   pragma Export (C, Perform_Move_Path, "Perform_Move_Path");
+   function Perform_Attack (P_Lua_State : in Lua.Lua_State) return Integer;
+   pragma Export (C, Perform_Attack, "Perform_Attack");
 
    function Perform_Ranged_Attack
      (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Perform_Ranged_Attack, "Perform_Ranged_Attack");
 
-   function Perform_Construction
-     (P_Lua_State : in Lua.Lua_State) return Integer;
-   pragma Export (C, Perform_Construction, "Perform_Construction");
+   function Perform_Move (P_Lua_State : in Lua.Lua_State) return Integer;
+   pragma Export (C, Perform_Move, "Perform_Move");
 
-   function Perform_Demolition (P_Lua_State : in Lua.Lua_State) return Integer;
-   pragma Export (C, Perform_Demolition, "Perform_Demolition");
+   function Perform_Patch_Effect
+     (P_Lua_State : in Lua.Lua_State) return Integer;
+   pragma Export (C, Perform_Patch_Effect, "Perform_Patch_Effect");
+
+   function Perform_Piece_Effect
+     (P_Lua_State : in Lua.Lua_State) return Integer;
+   pragma Export (C, Perform_Piece_Effect, "Perform_Piece_Effect");
 
    function Grant_Piece_Effect (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Grant_Piece_Effect, "Grant_Piece_Effect");
@@ -61,26 +74,12 @@ package Server.Lua_Interface is
      (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Revoke_Patch_Effect, "Revoke_Patch_Effect");
 
-   function Perform_Patch_Effect
+   function Perform_Construction
      (P_Lua_State : in Lua.Lua_State) return Integer;
-   pragma Export (C, Perform_Patch_Effect, "Perform_Patch_Effect");
+   pragma Export (C, Perform_Construction, "Perform_Construction");
 
-   function Perform_Piece_Effect
-     (P_Lua_State : in Lua.Lua_State) return Integer;
-   pragma Export (C, Perform_Piece_Effect, "Perform_Piece_Effect");
-
-   function End_Turn (P_Lua_State : in Lua.Lua_State) return Integer;
-   pragma Export (C, End_Turn, "End_Turn");
-
-   function Observation_Area (P_Lua_State : in Lua.Lua_State) return Integer;
-   pragma Export (C, Observation_Area, "Observation_Area");
-
-   function Movement_Capability
-     (P_Lua_State : in Lua.Lua_State) return Integer;
-   pragma Export (C, Movement_Capability, "Movement_Capability");
-
-   function Attack_Capability (P_Lua_State : in Lua.Lua_State) return Integer;
-   pragma Export (C, Attack_Capability, "Attack_Capability");
+   function Perform_Demolition (P_Lua_State : in Lua.Lua_State) return Integer;
+   pragma Export (C, Perform_Demolition, "Perform_Demolition");
 
    function Find_Piece_In_List (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Find_Piece_In_List, "Find_Piece_In_List");

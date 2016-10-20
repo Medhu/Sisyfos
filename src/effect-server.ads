@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 --      along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with Ada.Containers.Hashed_Maps;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
 with Utilities;

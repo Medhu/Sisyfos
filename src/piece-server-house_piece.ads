@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -46,87 +46,75 @@ package Piece.Server.House_Piece is
       P_House_Info        : in Type_House_Type_Info_List);
 
    procedure Upkeep
-     (P_Current_Player_Id : in     Player.Type_Player_Id;
-      P_Patch             : in out Hexagon.Server_Map.Type_Server_Patch;
-      P_Piece             : in out Type_House) is abstract;
+     (P_Patch : in out Hexagon.Server_Map.Type_Server_Patch;
+      P_Piece : in out Piece.Server.House_Piece.Type_House) is abstract;
 
-   function Calculate_Construction_Action_Points
-     (P_Action_Type        : in Action.Type_Action_Type;
-      P_Constructing_Piece : in Type_House;
-      P_Piece_Patch        : in Landscape.Type_Patch;
-      P_Construction_Patch : in Landscape.Type_Patch;
-      P_Construction       : in Construction.Type_Construction;
-      P_Player_Id : in Player.Type_Player_Id) return Integer is abstract;
+   --
+   -- Perform_Construction
+   --
+   function Validate_Perform_Construction
+     (P_Player_Id          : in Player.Type_Player_Id;
+      P_Action_Type        : in Action.Type_Action_Type;
+      P_Construction_Piece : in Piece.Server.House_Piece.Type_House;
+      P_Construction_Pos   : in Hexagon.Type_Hexagon_Position;
+      P_Construction       : in Construction.Type_Construction)
+      return Boolean is abstract;
 
-   procedure After_Perform_Construction
-     (P_Action_Type        : in     Action.Type_Action_Type;
-      P_Constructing_Piece : in out Type_House;
-      P_Piece_Patch        : in     Landscape.Type_Patch;
-      P_Construction_Patch : in     Landscape.Type_Patch;
+   procedure Before_Perform_Construction
+     (P_Player_Id          : in     Player.Type_Player_Id;
+      P_Action_Type        : in     Action.Type_Action_Type;
+      P_Construction_Piece : in out Piece.Server.House_Piece.Type_House;
+      P_Construction_Pos   : in     Hexagon.Type_Hexagon_Position;
       P_Construction       : in     Construction.Type_Construction;
-      P_Player_Id          : in     Player.Type_Player_Id) is abstract;
+      P_Result             :    out Status.Type_Result_Status) is abstract;
 
-   function Calculate_Demolition_Action_Points
-     (P_Action_Type      : in Action.Type_Action_Type;
-      P_Demolition_Piece : in Type_House;
-      P_Piece_Patch      : in Landscape.Type_Patch;
-      P_Demolition_Patch : in Landscape.Type_Patch;
-      P_Construction     : in Construction.Type_Construction;
-      P_Player_Id : in Player.Type_Player_Id) return Integer is abstract;
+   procedure End_Perform_Construction
+     (P_Player_Id          : in     Player.Type_Player_Id;
+      P_Action_Type        : in     Action.Type_Action_Type;
+      P_Construction_Piece : in out Piece.Server.House_Piece.Type_House;
+      P_Construction_Pos   : in     Hexagon.Type_Hexagon_Position;
+      P_Construction       : in     Construction.Type_Construction;
+      P_End_Status         : in     Status.Type_Status;
+      P_Attempts_Remaining : in out Integer) is abstract;
 
-   procedure After_Perform_Demolition
-     (P_Action_Type      : in     Action.Type_Action_Type;
-      P_Demolition_Piece : in out Type_House;
-      P_Piece_Patch      : in     Landscape.Type_Patch;
-      P_Demolition_Patch : in     Landscape.Type_Patch;
+   --
+   -- Perform_Demolition
+   --
+   function Validate_Perform_Demolition
+     (P_Player_Id        : in Player.Type_Player_Id;
+      P_Action_Type      : in Action.Type_Action_Type;
+      P_Demolition_Piece : in Piece.Server.House_Piece.Type_House;
+      P_Demolition_Pos   : in Hexagon.Type_Hexagon_Position;
+      P_Construction     : in Construction.Type_Construction)
+      return Boolean is abstract;
+
+   procedure Before_Perform_Demolition
+     (P_Player_Id        : in     Player.Type_Player_Id;
+      P_Action_Type      : in     Action.Type_Action_Type;
+      P_Demolition_Piece : in out Piece.Server.House_Piece.Type_House;
+      P_Demolition_Pos   : in     Hexagon.Type_Hexagon_Position;
       P_Construction     : in     Construction.Type_Construction;
-      P_Player_Id        : in     Player.Type_Player_Id) is abstract;
+      P_Result           :    out Status.Type_Result_Status) is abstract;
+
+   procedure End_Perform_Demolition
+     (P_Player_Id          : in     Player.Type_Player_Id;
+      P_Action_Type        : in     Action.Type_Action_Type;
+      P_Demolition_Piece   : in out Piece.Server.House_Piece.Type_House;
+      P_Demolition_Pos     : in     Hexagon.Type_Hexagon_Position;
+      P_Construction       : in     Construction.Type_Construction;
+      P_End_Status         : in     Status.Type_Status;
+      P_Attempts_Remaining : in out Integer) is abstract;
 
    type Type_Construction_Validation_Mode is
      (Construction_Mode, Demolition_Mode);
 
-   procedure Pre_Validate_Perform_Construction_Or_Demolition
-     (P_Action_Type        : in     Action.Type_Action_Type;
-      P_Construction_Piece : in     Type_House;
-      P_Piece_Patch        : in     Landscape.Type_Patch;
-      P_Construction_Patch : in     Landscape.Type_Patch;
-      P_Construction       : in     Construction.Type_Construction;
-      P_Player_Id          : in     Player.Type_Player_Id;
-      P_Mode               : in     Type_Construction_Validation_Mode;
-      P_Status             :    out Status.Type_Status);
-
-   function Validate_Perform_Construction
-     (P_Action_Type        : in Action.Type_Action_Type;
-      P_Constructing_Piece : in Type_House;
-      P_Piece_Pos          : in Hexagon.Type_Hexagon_Position;
-      P_Construction_Pos   : in Hexagon.Type_Hexagon_Position;
-      P_Construction       : in Construction.Type_Construction;
-      P_Current_Player_Id,
-      P_Player_Id : in Player.Type_Player_Id)
-      return Boolean is abstract;
-
-   function Validate_Perform_Demolition
-     (P_Action_Type      : in Action.Type_Action_Type;
-      P_Demolition_Piece : in Type_House;
-      P_Piece_Pos        : in Hexagon.Type_Hexagon_Position;
-      P_Demolition_Pos   : in Hexagon.Type_Hexagon_Position;
-      P_Construction     : in Construction.Type_Construction;
-      P_Current_Player_Id,
-      P_Player_Id : in Player.Type_Player_Id)
-      return Boolean is abstract;
+   function Validate_Exisiting_Construction
+     (P_Patch        : in Landscape.Type_Patch;
+      P_Construction : in Construction.Type_Construction) return Boolean;
 
    function Can_Construct_On_Land
      (P_Type_Of_Piece : in Type_Piece_Type;
       P_Landscape     : in Landscape.Type_Landscape) return Boolean;
-
-   function Construction_Capability
-     (P_Piece : in Type_House)
-      return Hexagon.Area.Server_Area
-       .Type_Action_Capabilities_Access is abstract;
-
-   function Construction_Terrain_Capability
-     (P_Piece : in Type_House'Class)
-      return Hexagon.Area.Server_Area.Type_Action_Capabilities_Access;
 
    function Get_Type_Of_Piece_Name
      (P_Piece : in Piece.Type_Piece) return Utilities.RemoteString.Type_String;

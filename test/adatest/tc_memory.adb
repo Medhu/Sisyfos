@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013  Frank J Jorgensen
+--      Copyright (C) 2013-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ with Landscape;
 
 package body Tc_Memory is
 
-   Verbose : constant Boolean := True;
+   Verbose : constant Boolean := False;
 
    Player_Id_1, Player_Id_2   : Player.Type_Player_Id;
    Map_Player_1, Map_Player_2 : Hexagon.Client_Map.Type_Client_Map_Info;

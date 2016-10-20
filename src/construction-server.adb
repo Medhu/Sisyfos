@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 --
 
 with Text_IO;
-with Ada.Containers.Hashed_Maps;
 
 package body Construction.Server is
    Verbose : constant Boolean := False;

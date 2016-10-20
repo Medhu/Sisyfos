@@ -28,13 +28,12 @@ package Game_RPC is
                      Put_Piece_Start, Put_Piece_End,
                      Remove_Piece_Start, Remove_Piece_End,
                      Get_Pieces_Report_Start, Get_Pieces_Report_End,
-                     Perform_Attack_Pos_Start, Perform_Attack_Pos_End,
-                     Perform_Attack_Path_Start, Perform_Attack_Path_End,
-                     Perform_Move_Pos_Start, Perform_Move_Pos_End,
-                     Perform_Move_Path_Start, Perform_Move_Path_End,
+                     Perform_Attack_Start, Perform_Attack_End,
+                     Perform_Move_Start, Perform_Move_End,
                      Perform_Patch_Effect_Start, Perform_Patch_Effect_End,
                      Perform_Piece_Effect_Start, Perform_Piece_Effect_End,
                      Perform_Construction_Start, Perform_Construction_End,
+                     Perform_Demolition_Start, Perform_Demolition_End,
                      Perform_Ranged_Attack_Start, Perform_Ranged_Attack_End,
                      Grant_Piece_Effect_Start, Grant_Piece_Effect_End,
                      Revoke_Piece_Effect_Start, Revoke_Piece_Effect_End,
@@ -45,10 +44,6 @@ package Game_RPC is
                      Leave_Game_Start, Leave_Game_End,
                      Get_Player_Name_Start, Get_Player_Name_End,
                      Get_Updates_Summary_Start, Get_Updates_Summary_End,
-                     End_Turn_Start, End_Turn_End,
-                     Client_Stopped_Start, Client_Stopped_End,
-                     Observation_Area_Start, Observation_Area_End,
-                     Movement_Capability_Start, Movement_Capability_End,
-                     Attack_Capability_Start, Attack_Capability_End);
+                     Client_Stopped_Start, Client_Stopped_End);
 
 end Game_RPC;

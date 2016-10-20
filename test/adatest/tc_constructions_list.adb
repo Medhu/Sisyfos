@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013  Frank J Jorgensen
+--      Copyright (C) 2013-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ with Construction.Server;
 
 package body Tc_Constructions_List is
 
-   Verbose : constant Boolean := True;
+   Verbose : constant Boolean := False;
    ----------
    -- Name --
    ----------

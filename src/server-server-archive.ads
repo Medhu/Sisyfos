@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -26,22 +26,19 @@ package Server.Server.Archive is
         P_Create_File_Name     : in     Utilities.RemoteString.Type_String;
         P_Scenario_Name        :    out Utilities.RemoteString.Type_String;
         P_Player_List          :    out Server.Type_Player_List;
-        P_Countdown            :    out Positive;
-        P_Current_Player_Id    :    out Player.Type_Player_Id);
+        P_Countdown            :    out Positive);
 
    procedure Saving_Game
      (P_Directory            : in     Utilities.RemoteString.Type_String;
       P_Save_File_Name, P_Scenario_Name : in Utilities.RemoteString.Type_String;
       P_Player_List              : in Server.Type_Player_List;
-      P_Countdown                       : in Positive;
-      P_Current_Player_Id               : in Player.Type_Player_Id);
+      P_Countdown                       : in Positive);
 
    procedure Loading_Game
      (P_Directory          : in     Utilities.RemoteString.Type_String;
       P_Load_File_Name     : in     Utilities.RemoteString.Type_String;
       P_Scenario_Name      :    out Utilities.RemoteString.Type_String;
       P_Player_List        :    out Server.Type_Player_List;
-      P_Countdown          :    out Positive;
-      P_Current_Player_Id  :    out Player.Type_Player_Id);
+      P_Countdown          :    out Positive);
 
 end Server.Server.Archive;

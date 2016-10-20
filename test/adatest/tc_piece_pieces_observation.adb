@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013  Frank J Jorgensen
+--      Copyright (C) 2013-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -37,10 +37,8 @@ package body Tc_Piece_Pieces_Observation is
 
    procedure Test_Observation_1 (CWTC : in out AUnit.Test_Cases.Test_Case'Class) is
       use Hexagon;
-      Equal : Boolean := True;
 
       Test        : Observation.Observation_Of_Patches.Observations_Of_Patches.Set;
-      Test_Cursor : Observation.Observation_Of_Patches.Observations_Of_Patches.Cursor;
       use Ada.Containers;
    begin
 
@@ -131,7 +129,6 @@ package body Tc_Piece_Pieces_Observation is
       use Piece;
       use Ada.Containers;
    begin
-      Text_IO.Put_Line ("Test_Find_Delta_Observed_Pieces_1");
       Observation.Observation_Of_Pieces.Observations_Of_Pieces.Include
         (Previous,
          Observation.Observation_Of_Pieces.Type_Observed_Piece'(Hexagon.Type_Hexagon_Position'(True, 2, 1), Piece.Type_Piece_Id'(1)));
@@ -168,7 +165,6 @@ package body Tc_Piece_Pieces_Observation is
       use Piece;
       use Ada.Containers;
    begin
-      Text_IO.Put_Line ("Test_Find_Delta_Observed_Pieces_2");
       Observation.Observation_Of_Pieces.Observations_Of_Pieces.Include
         (Current,
          Observation.Observation_Of_Pieces.Type_Observed_Piece'(Hexagon.Type_Hexagon_Position'(True, 2, 1), Piece.Type_Piece_Id'(1)));
@@ -211,7 +207,6 @@ package body Tc_Piece_Pieces_Observation is
       use Piece;
       use Ada.Containers;
    begin
-      Text_IO.Put_Line ("Test_Find_Delta_Observed_Pieces_3");
      Observation.Observation_Of_Pieces.Observations_Of_Pieces.Include
         (Previous,
          Observation.Observation_Of_Pieces.Type_Observed_Piece'(Hexagon.Type_Hexagon_Position'(True, 2, 1), Piece.Type_Piece_Id'(1)));
@@ -264,7 +259,6 @@ package body Tc_Piece_Pieces_Observation is
       use Piece;
       use Ada.Containers;
    begin
-      Text_IO.Put_Line ("Test_Find_Delta_Observed_Pieces_4");
       Observation.Observation_Of_Pieces.Observations_Of_Pieces.Include
         (Previous,
          Observation.Observation_Of_Pieces.Type_Observed_Piece'(Hexagon.Type_Hexagon_Position'(True, 2, 1), Piece.Type_Piece_Id'(1)));
@@ -308,7 +302,6 @@ package body Tc_Piece_Pieces_Observation is
       use Piece;
       use Ada.Containers;
    begin
-      Text_IO.Put_Line ("Test_Find_Delta_Observed_Pieces_5");
       Observation.Observation_Of_Pieces.Observations_Of_Pieces.Include
         (Previous,
          Observation.Observation_Of_Pieces.Type_Observed_Piece'(Hexagon.Type_Hexagon_Position'(True, 2, 1), Piece.Type_Piece_Id'(1)));
@@ -358,7 +351,6 @@ package body Tc_Piece_Pieces_Observation is
       use Piece;
       use Ada.Containers;
    begin
-      Text_IO.Put_Line ("Test_Find_Delta_Observed_Pieces_6");
       Observation.Observation_Of_Pieces.Observations_Of_Pieces.Include
         (Previous,
          Observation.Observation_Of_Pieces.Type_Observed_Piece'(Hexagon.Type_Hexagon_Position'(True, 2, 1), Piece.Type_Piece_Id'(1)));

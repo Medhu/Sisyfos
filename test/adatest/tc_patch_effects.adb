@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013  Frank J Jorgensen
+--      Copyright (C) 2013-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ with Hexagon.Server_Map;
 with Utilities;
 with Ada.Strings.Unbounded;
 with Player;
-with Server.Server;
+with Server.ServerAPI;
 with Test_Piece;
 with Status;
 with Piece.Server.Fighting_Piece;
@@ -41,12 +41,14 @@ with Ada.Containers.Ordered_Sets;
 with Action;
 
 package body Tc_Patch_Effects is
-   Verbose : constant Boolean := True;
+   Verbose : constant Boolean := False;
 
    Player_Id_1, Player_Id_2   : Player.Type_Player_Id;
    Map_Player_1, Map_Player_2 : Hexagon.Client_Map.Type_Client_Map_Info;
    Test_Class1                : Test_Piece.Type_My_Test_Piece_Access_Class;
    Test_Class2                : Test_Piece.Type_My_Test_House_Access_Class;
+   Command_Line : Utilities.RemoteString.Type_Command_Parameters;
+   Test_List : aliased Test_Piece.Type_Test_List;
 
    ------------
    -- Set_Up --
@@ -71,9 +73,6 @@ package body Tc_Patch_Effects is
    procedure Tear_Down (T : in out Test_Case) is
       pragma Unreferenced (T);
 
---      Adm_Status : Status.Type_Adm_Status;
-
-      use Player;
    begin
       if Verbose then
          Text_IO.Put_Line ("tc_patch_effects.Tear_Down - enter");
@@ -91,6 +90,7 @@ package body Tc_Patch_Effects is
    procedure Set_Up_Case (T : in out Test_Case) is
       pragma Unreferenced (T);
       Adm_Status : Status.Type_Adm_Status;
+      Command_Line : Utilities.RemoteString.Type_Command_Parameters;
 
       Player_Name_List : Utilities.RemoteString_List.Vector;
       use Player;
@@ -99,6 +99,9 @@ package body Tc_Patch_Effects is
       if Verbose then
          Text_IO.Put_Line ("tc_patch_effects.Set_Up_Case - enter");
       end if;
+
+      Test_ServerRCI.Init(Command_Line);
+      Test_Piece.Test_List := Test_List'Access;
 
       Test_Class1               := new Test_Piece.Type_My_Test_Piece;
       Test_Class1.Id            := Piece.Undefined_Piece_Id;
@@ -110,7 +113,7 @@ package body Tc_Patch_Effects is
       Test_Class2.Type_Of_Piece := Piece.Undefined_Piece_Type;
       Test_Class2.Player_Id     := Player.Undefined_Player_Id;
 
-      Server.Server.Init
+      Server.ServerAPI.Init
         (Test_Class1.all,
          Test_Class2.all,
          Test_Piece.Landscapes_Type_Info_List,
@@ -125,10 +128,8 @@ package body Tc_Patch_Effects is
          Test_Piece.Test_Leaving_Game'Access,
          Test_Piece.Test_Start_Game'Access,
          Test_Piece.Test_Upkeep_Game'Access,
-         Test_Piece.Test_Start_Turn'Access,
-         Test_Piece.Test_End_Turn'Access,
          Test_Piece.Test_End_Game'Access);
-      Server.Server.Start;
+      Server.ServerAPI.Start;
 
       Utilities.RemoteString_List.Append(Player_Name_List, Utilities.RemoteString.To_Unbounded_String ("User A"));
       Utilities.RemoteString_List.Append(Player_Name_List, Utilities.RemoteString.To_Unbounded_String ("User B"));
@@ -307,7 +308,7 @@ package body Tc_Patch_Effects is
         (A_Server_Patch.all.Effects_Here,
          Test_Piece.Effect_Hunger,
          Effect.Type_Effect'(Test_Piece.Effect_Hunger, 1));
-      Server.Server.Observe_Game (1); -- We must do this from here. This is a server side responsibility.
+      Server.ServerAPI.Observe_Game (1); -- We must do this from here. This is a server side responsibility.
 
       Piece.Client_Piece.Get_Pieces_Report (Player_Id_1, All_Frames);
 
@@ -361,7 +362,7 @@ package body Tc_Patch_Effects is
       An_Area : Hexagon.Area.Type_Action_Capabilities_A (1 .. 2) :=
         (1 => Hexagon.Type_Hexagon_Position'(True, 4, 4),
          2 => Hexagon.Type_Hexagon_Position'(True, 4, 6));
-      Ret_Status : Status.Type_Status;
+      A_Piece : Piece.Type_Piece;
 
       use Ada.Containers;
       use Effect;
@@ -379,18 +380,23 @@ package body Tc_Patch_Effects is
          "Expected 1 effects on (4, 6) but got " &
          Effect.Effect_List.Length (A_Server_Patch2.all.Effects_Here)'Img);
 
-      Test_ServerRCI.Grant_Patch_Effect
-        (Action.Type_Action_Type(1),
-         1,
-         A_Pos,
+      A_Piece.Id := 1;
+      A_Piece.Type_Of_Piece := 9;
+      A_Piece.Category := Piece.Fighting_Piece;
+      A_Piece.Player_Id := 1;
+
+      Piece.Client_Piece.Grant_Patch_Effect
+        (Player.Type_Player_Id(1),
+         Action.Type_Action_Type(1200),
+         A_Piece,
          Effect.Type_Effect'(Test_Piece.Effect_Weather, 0),
-         An_Area,
-         Player.Type_Player_Id(1),
-         Ret_Status);
+         An_Area);
+
+      Test_Piece.Wait_For_Server(1200);
 
       AUnit.Assertions.Assert
-        (Ret_Status = Status.Ok,
-         "Expected status Ok but got" & Ret_Status'Img);
+        (Test_Piece.Test_List.all(1200).Result = Status.Ok,
+         "Expected status Ok but got" & Test_Piece.Test_List.all(1200).Result'Img);
 
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
@@ -430,7 +436,7 @@ package body Tc_Patch_Effects is
       An_Area : Hexagon.Area.Type_Action_Capabilities_A (1 .. 2) :=
         (1 => Hexagon.Type_Hexagon_Position'(True, 4, 4),
          2 => Hexagon.Type_Hexagon_Position'(True, 4, 6));
-      Ret_Status : Status.Type_Status;
+      A_Piece : Piece.Type_Piece;
 
       use Ada.Containers;
       use Effect;
@@ -449,18 +455,23 @@ package body Tc_Patch_Effects is
          "Expected 2 effects on (4, 6) but got " &
          Effect.Effect_List.Length (A_Server_Patch2.all.Effects_Here)'Img);
 
-      Test_ServerRCI.Revoke_Patch_Effect
-        (Action.Type_Action_Type(1),
-         1,
-         A_Pos,
+      A_Piece.Id := 1;
+      A_Piece.Type_Of_Piece := 9;
+      A_Piece.Category := Piece.Fighting_Piece;
+      A_Piece.Player_Id := 1;
+
+      Piece.Client_Piece.Revoke_Patch_Effect
+        (Player.Type_Player_Id(1),
+         Action.Type_Action_Type(1201),
+         A_Piece,
          Effect.Type_Effect'(Test_Piece.Effect_Weather, 0),
-         An_Area,
-         Player.Type_Player_Id(1),
-         Ret_Status);
+         An_Area);
+
+      Test_Piece.Wait_For_Server(1201);
 
       AUnit.Assertions.Assert
-        (Ret_Status = Status.Ok,
-         "Expected status Ok but got" & Ret_Status'Img);
+        (Test_Piece.Test_List.all(1201).Result = Status.Ok,
+         "Expected status Ok but got" & Test_Piece.Test_List.all(1201).Result'Img);
 
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
@@ -489,104 +500,6 @@ package body Tc_Patch_Effects is
       end if;
    end Test_Revoke_During_Game_1;
 
-   procedure Test_Grant_Inconsistent_Parameters (CWTC : in out AUnit.Test_Cases.Test_Case'Class) is
-      Test_Effect : Effect.Effect_List.Cursor;
-
-      A_Server_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
-
-      A_Pos   : Hexagon.Type_Hexagon_Position := Hexagon.Type_Hexagon_Position'(True, 4, 4);
-      An_Area : Hexagon.Area.Type_Action_Capabilities_A (1 .. 2) :=
-        (1 => Hexagon.Type_Hexagon_Position'(True, 4, 4),
-         2 => Hexagon.Type_Hexagon_Position'(True, 4, 6));
-      Ret_Status : Status.Type_Status;
-
-      use Ada.Containers;
-      use Effect;
-      use Hexagon;
-      use Player;
-      use Status;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("tc_patch_effects.Test_Grant_Inconsistent_Parameters - enter");
-      end if;
-
-      A_Server_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (5, 5);
-
-      Test_ServerRCI.Grant_Patch_Effect
-        (Action.Type_Action_Type(1),
-         1,
-         A_Server_Patch.all.Pos,
-         Effect.Type_Effect'(Test_Piece.Effect_Weather, 0),
-         An_Area,
-         Player.Type_Player_Id(1),
-         Ret_Status);
-
-      AUnit.Assertions.Assert
-        (Ret_Status = Status.Inconsistent_Parameters,
-         "Expected status Inconsistent_Parameters but got " & Ret_Status'Img);
-
-      Hexagon.Server_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path & "tc_patch_effect-Test_Grant_Inconsistent_Parameters_01.html"));
-      Hexagon.Client_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path & "tc_patch_effect-Test_Grant_Inconsistent_Parameters_02.html"),
-         Map_Player_1);
-
-      if Verbose then
-         Text_IO.Put_Line ("tc_patch_effects.Test_Grant_Inconsistent_Parameters - exit");
-      end if;
-   end Test_Grant_Inconsistent_Parameters;
-
-   procedure Test_Grant_Not_Players_Piece (CWTC : in out AUnit.Test_Cases.Test_Case'Class) is
-      Test_Effect : Effect.Effect_List.Cursor;
-
-      A_Server_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
-
-      A_Pos   : Hexagon.Type_Hexagon_Position := Hexagon.Type_Hexagon_Position'(True, 4, 4);
-      An_Area : Hexagon.Area.Type_Action_Capabilities_A (1 .. 2) :=
-        (1 => Hexagon.Type_Hexagon_Position'(True, 4, 4),
-         2 => Hexagon.Type_Hexagon_Position'(True, 4, 6));
-      Ret_Status : Status.Type_Status;
-
-      use Ada.Containers;
-      use Effect;
-      use Hexagon;
-      use Player;
-      use Status;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("tc_patch_effects.Test_Grant_Not_Players_Piece - enter");
-      end if;
-
-      A_Server_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (5, 5);
-
-      Test_ServerRCI.Grant_Patch_Effect
-        (Action.Type_Action_Type(1),
-         3,
-         A_Server_Patch.all.Pos,
-         Effect.Type_Effect'(Test_Piece.Effect_Weather, 0),
-         An_Area,
-         Player.Type_Player_Id(1),
-         Ret_Status);
-
-      AUnit.Assertions.Assert
-        (Ret_Status = Status.Not_Players_Piece,
-         "Expected status Not_Players_Piece but got " & Ret_Status'Img);
-
-      Hexagon.Server_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path & "tc_patch_effect-Test_Grant_Not_Players_Piece_01.html"));
-      Hexagon.Client_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path & "tc_patch_effect-Test_Grant_Not_Players_Piece_02.html"),
-         Map_Player_1);
-
-      if Verbose then
-         Text_IO.Put_Line ("tc_patch_effects.Test_Grant_Not_Players_Piece - exit");
-      end if;
-   end Test_Grant_Not_Players_Piece;
-
    procedure Test_Grant_On_Patched_Not_Belonging_To_Player
      (CWTC : in out AUnit.Test_Cases.Test_Case'Class)
    is
@@ -598,7 +511,7 @@ package body Tc_Patch_Effects is
       An_Area : Hexagon.Area.Type_Action_Capabilities_A (1 .. 2) :=
         (1 => Hexagon.Type_Hexagon_Position'(True, 5, 5),
          2 => Hexagon.Type_Hexagon_Position'(True, 4, 6));
-      Ret_Status : Status.Type_Status;
+      A_Piece : Piece.Type_Piece;
 
       use Ada.Containers;
       use Effect;
@@ -613,18 +526,23 @@ package body Tc_Patch_Effects is
 
       A_Server_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (4, 4);
 
-      Test_ServerRCI.Grant_Patch_Effect
-        (Action.Type_Action_Type(1),
-         1,
-         A_Server_Patch.all.Pos,
+      A_Piece.Id := 1;
+      A_Piece.Type_Of_Piece := 9;
+      A_Piece.Category := Piece.Fighting_Piece;
+      A_Piece.Player_Id := 1;
+
+      Piece.Client_Piece.Grant_Patch_Effect
+        (Player.Type_Player_Id(1),
+         Action.Type_Action_Type(1210),
+         A_Piece,
          Effect.Type_Effect'(Test_Piece.Effect_Weather, 0),
-         An_Area,
-         Player.Type_Player_Id(1),
-         Ret_Status);
+         An_Area);
+
+      Test_Piece.Wait_For_Server(1210);
 
       AUnit.Assertions.Assert
-        (Ret_Status = Status.Target_Patch_Occupied,
-         "Expected status Target_Patch_Occupied but got " & Ret_Status'Img);
+        (Test_Piece.Test_List.all(1210).Result = Status.Target_Patch_Occupied,
+         "Expected status Target_Patch_Occupied but got " & Test_Piece.Test_List.all(1210).Result'Img);
 
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
@@ -641,104 +559,6 @@ package body Tc_Patch_Effects is
       end if;
    end Test_Grant_On_Patched_Not_Belonging_To_Player;
 
-   procedure Test_Revoke_Inconsistent_Parameters (CWTC : in out AUnit.Test_Cases.Test_Case'Class) is
-      Test_Effect : Effect.Effect_List.Cursor;
-
-      A_Server_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
-
-      A_Pos   : Hexagon.Type_Hexagon_Position := Hexagon.Type_Hexagon_Position'(True, 4, 4);
-      An_Area : Hexagon.Area.Type_Action_Capabilities_A (1 .. 2) :=
-        (1 => Hexagon.Type_Hexagon_Position'(True, 4, 4),
-         2 => Hexagon.Type_Hexagon_Position'(True, 4, 6));
-      Ret_Status : Status.Type_Status;
-
-      use Ada.Containers;
-      use Effect;
-      use Hexagon;
-      use Player;
-      use Status;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("tc_patch_effects.Test_Revoke_Inconsistent_Parameters - enter");
-      end if;
-
-      A_Server_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (5, 5);
-
-      Test_ServerRCI.Grant_Patch_Effect
-        (Action.Type_Action_Type(1),
-         1,
-         A_Server_Patch.all.Pos,
-         Effect.Type_Effect'(Test_Piece.Effect_Weather, 0),
-         An_Area,
-         Player.Type_Player_Id(1),
-         Ret_Status);
-
-      AUnit.Assertions.Assert
-        (Ret_Status = Status.Inconsistent_Parameters,
-         "Expected status Inconsistent_Parameters but got " & Ret_Status'Img);
-
-      Hexagon.Server_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path & "tc_patch_effect-Test_Revoke_Inconsistent_Parameters_01.html"));
-      Hexagon.Client_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path & "tc_patch_effect-Test_Revoke_Inconsistent_Parameters_02.html"),
-         Map_Player_1);
-
-      if Verbose then
-         Text_IO.Put_Line ("tc_patch_effects.Test_Revoke_Inconsistent_Parameters - exit");
-      end if;
-   end Test_Revoke_Inconsistent_Parameters;
-
-   procedure Test_Revoke_Not_Players_Piece (CWTC : in out AUnit.Test_Cases.Test_Case'Class) is
-      Test_Effect : Effect.Effect_List.Cursor;
-
-      A_Server_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
-
-      A_Pos   : Hexagon.Type_Hexagon_Position := Hexagon.Type_Hexagon_Position'(True, 4, 4);
-      An_Area : Hexagon.Area.Type_Action_Capabilities_A (1 .. 2) :=
-        (1 => Hexagon.Type_Hexagon_Position'(True, 4, 4),
-         2 => Hexagon.Type_Hexagon_Position'(True, 4, 6));
-      Ret_Status : Status.Type_Status;
-
-      use Ada.Containers;
-      use Effect;
-      use Hexagon;
-      use Player;
-      use Status;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("tc_patch_effects.Test_Revoke_Not_Players_Piece - enter");
-      end if;
-
-      A_Server_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (5, 5);
-
-      Test_ServerRCI.Grant_Patch_Effect
-        (Action.Type_Action_Type(1),
-         3,
-         A_Server_Patch.all.Pos,
-         Effect.Type_Effect'(Test_Piece.Effect_Weather, 0),
-         An_Area,
-         Player.Type_Player_Id(1),
-         Ret_Status);
-
-      AUnit.Assertions.Assert
-        (Ret_Status = Status.Not_Players_Piece,
-         "Expected status Not_Players_Piece but got " & Ret_Status'Img);
-
-      Hexagon.Server_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path & "tc_patch_effect-Test_Revoke_Not_Players_Piece_01.html"));
-      Hexagon.Client_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path & "tc_patch_effect-Test_Revoke_Not_Players_Piece_02.html"),
-         Map_Player_1);
-
-      if Verbose then
-         Text_IO.Put_Line ("tc_patch_effects.Test_Revoke_Not_Players_Piece - exit");
-      end if;
-   end Test_Revoke_Not_Players_Piece;
-
    procedure Test_Revoke_On_Patched_Not_Belonging_To_Player
      (CWTC : in out AUnit.Test_Cases.Test_Case'Class)
    is
@@ -750,7 +570,6 @@ package body Tc_Patch_Effects is
       An_Area : Hexagon.Area.Type_Action_Capabilities_A (1 .. 2) :=
         (1 => Hexagon.Type_Hexagon_Position'(True, 5, 5),
          2 => Hexagon.Type_Hexagon_Position'(True, 4, 6));
-      Ret_Status : Status.Type_Status;
 
       use Ada.Containers;
       use Effect;
@@ -766,17 +585,17 @@ package body Tc_Patch_Effects is
       A_Server_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (4, 4);
 
       Test_ServerRCI.Grant_Patch_Effect
-        (Action.Type_Action_Type(1),
+        (Player.Type_Player_Id(1),
+         Action.Type_Action_Type(1212),
          1,
-         A_Server_Patch.all.Pos,
          Effect.Type_Effect'(Test_Piece.Effect_Weather, 0),
-         An_Area,
-         Player.Type_Player_Id(1),
-         Ret_Status);
+         An_Area);
+
+      Test_Piece.Wait_For_Server(1212);
 
       AUnit.Assertions.Assert
-        (Ret_Status = Status.Target_Patch_Occupied,
-         "Expected status Target_Patch_Occupied but got " & Ret_Status'Img);
+        (Test_Piece.Test_List.all(1212).Result = Status.Target_Patch_Occupied,
+         "Expected status Target_Patch_Occupied but got " & Test_Piece.Test_List.all(1212).Result'Img);
 
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
@@ -822,28 +641,8 @@ package body Tc_Patch_Effects is
 
       AUnit.Test_Cases.Registration.Register_Routine
         (Test    => T,
-         Routine => Test_Grant_Inconsistent_Parameters'Access,
-         Name    => "Test effect grant when sending in a piece that does not exist on the patch");
-
-      AUnit.Test_Cases.Registration.Register_Routine
-        (Test    => T,
-         Routine => Test_Grant_Not_Players_Piece'Access,
-         Name    => "Test effect grant using not players piece");
-
-      AUnit.Test_Cases.Registration.Register_Routine
-        (Test    => T,
          Routine => Test_Grant_On_Patched_Not_Belonging_To_Player'Access,
          Name    => "Test effect grant effect on a patch not belonging to the player");
-
-      AUnit.Test_Cases.Registration.Register_Routine
-        (Test    => T,
-         Routine => Test_Revoke_Inconsistent_Parameters'Access,
-         Name    => "Test effect revoke when sending in a piece that does not exist on the patch");
-
-      AUnit.Test_Cases.Registration.Register_Routine
-        (Test    => T,
-         Routine => Test_Revoke_Not_Players_Piece'Access,
-         Name    => "Test effect revoke using not players piece");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (Test    => T,

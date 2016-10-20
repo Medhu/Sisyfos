@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013  Frank J Jorgensen
+--      Copyright (C) 2013-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ with Piece.Server;
 with Test_Piece;
 
 package body Tc_Get_Pieces_Report.Test_Assistant is
-   Verbose : constant Boolean := True;
+   Verbose : constant Boolean := False;
    Frame : Positive := 1;
 
    type Type_Test_Assistant_Map is array (1 .. 100, 1 .. 100) of Boolean;
@@ -73,9 +73,6 @@ package body Tc_Get_Pieces_Report.Test_Assistant is
       end if;
 
       Piece.Client_Piece.Get_Pieces_Report (P_Player_Id, Player_Pieces_Visibility_Frames);
-      Text_IO.Put_Line
-        ("Player_Pieces_Visibility_Frames.length=" &
-         Observation.Frames.Piece_Visibility_Frames.Length (Player_Pieces_Visibility_Frames)'Img);
 
       Frame_Cursor :=
         Observation.Frames.Piece_Visibility_Frames.First (Player_Pieces_Visibility_Frames);
@@ -124,15 +121,6 @@ package body Tc_Get_Pieces_Report.Test_Assistant is
       use Ada.Containers;
       use Piece;
    begin
-      Text_IO.Put_Line ("Test_Assistant Observed Patches");
-      Text_IO.Put_Line
-        ("Observed_Patches length=" &
-         Observation.Observation_Of_Patches.Observations_Of_Patches.Length
-           (P_Observations.Observed_Patches)'
-           Img);
-
-      --
-      --
       Tmp_Observations :=
         Observation.Observation_Of_Patches.Observations_Of_Patches.Copy
           (P_Observations.Observed_Patches);

@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013  Frank J Jorgensen
+--      Copyright (C) 2013-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 with Hexagon;
 with Hexagon.Client_Map;
 with Hexagon.Server_Map;
-with Server.Server;
+with Server.ServerAPI;
 with Text_IO;
 with AUnit.Assertions;
 with Landscape;
@@ -37,13 +37,13 @@ with Observation;
 with Action;
 
 package body TC_Hexagon_Client_Map is
-   Verbose : constant Boolean := True;
+   Verbose : constant Boolean := False;
 
    Player_Id_1, Player_Id_2   : Player.Type_Player_Id;
    Map_Player_1, Map_Player_2 : Hexagon.Client_Map.Type_Client_Map_Info;
    Test_Class1                : Test_Piece.Type_My_Test_Piece_Access_Class;
    Test_Class2                : Test_Piece.Type_My_Test_House_Access_Class;
-
+   Test_List                  : aliased Test_Piece.Type_Test_List;
    ------------
    -- Set_Up --
    ------------
@@ -52,12 +52,16 @@ package body TC_Hexagon_Client_Map is
       pragma Unreferenced (T);
 
       Player_Name_List : Utilities.RemoteString_List.Vector;
+      Command_Line : Utilities.RemoteString.Type_Command_Parameters;
 
       Adm_Status : Status.Type_Adm_Status;
    begin
       if Verbose then
          Text_IO.Put_Line ("TC_Hexagon_Client_Map.Set_Up_Case - enter");
       end if;
+
+      Test_ServerRCI.Init (Command_Line);
+      Test_Piece.Test_List := Test_List'Access;
 
       Test_Class1               := new Test_Piece.Type_My_Test_Piece;
       Test_Class1.Id            := Piece.Undefined_Piece_Id;
@@ -69,7 +73,7 @@ package body TC_Hexagon_Client_Map is
       Test_Class2.Type_Of_Piece := Piece.Undefined_Piece_Type;
       Test_Class2.Player_Id     := Player.Undefined_Player_Id;
 
-      Server.Server.Init
+      Server.ServerAPI.Init
         (Test_Class1.all,
          Test_Class2.all,
          Test_Piece.Landscapes_Type_Info_List,
@@ -84,10 +88,8 @@ package body TC_Hexagon_Client_Map is
          Test_Piece.Test_Leaving_Game'Access,
          Test_Piece.Test_Start_Game'Access,
          Test_Piece.Test_Upkeep_Game'Access,
-         Test_Piece.Test_Start_Turn'Access,
-         Test_Piece.Test_End_Turn'Access,
          Test_Piece.Test_End_Game'Access);
-      Server.Server.Start;
+      Server.ServerAPI.Start;
 
       Utilities.RemoteString_List.Append(Player_Name_List, Utilities.RemoteString.To_Unbounded_String ("User A"));
       Utilities.RemoteString_List.Append(Player_Name_List, Utilities.RemoteString.To_Unbounded_String ("User B"));
@@ -144,7 +146,7 @@ package body TC_Hexagon_Client_Map is
    procedure Tear_Down_Case (T : in out Test_Case) is
       pragma Unreferenced (T);
    begin
-      Server.Server.Stop;
+      Server.ServerAPI.Stop;
    end Tear_Down_Case;
 
    ----------
@@ -783,131 +785,6 @@ package body TC_Hexagon_Client_Map is
 
    end Test_Get_Patch_From_XY_108_148_and_AB_4_3;
 
-   procedure Test_Select_Reachable_Patches_For_Sentry
-     (CWTC : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      A_Patch               : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      Movement_Capabilities : Hexagon.Area.Client_Area.Type_Action_Capabilities_Access;
-      Ret                   : Hexagon.Client_Map.Type_Client_Patch_Area_Access;
-      A_Piece               : Piece.Type_Piece;
-      Ret_Status            : Status.Type_Status;
-
-      use Hexagon.Client_Map;
-      use Hexagon;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("tc_hexagon_client_map.Test_Select_Reachable_Patches_For_Sentry - enter");
-      end if;
-
-      A_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 2, 4);
-      Piece.Client_Piece.Create_Piece
-        (Action.Type_Action_Type(1),
-         A_Piece,
-         Test_Piece.Sentry_Piece,
-         Piece.Fighting_Piece,
-         Landscape.Type_Patch (A_Patch.all),
-         1,
-         Ret_Status);
-
-      A_Piece.Id := 4;
-      Hexagon.Server_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path & "tc_hexagon_client_map-Test_Select_Reachable_Patches_For_Sentry_01.html"));
-      Movement_Capabilities := Piece.Client_Piece.Movement_Capability (A_Piece);
-      Ret                   :=
-        Hexagon.Client_Map.Capability_To_Area (Map_Player_1, A_Patch.all, Movement_Capabilities);
-
-      Hexagon.Server_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path & "tc_hexagon_client_map-Test_Select_Reachable_Patches_For_Sentry_02.html"));
-
-      AUnit.Assertions.Assert
-        (Condition => Ret'Length = 6,
-         Message   => "Didnt select the correct patches to reach by a sentry");
-
-      AUnit.Assertions.Assert
-        (Condition =>
-           Ret (1).Pos.A = 3 and
-           Ret (1).Pos.B = 4 and
-           Ret (2).Pos.A = 3 and
-           Ret (2).Pos.B = 3 and
-           Ret (3).Pos.A = 2 and
-           Ret (3).Pos.B = 3 and
-           Ret (4).Pos.A = 1 and
-           Ret (4).Pos.B = 5 and
-           Ret (5).Pos.A = 1 and
-           Ret (5).Pos.B = 4 and
-           Ret (6).Pos.A = 2 and
-           Ret (6).Pos.B = 5,
-         Message => "Didnt select the correct patches to reach by a sentry");
-
-      if Verbose then
-         Text_IO.Put_Line ("tc_hexagon_client_map.Test_Select_Reachable_Patches_For_Sentry - exit");
-      end if;
-
-   end Test_Select_Reachable_Patches_For_Sentry;
-
-   procedure Test_Select_Attackable_Patches_For_Sentry
-     (CWTC : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      A_Patch             : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      A_Piece             : Piece.Type_Piece;
-      Attack_Capabilities : Hexagon.Area.Client_Area.Type_Action_Capabilities_Access;
-      Ret                 : Hexagon.Client_Map.Type_Client_Patch_Area_Access;
-      Ret_Status          : Status.Type_Status;
-
-      use Hexagon;
-      use Hexagon.Client_Map;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("tc_hexagon_client_map.Test_Select_Attackable_Patches_For_Sentry - enter");
-      end if;
-
-      A_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 2, 4);
-      Piece.Client_Piece.Create_Piece
-        (Action.Type_Action_Type(1),
-         A_Piece,
-         Test_Piece.Sentry_Piece,
-         Piece.Fighting_Piece,
-         Landscape.Type_Patch (A_Patch.all),
-         1,
-         Ret_Status);
-
-      A_Piece.Id := 5;
-      Hexagon.Server_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path & "tc_hexagon_client_map-Test_Select_Attackable_Patches_For_Sentry_01.html"));
-      Attack_Capabilities := Piece.Client_Piece.Movement_Capability (A_Piece);
-      Ret := Hexagon.Client_Map.Capability_To_Area (Map_Player_1, A_Patch.all, Attack_Capabilities);
-
-      AUnit.Assertions.Assert
-        (Condition => Ret'Length = 6,
-         Message   => "Didnt select the correct patches for attacks by a sentry");
-
-      AUnit.Assertions.Assert
-        (Condition =>
-           Ret (1).Pos.A = 3 and
-           Ret (1).Pos.B = 4 and
-           Ret (2).Pos.A = 3 and
-           Ret (2).Pos.B = 3 and
-           Ret (3).Pos.A = 2 and
-           Ret (3).Pos.B = 3 and
-           Ret (4).Pos.A = 1 and
-           Ret (4).Pos.B = 5 and
-           Ret (5).Pos.A = 1 and
-           Ret (5).Pos.B = 4 and
-           Ret (6).Pos.A = 2 and
-           Ret (6).Pos.B = 5,
-         Message => "Didnt select the correct patches to reach by a sentry");
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("tc_hexagon_client_map.Test_Select_Attackable_Patches_For_Sentry - exit");
-      end if;
-   end Test_Select_Attackable_Patches_For_Sentry;
-
    --------------------
    -- Register_Tests --
    --------------------
@@ -1014,16 +891,6 @@ package body TC_Hexagon_Client_Map is
         (Test    => T,
          Routine => Test_Get_Patch_From_XY_108_148_and_AB_4_3'Access,
          Name    => "Client Map Tests Test_Get_Patch_From_XY");
-      AUnit.Test_Cases.Registration.Register_Routine
-        (Test    => T,
-         Routine => Test_Select_Reachable_Patches_For_Sentry'Access,
-         Name    =>
-           "Client Map Tests Test to see if correct reachable patches are selected on client map for a sentry");
-      AUnit.Test_Cases.Registration.Register_Routine
-        (Test    => T,
-         Routine => Test_Select_Attackable_Patches_For_Sentry'Access,
-         Name    =>
-           "Client Map Tests Test to see if correct attackable patches are selected on client map for a sentry");
 
    end Register_Tests;
 

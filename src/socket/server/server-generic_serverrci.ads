@@ -79,8 +79,8 @@ package Server.Generic_ServerRCI is
       P_Player_Id   :    out Player.Type_Player_Id;
       P_Player_Name :    out Utilities.RemoteString.Type_String);
    procedure Leave_Game_Out
-     (P_Channel   : in GNAT.Sockets.Stream_Access;
-      P_Status    : in Status.Type_Adm_Status);
+     (P_Channel : in GNAT.Sockets.Stream_Access;
+      P_Status  : in Status.Type_Adm_Status);
 
    procedure Get_Player_Name_In
      (P_Channel   : in     GNAT.Sockets.Stream_Access;
@@ -92,36 +92,23 @@ package Server.Generic_ServerRCI is
 
    procedure Create_Piece_In
      (P_Channel     : in     GNAT.Sockets.Stream_Access;
-      P_Action_Type :    out Action.Type_Action_Type;
       P_Player_Id   :    out Player.Type_Player_Id;
+      P_Action_Type :    out Action.Type_Action_Type;
       P_Pos         :    out Hexagon.Type_Hexagon_Position;
       P_Piece       :    out Piece.Type_Piece);
 
-   procedure Create_Piece_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Status  : in Status.Type_Status);
-
    procedure Put_Piece_In
      (P_Channel     : in     GNAT.Sockets.Stream_Access;
-      P_Action_Type :    out Action.Type_Action_Type;
       P_Player_Id   :    out Player.Type_Player_Id;
+      P_Action_Type :    out Action.Type_Action_Type;
       P_Pos         :    out Hexagon.Type_Hexagon_Position;
       P_Piece_Id    :    out Piece.Type_Piece_Id);
-
-   procedure Put_Piece_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Status  : in Status.Type_Status);
 
    procedure Remove_Piece_In
      (P_Channel     : in     GNAT.Sockets.Stream_Access;
-      P_Action_Type :    out Action.Type_Action_Type;
       P_Player_Id   :    out Player.Type_Player_Id;
-      P_Pos         :    out Hexagon.Type_Hexagon_Position;
+      P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id);
-
-   procedure Remove_Piece_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Status  : in Status.Type_Status);
 
    procedure Get_Pieces_Report_In
      (P_Channel   : in     GNAT.Sockets.Stream_Access;
@@ -134,133 +121,92 @@ package Server.Generic_ServerRCI is
 
    procedure Perform_Attack_In
      (P_Channel : in     GNAT.Sockets.Stream_Access;
+      P_Player_Id                               :    out Player.Type_Player_Id;
       P_Action_Type                             : out Action.Type_Action_Type;
-      P_Attacking_Piece_Id, P_Attacked_Piece_Id :    out Piece.Type_Piece_Id;
-      P_Attacking_Pos, P_Attacked_Pos :    out Hexagon.Type_Hexagon_Position;
-      P_Player_Id                               : out Player.Type_Player_Id);
-
-   procedure Perform_Attack_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Winner  : in Player.Type_Player_Id;
-      P_Status  : in Status.Type_Status);
-
-   procedure Perform_Attack_In
-     (P_Channel : in     GNAT.Sockets.Stream_Access;
-      P_Action_Type                             : out Action.Type_Action_Type;
-      P_Attacking_Piece_Id, P_Attacked_Piece_Id :    out Piece.Type_Piece_Id;
-      P_Path                                    :    out Hexagon.Path.Vector;
-      P_Player_Id                               : out Player.Type_Player_Id);
+      P_Attacking_Piece_Id, P_Attacked_Piece_Id :    out Piece.Type_Piece_Id);
 
    procedure Perform_Ranged_Attack_In
      (P_Channel : in     GNAT.Sockets.Stream_Access;
+      P_Player_Id                               :    out Player.Type_Player_Id;
       P_Action_Type                             : out Action.Type_Action_Type;
-      P_Attacking_Piece_Id, P_Attacked_Piece_Id :    out Piece.Type_Piece_Id;
-      P_Attacking_Pos, P_Attacked_Pos :    out Hexagon.Type_Hexagon_Position;
-      P_Player_Id                               : out Player.Type_Player_Id);
+      P_Attacking_Piece_Id, P_Attacked_Piece_Id :    out Piece.Type_Piece_Id);
 
    procedure Perform_Move_In
-     (P_Channel            : in     GNAT.Sockets.Stream_Access;
-      P_Action_Type        :    out Action.Type_Action_Type;
-      P_Moving_Piece_Id    :    out Piece.Type_Piece_Id;
-      P_From_Pos, P_To_Pos :    out Hexagon.Type_Hexagon_Position;
-      P_Player_Id          :    out Player.Type_Player_Id);
-
-   procedure Perform_Move_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Status  : in Status.Type_Status);
+     (P_Channel     : in     GNAT.Sockets.Stream_Access;
+      P_Player_Id   :    out Player.Type_Player_Id;
+      P_Action_Type :    out Action.Type_Action_Type;
+      P_Piece_Id    :    out Piece.Type_Piece_Id;
+      P_To_Pos      :    out Hexagon.Type_Hexagon_Position);
 
    procedure Perform_Move_In
-     (P_Channel         : in     GNAT.Sockets.Stream_Access;
-      P_Action_Type     :    out Action.Type_Action_Type;
-      P_Moving_Piece_Id :    out Piece.Type_Piece_Id;
-      P_Path            :    out Hexagon.Path.Vector;
-      P_Player_Id       :    out Player.Type_Player_Id);
+     (P_Channel     : in     GNAT.Sockets.Stream_Access;
+      P_Action_Type :    out Action.Type_Action_Type;
+      P_Piece_Id    :    out Piece.Type_Piece_Id;
+      P_Path        :    out Hexagon.Path.Vector;
+      P_Player_Id   :    out Player.Type_Player_Id);
 
    procedure Perform_Patch_Effect_In
      (P_Channel     : in     GNAT.Sockets.Stream_Access;
+      P_Player_Id   :    out Player.Type_Player_Id;
       P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
-      P_Pos         :    out Hexagon.Type_Hexagon_Position;
       P_Effect      :    out Effect.Type_Effect;
-      P_Area : out Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A;
-      P_Player_Id   :    out Player.Type_Player_Id);
-
-   procedure Perform_Patch_Effect_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Status  : in Status.Type_Status);
+      P_Area : out Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A);
 
    procedure Perform_Piece_Effect_In
      (P_Channel     : in     GNAT.Sockets.Stream_Access;
+      P_Player_Id   :    out Player.Type_Player_Id;
       P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
-      P_Pos         :    out Hexagon.Type_Hexagon_Position;
-      P_Effect      :    out Effect.Type_Effect;
-      P_Player_Id   :    out Player.Type_Player_Id);
-
-   procedure Perform_Piece_Effect_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Status  : in Status.Type_Status);
+      P_Effect      :    out Effect.Type_Effect);
 
    procedure Perform_Construction_In
-     (P_Channel               : in     GNAT.Sockets.Stream_Access;
-      P_Action_Type           :    out Action.Type_Action_Type;
-      P_Constructing_Piece_Id :    out Piece.Type_Piece_Id;
-      P_Piece_Pos             :    out Hexagon.Type_Hexagon_Position;
-      P_Construction_Pos      :    out Hexagon.Type_Hexagon_Position;
-      P_Construction          :    out Construction.Type_Construction;
-      P_Player_Id             :    out Player.Type_Player_Id);
+     (P_Channel          : in     GNAT.Sockets.Stream_Access;
+      P_Player_Id        :    out Player.Type_Player_Id;
+      P_Action_Type      :    out Action.Type_Action_Type;
+      P_Piece_Id         :    out Piece.Type_Piece_Id;
+      P_Construction_Pos :    out Hexagon.Type_Hexagon_Position;
+      P_Construction     :    out Construction.Type_Construction
+      );
 
-   procedure Perform_Construction_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Status  : in Status.Type_Status);
+   procedure Perform_Demolition_In
+     (P_Channel          : in     GNAT.Sockets.Stream_Access;
+      P_Player_Id        :    out Player.Type_Player_Id;
+      P_Action_Type      :    out Action.Type_Action_Type;
+      P_Piece_Id         :    out Piece.Type_Piece_Id;
+      P_Construction_Pos :    out Hexagon.Type_Hexagon_Position;
+      P_Construction     :    out Construction.Type_Construction
+      );
 
    procedure Grant_Piece_Effect_In
      (P_Channel     : in     GNAT.Sockets.Stream_Access;
-      P_Action_Type :    out Action.Type_Action_Type;
       P_Player_Id   :    out Player.Type_Player_Id;
+      P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
       P_Effect      :    out Effect.Type_Effect);
-
-   procedure Grant_Piece_Effect_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Status  : in Status.Type_Status);
 
    procedure Revoke_Piece_Effect_In
      (P_Channel     : in     GNAT.Sockets.Stream_Access;
-      P_Action_Type :    out Action.Type_Action_Type;
       P_Player_Id   :    out Player.Type_Player_Id;
+      P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
       P_Effect      :    out Effect.Type_Effect);
 
-   procedure Revoke_Piece_Effect_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Status  : in Status.Type_Status);
-
    procedure Grant_Patch_Effect_In
      (P_Channel     : in     GNAT.Sockets.Stream_Access;
-      P_Action_Type :    out Action.Type_Action_Type;
       P_Player_Id   :    out Player.Type_Player_Id;
+      P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
-      P_Pos         :    out Hexagon.Type_Hexagon_Position;
       P_Effect      :    out Effect.Type_Effect;
       P_Area : out Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A);
-
-   procedure Grant_Patch_Effect_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Status  : in Status.Type_Status);
 
    procedure Revoke_Patch_Effect_In
      (P_Channel     : in     GNAT.Sockets.Stream_Access;
-      P_Action_Type :    out Action.Type_Action_Type;
       P_Player_Id   :    out Player.Type_Player_Id;
+      P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
-      P_Pos         :    out Hexagon.Type_Hexagon_Position;
       P_Effect      :    out Effect.Type_Effect;
       P_Area : out Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A);
-
-   procedure Revoke_Patch_Effect_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Status  : in Status.Type_Status);
 
    procedure Get_Map_In (P_Channel : in GNAT.Sockets.Stream_Access);
 
@@ -273,43 +219,14 @@ package Server.Generic_ServerRCI is
       P_Player_Id :    out Player.Type_Player_Id);
 
    procedure Get_Updates_Summary_Out
-     (P_Channel           : in GNAT.Sockets.Stream_Access;
-      P_Current_Player_Id : in Player.Type_Player_Id;
-      P_Countdown         : in Positive;
-      P_Game_Status       : in Status.Type_Game_Status;
-      P_System_Messages   : in Observation.Activity.Activity_Report.Vector);
-
-   procedure End_Turn_In
-     (P_Channel   : in     GNAT.Sockets.Stream_Access;
-      P_Player_Id :    out Player.Type_Player_Id);
-   procedure End_Turn_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Ret     : in Boolean);
+     (P_Channel         : in GNAT.Sockets.Stream_Access;
+      P_Countdown       : in Positive;
+      P_Game_Status     : in Status.Type_Game_Status;
+      P_System_Messages : in Observation.Activity.Activity_Report.Vector);
 
    procedure Client_Stopped_In
      (P_Channel   : in     GNAT.Sockets.Stream_Access;
       P_Player_Id :    out Player.Type_Player_Id);
    procedure Client_Stopped_Out (P_Channel : in GNAT.Sockets.Stream_Access);
-
-   procedure Observation_Area_In
-     (P_Channel  : in     GNAT.Sockets.Stream_Access;
-      P_Piece_Id :    out Piece.Type_Piece_Id);
-   procedure Observation_Area_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Area    : in Hexagon.Area.Server_Area.Type_Action_Capabilities_Access);
-
-   procedure Movement_Capability_In
-     (P_Channel  : in     GNAT.Sockets.Stream_Access;
-      P_Piece_Id :    out Piece.Type_Piece_Id);
-   procedure Movement_Capability_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Area    : in Hexagon.Area.Server_Area.Type_Action_Capabilities_Access);
-
-   procedure Attack_Capability_In
-     (P_Channel  : in     GNAT.Sockets.Stream_Access;
-      P_Piece_Id :    out Piece.Type_Piece_Id);
-   procedure Attack_Capability_Out
-     (P_Channel : in GNAT.Sockets.Stream_Access;
-      P_Area    : in Hexagon.Area.Server_Area.Type_Action_Capabilities_Access);
 
 end Server.Generic_ServerRCI;

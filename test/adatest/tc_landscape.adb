@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013  Frank J Jorgensen
+--      Copyright (C) 2013-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -66,7 +66,6 @@ package body Tc_Landscape is
          Utilities.RemoteString.To_Unbounded_String ("test"),
          1);
       Landscape.Pieces_Here_List.Append (A_Patch.Pieces_Here, A_Piece.Id);
-      Landscape.Put_Pieces_Here (A_Patch.Pieces_Here);
       Landscape.Pieces_Here_Sort.Sort (A_Patch.Pieces_Here);
 
       AUnit.Assertions.Assert
@@ -100,7 +99,6 @@ package body Tc_Landscape is
          Utilities.RemoteString.To_Unbounded_String ("test"),
          1);
       Landscape.Pieces_Here_List.Append (A_Patch.Pieces_Here, A_Piece.Id);
-      Landscape.Put_Pieces_Here (A_Patch.Pieces_Here);
 
       AUnit.Assertions.Assert
         (Condition => Landscape.Pieces_Here_List.Length (A_Patch.Pieces_Here) = 1 and
@@ -150,10 +148,7 @@ package body Tc_Landscape is
          Utilities.RemoteString.To_Unbounded_String ("test"),
          1);
       Landscape.Pieces_Here_List.Append (A_Patch.Pieces_Here, A_Piece.Id);
-
-      Landscape.Put_Pieces_Here (A_Patch.Pieces_Here);
       Landscape.Pieces_Here_Sort.Sort (A_Patch.Pieces_Here);
-      Landscape.Put_Pieces_Here (A_Patch.Pieces_Here);
 
       AUnit.Assertions.Assert
         (Condition => Landscape.Pieces_Here_List.Length (A_Patch.Pieces_Here) = 3 and

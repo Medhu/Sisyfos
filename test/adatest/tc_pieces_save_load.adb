@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013  Frank J Jorgensen
+--      Copyright (C) 2013-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -22,21 +22,18 @@ with AUnit.Assertions;
 with Piece;
 with Piece.Server;
 with Ada.Containers;
-with Ada.Streams;
-with Ada.Streams.Stream_IO;
 with Hexagon;
 with Utilities;
 with Test_Piece;
 with Effect;
-with Effect.Server;
-with Server.Server;
+with Server.ServerAPI;
 with Ada.Strings;
 with Ada.Strings.Unbounded;
 with Player;
 
 package body Tc_Pieces_Save_Load is
 
-   Verbose     : constant Boolean := True;
+   Verbose     : constant Boolean := False;
    Test_Class1 : Test_Piece.Type_My_Test_Piece_Access_Class;
    Test_Class2 : Test_Piece.Type_My_Test_House_Access_Class;
 
@@ -53,7 +50,7 @@ package body Tc_Pieces_Save_Load is
       pragma Unreferenced (T);
    begin
       if Verbose then
-         Text_IO.Put_Line ("TC_Piece_Client_Piece.Set_Up - enter");
+         Text_IO.Put_Line ("Tc_Pieces_Save_Load.Set_Up_Case - enter");
       end if;
 
       Test_Class1               := new Test_Piece.Type_My_Test_Piece;
@@ -66,7 +63,7 @@ package body Tc_Pieces_Save_Load is
       Test_Class2.Type_Of_Piece := Piece.Undefined_Piece_Type;
       Test_Class2.Player_Id     := Player.Undefined_Player_Id;
 
-      Server.Server.Init
+      Server.ServerAPI.Init
         (Test_Class1.all,
          Test_Class2.all,
          Test_Piece.Landscapes_Type_Info_List,
@@ -81,8 +78,6 @@ package body Tc_Pieces_Save_Load is
          Test_Piece.Test_Leaving_Game'Access,
          Test_Piece.Test_Start_Game'Access,
          Test_Piece.Test_Upkeep_Game'Access,
-         Test_Piece.Test_Start_Turn'Access,
-         Test_Piece.Test_End_Turn'Access,
          Test_Piece.Test_End_Game'Access);
    end Set_Up_Case;
 
@@ -148,7 +143,7 @@ package body Tc_Pieces_Save_Load is
            Piece.Fighting_Piece,
            Utilities.RemoteString.To_Unbounded_String ("The name"),
            1,
-           6,
+--           6,
            Some_Effects,
            56);
 
@@ -263,7 +258,7 @@ package body Tc_Pieces_Save_Load is
            Piece.Fighting_Piece,
            Utilities.RemoteString.To_Unbounded_String ("The name 1"),
            1,
-           6,
+           --6,
            Some_Effects,
            52);
 
@@ -285,7 +280,7 @@ package body Tc_Pieces_Save_Load is
            Piece.Fighting_Piece,
            Utilities.RemoteString.To_Unbounded_String ("The name 2"),
            1,
-           2,
+--           2,
            Some_Effects,
            57);
 
@@ -311,7 +306,7 @@ package body Tc_Pieces_Save_Load is
            Piece.Fighting_Piece,
            Utilities.RemoteString.To_Unbounded_String ("The name 3"),
            1,
-           6,
+--           6,
            Some_Effects,
            54);
 

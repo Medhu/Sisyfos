@@ -44,8 +44,8 @@ D a-unccon.ads		20140406181358 f9eb8f06 ada.unchecked_conversion%s
 D interfac.ads		20140406181358 69adb1b9 interfaces%s
 D i-c.ads		20140406181358 5421119b interfaces.c%s
 D i-cstrin.ads		20140406181356 341d0ddf interfaces.c.strings%s
-D lua.ads		20160118201202 cae74ec4 lua%s
-D lua.adb		20160118201202 fb496c71 lua%b
+D lua.ads		20160501062456 cae74ec4 lua%s
+D lua.adb		20160501062456 fb496c71 lua%b
 D system.ads		20140406181358 5fc8ae56 system%s
 D s-exctab.ads		20140406181354 54135002 system.exception_table%s
 D s-imenne.ads		20140406181354 614c06c0 system.img_enum_new%s

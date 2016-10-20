@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
 with Text_IO;
 with Hexagon;
 with Piece;
-with Hexagon.Area.Server_Area;
 with Text_IO;
 with Utilities;
 with Server.Server;
@@ -28,7 +27,7 @@ with Status;
 
 package body Server.ServerRAPI is
 
-   Verbose : constant Boolean := True;
+   Verbose : constant Boolean := False;
 
    procedure Init
      (P_Command_Line : in Utilities.RemoteString.Type_Command_Parameters)
@@ -82,11 +81,10 @@ package body Server.ServerRAPI is
    end Stop;
 
    procedure Create_Piece
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Player_Id   : in     Player.Type_Player_Id;
-      P_Pos         : in     Hexagon.Type_Hexagon_Position;
-      P_Piece       : in     Piece.Type_Piece;
-      P_Status      :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Pos         : in Hexagon.Type_Hexagon_Position;
+      P_Piece       : in Piece.Type_Piece)
    is
       use Server;
    begin
@@ -98,11 +96,10 @@ package body Server.ServerRAPI is
          raise Game_Engine_Doesnt_Exists;
       else
          Server.Game_Engine.Entry_Create_Piece
-           (P_Action_Type,
+           (P_Player_Id,
+            P_Action_Type,
             P_Pos,
-            P_Piece,
-            P_Player_Id,
-            P_Status);
+            P_Piece);
       end if;
 
       if Verbose then
@@ -113,11 +110,10 @@ package body Server.ServerRAPI is
 
    -- Public procedures offered by Server
    procedure Put_Piece
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Player_Id   : in     Player.Type_Player_Id;
-      P_Pos         : in     Hexagon.Type_Hexagon_Position;
-      P_Piece_Id    : in     Piece.Type_Piece_Id;
-      P_Status      :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Pos         : in Hexagon.Type_Hexagon_Position;
+      P_Piece_Id    : in Piece.Type_Piece_Id)
    is
       use Server;
    begin
@@ -129,25 +125,21 @@ package body Server.ServerRAPI is
          raise Game_Engine_Doesnt_Exists;
       else
          Server.Game_Engine.Entry_Put_Piece
-           (P_Action_Type,
+           (P_Player_Id,
+            P_Action_Type,
             P_Pos,
-            P_Piece_Id,
-            P_Player_Id,
-            P_Status);
+            P_Piece_Id);
       end if;
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerRAPI.Put_Piece - exit " & P_Status'Img);
+         Text_IO.Put_Line ("Server.ServerRAPI.Put_Piece - exit ");
       end if;
    end Put_Piece;
 
    procedure Remove_Piece
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Player_Id   : in     Player.Type_Player_Id;
-      P_Pos         : in     Hexagon.Type_Hexagon_Position;
-      P_Piece_Id    : in     Piece.Type_Piece_Id;
-      P_Status      :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id    : in Piece.Type_Piece_Id)
    is
       use Server;
    begin
@@ -159,11 +151,9 @@ package body Server.ServerRAPI is
          raise Game_Engine_Doesnt_Exists;
       else
          Server.Game_Engine.Entry_Remove_Piece
-           (P_Action_Type,
-            P_Pos,
-            P_Piece_Id,
-            P_Player_Id,
-            P_Status);
+           (P_Player_Id,
+            P_Action_Type,
+            P_Piece_Id);
       end if;
 
       if Verbose then
@@ -198,12 +188,9 @@ package body Server.ServerRAPI is
    end Get_Pieces_Report;
 
    procedure Perform_Attack
-     (P_Action_Type                             : in Action.Type_Action_Type;
-      P_Attacking_Piece_Id, P_Attacked_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Attacking_Pos, P_Attacked_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Player_Id                               : in     Player.Type_Player_Id;
-      P_Winner                                  :    out Player.Type_Player_Id;
-      P_Status                                  :    out Status.Type_Status)
+     (P_Player_Id                               : in Player.Type_Player_Id;
+      P_Action_Type                             : in Action.Type_Action_Type;
+      P_Attacking_Piece_Id, P_Attacked_Piece_Id : in Piece.Type_Piece_Id)
    is
       use Server;
    begin
@@ -215,14 +202,10 @@ package body Server.ServerRAPI is
          raise Game_Engine_Doesnt_Exists;
       else
          Server.Game_Engine.Entry_Perform_Attack
-           (P_Action_Type,
+           (P_Player_Id,
+            P_Action_Type,
             P_Attacking_Piece_Id,
-            P_Attacked_Piece_Id,
-            P_Attacking_Pos,
-            P_Attacked_Pos,
-            P_Player_Id,
-            P_Winner,
-            P_Status);
+            P_Attacked_Piece_Id);
       end if;
 
       if Verbose then
@@ -230,45 +213,10 @@ package body Server.ServerRAPI is
       end if;
    end Perform_Attack;
 
-   procedure Perform_Attack
-     (P_Action_Type                             : in Action.Type_Action_Type;
-      P_Attacking_Piece_Id, P_Attacked_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Path                                    : in     Hexagon.Path.Vector;
-      P_Player_Id                               : in     Player.Type_Player_Id;
-      P_Winner                                  :    out Player.Type_Player_Id;
-      P_Status                                  :    out Status.Type_Status)
-   is
-      use Server;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerRAPI.Perform_Attack (path) - enter");
-      end if;
-
-      if Server.Game_Engine = null then
-         raise Game_Engine_Doesnt_Exists;
-      else
-         Server.Game_Engine.Entry_Perform_Attack
-           (P_Action_Type,
-            P_Attacking_Piece_Id,
-            P_Attacked_Piece_Id,
-            P_Path,
-            P_Player_Id,
-            P_Winner,
-            P_Status);
-      end if;
-
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerRAPI.Perform_Attack (path) - exit");
-      end if;
-   end Perform_Attack;
-
    procedure Perform_Ranged_Attack
-     (P_Action_Type                             : in Action.Type_Action_Type;
-      P_Attacking_Piece_Id, P_Attacked_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Attacking_Pos, P_Attacked_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Player_Id                               : in     Player.Type_Player_Id;
-      P_Winner                                  :    out Player.Type_Player_Id;
-      P_Status                                  :    out Status.Type_Status)
+     (P_Player_Id                               : in Player.Type_Player_Id;
+      P_Action_Type                             : in Action.Type_Action_Type;
+      P_Attacking_Piece_Id, P_Attacked_Piece_Id : in Piece.Type_Piece_Id)
    is
       use Server;
    begin
@@ -280,14 +228,10 @@ package body Server.ServerRAPI is
          raise Game_Engine_Doesnt_Exists;
       else
          Server.Game_Engine.Entry_Perform_Ranged_Attack
-           (P_Action_Type,
+           (P_Player_Id,
+            P_Action_Type,
             P_Attacking_Piece_Id,
-            P_Attacked_Piece_Id,
-            P_Attacking_Pos,
-            P_Attacked_Pos,
-            P_Player_Id,
-            P_Winner,
-            P_Status);
+            P_Attacked_Piece_Id);
       end if;
 
       if Verbose then
@@ -296,18 +240,17 @@ package body Server.ServerRAPI is
    end Perform_Ranged_Attack;
 
    procedure Perform_Move
-     (P_Action_Type        : in     Action.Type_Action_Type;
-      P_Moving_Piece_Id    : in     Piece.Type_Piece_Id;
-      P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Player_Id          : in     Player.Type_Player_Id;
-      P_Status             :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id    : in Piece.Type_Piece_Id;
+      P_To_Pos      : in Hexagon.Type_Hexagon_Position)
    is
       use Server;
    begin
       if Verbose then
          Text_IO.Put_Line
-           ("Server.ServerRAPI.Perform_Move - enter piece.id=" &
-            P_Moving_Piece_Id'Img &
+           ("Server.ServerRAPI.Perform_Move - enter Piece_Id=" &
+            P_Piece_Id'Img &
             " player_id=" &
             P_Player_Id'Img);
       end if;
@@ -316,12 +259,10 @@ package body Server.ServerRAPI is
          raise Game_Engine_Doesnt_Exists;
       else
          Server.Game_Engine.Entry_Perform_Move
-           (P_Action_Type,
-            P_Moving_Piece_Id,
-            P_From_Pos,
-            P_To_Pos,
-            P_Player_Id,
-            P_Status);
+           (P_Player_Id,
+            P_Action_Type,
+            P_Piece_Id,
+            P_To_Pos);
       end if;
 
       if Verbose then
@@ -330,48 +271,12 @@ package body Server.ServerRAPI is
 
    end Perform_Move;
 
-   procedure Perform_Move
-     (P_Action_Type     : in     Action.Type_Action_Type;
-      P_Moving_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Path            : in     Hexagon.Path.Vector;
-      P_Player_Id       : in     Player.Type_Player_Id;
-      P_Status          :    out Status.Type_Status)
-   is
-      use Server;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerRAPI.Perform_Move (Path)- enter piece.id=" &
-            P_Moving_Piece_Id'Img &
-            " player_id=" &
-            P_Player_Id'Img);
-      end if;
-
-      if Server.Game_Engine = null then
-         raise Game_Engine_Doesnt_Exists;
-      else
-         Server.Game_Engine.Entry_Perform_Move
-           (P_Action_Type,
-            P_Moving_Piece_Id,
-            P_Path,
-            P_Player_Id,
-            P_Status);
-      end if;
-
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerRAPI.Perform_Move (Path)- exit");
-      end if;
-
-   end Perform_Move;
-
    procedure Perform_Patch_Effect
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece_Id    : in     Piece.Type_Piece_Id;
-      P_Pos         : in     Hexagon.Type_Hexagon_Position;
-      P_Effect      : in     Effect.Type_Effect;
-      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Player_Id   : in     Player.Type_Player_Id;
-      P_Status      :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id    : in Piece.Type_Piece_Id;
+      P_Effect      : in Effect.Type_Effect;
+      P_Area        : in Hexagon.Area.Type_Action_Capabilities_A)
    is
       use Server;
    begin
@@ -387,13 +292,11 @@ package body Server.ServerRAPI is
          raise Game_Engine_Doesnt_Exists;
       else
          Server.Game_Engine.Entry_Perform_Patch_Effect
-           (P_Action_Type,
+           (P_Player_Id,
+            P_Action_Type,
             P_Piece_Id,
-            P_Pos,
             P_Effect,
-            P_Area,
-            P_Player_Id,
-            P_Status);
+            P_Area);
       end if;
 
       if Verbose then
@@ -403,12 +306,10 @@ package body Server.ServerRAPI is
    end Perform_Patch_Effect;
 
    procedure Perform_Piece_Effect
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece_Id    : in     Piece.Type_Piece_Id;
-      P_Pos         : in     Hexagon.Type_Hexagon_Position;
-      P_Effect      : in     Effect.Type_Effect;
-      P_Player_Id   : in     Player.Type_Player_Id;
-      P_Status      :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id    : in Piece.Type_Piece_Id;
+      P_Effect      : in Effect.Type_Effect)
    is
       use Server;
    begin
@@ -424,12 +325,10 @@ package body Server.ServerRAPI is
          raise Game_Engine_Doesnt_Exists;
       else
          Server.Game_Engine.Entry_Perform_Piece_Effect
-           (P_Action_Type,
+           (P_Player_Id,
+            P_Action_Type,
             P_Piece_Id,
-            P_Pos,
-            P_Effect,
-            P_Player_Id,
-            P_Status);
+            P_Effect);
       end if;
 
       if Verbose then
@@ -439,11 +338,10 @@ package body Server.ServerRAPI is
    end Perform_Piece_Effect;
 
    procedure Grant_Piece_Effect
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece_Id    : in     Piece.Type_Piece_Id;
-      P_Effect      : in     Effect.Type_Effect;
-      P_Player_Id   : in     Player.Type_Player_Id;
-      P_Status      :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id    : in Piece.Type_Piece_Id;
+      P_Effect      : in Effect.Type_Effect)
    is
       use Server;
    begin
@@ -455,11 +353,10 @@ package body Server.ServerRAPI is
          raise Game_Engine_Doesnt_Exists;
       else
          Server.Game_Engine.Entry_Grant_Piece_Effect
-           (P_Action_Type,
+           (P_Player_Id,
+            P_Action_Type,
             P_Piece_Id,
-            P_Effect,
-            P_Player_Id,
-            P_Status);
+            P_Effect);
       end if;
 
       if Verbose then
@@ -468,11 +365,10 @@ package body Server.ServerRAPI is
    end Grant_Piece_Effect;
 
    procedure Revoke_Piece_Effect
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece_Id    : in     Piece.Type_Piece_Id;
-      P_Effect      : in     Effect.Type_Effect;
-      P_Player_Id   : in     Player.Type_Player_Id;
-      P_Status      :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id    : in Piece.Type_Piece_Id;
+      P_Effect      : in Effect.Type_Effect)
    is
       use Server;
    begin
@@ -484,11 +380,10 @@ package body Server.ServerRAPI is
          raise Game_Engine_Doesnt_Exists;
       else
          Server.Game_Engine.Entry_Revoke_Piece_Effect
-           (P_Action_Type,
+           (P_Player_Id,
+            P_Action_Type,
             P_Piece_Id,
-            P_Effect,
-            P_Player_Id,
-            P_Status);
+            P_Effect);
       end if;
 
       if Verbose then
@@ -497,13 +392,11 @@ package body Server.ServerRAPI is
    end Revoke_Piece_Effect;
 
    procedure Grant_Patch_Effect
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece_Id    : in     Piece.Type_Piece_Id;
-      P_Pos         : in     Hexagon.Type_Hexagon_Position;
-      P_Effect      : in     Effect.Type_Effect;
-      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Player_Id   : in     Player.Type_Player_Id;
-      P_Status      :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id    : in Piece.Type_Piece_Id;
+      P_Effect      : in Effect.Type_Effect;
+      P_Area        : in Hexagon.Area.Type_Action_Capabilities_A)
    is
       use Server;
    begin
@@ -515,13 +408,11 @@ package body Server.ServerRAPI is
          raise Game_Engine_Doesnt_Exists;
       else
          Server.Game_Engine.Entry_Grant_Patch_Effect
-           (P_Action_Type,
+           (P_Player_Id,
+            P_Action_Type,
             P_Piece_Id,
-            P_Pos,
             P_Effect,
-            P_Area,
-            P_Player_Id,
-            P_Status);
+            P_Area);
       end if;
 
       if Verbose then
@@ -530,13 +421,11 @@ package body Server.ServerRAPI is
    end Grant_Patch_Effect;
 
    procedure Revoke_Patch_Effect
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece_Id    : in     Piece.Type_Piece_Id;
-      P_Pos         : in     Hexagon.Type_Hexagon_Position;
-      P_Effect      : in     Effect.Type_Effect;
-      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Player_Id   : in     Player.Type_Player_Id;
-      P_Status      :    out Status.Type_Status)
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id    : in Piece.Type_Piece_Id;
+      P_Effect      : in Effect.Type_Effect;
+      P_Area        : in Hexagon.Area.Type_Action_Capabilities_A)
    is
       use Server;
    begin
@@ -548,13 +437,11 @@ package body Server.ServerRAPI is
          raise Game_Engine_Doesnt_Exists;
       else
          Server.Game_Engine.Entry_Revoke_Patch_Effect
-           (P_Action_Type,
+           (P_Player_Id,
+            P_Action_Type,
             P_Piece_Id,
-            P_Pos,
             P_Effect,
-            P_Area,
-            P_Player_Id,
-            P_Status);
+            P_Area);
       end if;
 
       if Verbose then
@@ -563,13 +450,11 @@ package body Server.ServerRAPI is
    end Revoke_Patch_Effect;
 
    procedure Perform_Construction
-     (P_Action_Type           : in     Action.Type_Action_Type;
-      P_Construction_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Piece_Pos             : in     Hexagon.Type_Hexagon_Position;
-      P_Construction_Pos      : in     Hexagon.Type_Hexagon_Position;
-      P_Construction          : in     Construction.Type_Construction;
-      P_Player_Id             : in     Player.Type_Player_Id;
-      P_Status                :    out Status.Type_Status)
+     (P_Player_Id        : in Player.Type_Player_Id;
+      P_Action_Type      : in Action.Type_Action_Type;
+      P_Piece_Id         : in Piece.Type_Piece_Id;
+      P_Construction_Pos : in Hexagon.Type_Hexagon_Position;
+      P_Construction     : in Construction.Type_Construction)
    is
       use Server;
    begin
@@ -581,13 +466,11 @@ package body Server.ServerRAPI is
          raise Game_Engine_Doesnt_Exists;
       else
          Server.Game_Engine.Entry_Perform_Construction
-           (P_Action_Type,
-            P_Construction_Piece_Id,
-            P_Piece_Pos,
+           (P_Player_Id,
+            P_Action_Type,
+            P_Piece_Id,
             P_Construction_Pos,
-            P_Construction,
-            P_Player_Id,
-            P_Status);
+            P_Construction);
       end if;
 
       if Verbose then
@@ -596,13 +479,11 @@ package body Server.ServerRAPI is
    end Perform_Construction;
 
    procedure Perform_Demolition
-     (P_Action_Type         : in     Action.Type_Action_Type;
-      P_Demolition_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Piece_Pos           : in     Hexagon.Type_Hexagon_Position;
-      P_Demolition_Pos      : in     Hexagon.Type_Hexagon_Position;
-      P_Construction        : in     Construction.Type_Construction;
-      P_Player_Id           : in     Player.Type_Player_Id;
-      P_Status              :    out Status.Type_Status)
+     (P_Player_Id      : in Player.Type_Player_Id;
+      P_Action_Type    : in Action.Type_Action_Type;
+      P_Piece_Id       : in Piece.Type_Piece_Id;
+      P_Demolition_Pos : in Hexagon.Type_Hexagon_Position;
+      P_Construction   : in Construction.Type_Construction)
    is
       use Server;
    begin
@@ -614,13 +495,11 @@ package body Server.ServerRAPI is
          raise Game_Engine_Doesnt_Exists;
       else
          Server.Game_Engine.Entry_Perform_Demolition
-           (P_Action_Type,
-            P_Demolition_Piece_Id,
-            P_Piece_Pos,
+           (P_Player_Id,
+            P_Action_Type,
+            P_Piece_Id,
             P_Demolition_Pos,
-            P_Construction,
-            P_Player_Id,
-            P_Status);
+            P_Construction);
       end if;
 
       if Verbose then
@@ -764,7 +643,7 @@ package body Server.ServerRAPI is
       use Server;
    begin
       if Verbose then
-         Text_IO.Put_Line ("Server.ServerRAPI.Join_Game - enter - exit");
+         Text_IO.Put_Line ("Server.ServerRAPI.Join_Game - enter");
       end if;
 
       if Server.Game_Engine = null then
@@ -775,7 +654,9 @@ package body Server.ServerRAPI is
             P_Player_Name,
             P_Status);
       end if;
-
+      if Verbose then
+         Text_IO.Put_Line ("Server.ServerRAPI.Join_Game - exit");
+      end if;
    end Join_Game;
 
    procedure Leave_Game
@@ -826,11 +707,10 @@ package body Server.ServerRAPI is
    end Get_Player_Name;
 
    procedure Get_Updates_Summary
-     (P_Player_Id         : in     Player.Type_Player_Id;
-      P_Current_Player_Id :    out Player.Type_Player_Id;
-      P_Countdown         :    out Positive;
-      P_Game_Status       :    out Status.Type_Game_Status;
-      P_System_Messages   :    out Observation.Activity.Activity_Report.Vector)
+     (P_Player_Id       : in     Player.Type_Player_Id;
+      P_Countdown       :    out Positive;
+      P_Game_Status     :    out Status.Type_Game_Status;
+      P_System_Messages :    out Observation.Activity.Activity_Report.Vector)
    is
       use Server;
    begin
@@ -845,7 +725,6 @@ package body Server.ServerRAPI is
       else
          Server.Game_Engine.Entry_Get_Updates_Summary
            (P_Player_Id,
-            P_Current_Player_Id,
             P_Countdown,
             P_Game_Status,
             P_System_Messages);
@@ -855,29 +734,6 @@ package body Server.ServerRAPI is
          Text_IO.Put_Line ("Server.ServerRAPI.Get_Updates_Summary - exit");
       end if;
    end Get_Updates_Summary;
-
-   function End_Turn (P_Player_Id : in Player.Type_Player_Id) return Boolean is
-      Ret : Boolean;
-
-      use Server;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerRAPI.End_Turn - enter Player_Id=" & P_Player_Id'Img);
-      end if;
-
-      if Server.Game_Engine = null then
-         raise Game_Engine_Doesnt_Exists;
-      else
-         Server.Game_Engine.Entry_End_Turn (P_Player_Id, Ret);
-      end if;
-
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerRAPI.End_Turn - exit");
-      end if;
-
-      return Ret;
-   end End_Turn;
 
    procedure Client_Stopped (P_Player_Id : in Player.Type_Player_Id) is
       use Server;
@@ -899,86 +755,5 @@ package body Server.ServerRAPI is
       end if;
 
    end Client_Stopped;
-
-   -- Information providers.
-   -- When client needs information these RPCs should be used
-   function Observation_Area
-     (P_Piece_Id : in Piece.Type_Piece_Id)
-      return Hexagon.Area.Server_Area.Type_Action_Capabilities_Access
-   is
-      Tmp : Hexagon.Area.Server_Area.Type_Action_Capabilities_Access;
-
-      use Server;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerRAPI.Observation_Area - enter - exit");
-      end if;
-
-      if Server.Game_Engine = null then
-         raise Game_Engine_Doesnt_Exists;
-      else
-         Server.Game_Engine.Entry_Observation_Area (P_Piece_Id, Tmp);
-      end if;
-
-      --        declare
-      --           Ret : Hexagon.Area.Type_Action_Capabilities := (Tmp.all);
-      --        begin
-      --           -- Free Tmp!!
-      --           if Verbose then
-      --              Text_IO.Put_Line ("Game.Observation_Area - exit");
-      --           end if;
-      --           return Ret;
-      --        end;
-      return Tmp;
-
-   end Observation_Area;
-
-   function Movement_Capability
-     (P_Piece_Id : in Piece.Type_Piece_Id)
-      return Hexagon.Area.Server_Area.Type_Action_Capabilities_Access
-   is
-      Tmp : Hexagon.Area.Server_Area.Type_Action_Capabilities_Access;
-
-      use Hexagon.Area.Server_Area;
-      use Server;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerRAPI.Movement_Capability - enter piece_id=" &
-            P_Piece_Id'Img);
-      end if;
-
-      if Server.Game_Engine = null then
-         raise Game_Engine_Doesnt_Exists;
-      else
-         Server.Game_Engine.Entry_Movement_Capability (P_Piece_Id, Tmp);
-      end if;
-
-      return Tmp;
-
-   end Movement_Capability;
-
-   function Attack_Capability
-     (P_Piece_Id : in Piece.Type_Piece_Id)
-      return Hexagon.Area.Server_Area.Type_Action_Capabilities_Access
-   is
-      Tmp : Hexagon.Area.Server_Area.Type_Action_Capabilities_Access;
-
-      use Hexagon.Area.Server_Area;
-      use Server;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerRAPI.Attack_Capability - enter");
-      end if;
-
-      if Server.Game_Engine = null then
-         raise Game_Engine_Doesnt_Exists;
-      else
-         Server.Game_Engine.Entry_Attack_Capability (P_Piece_Id, Tmp);
-      end if;
-
-      return Tmp;
-
-   end Attack_Capability;
 
 end Server.ServerRAPI;

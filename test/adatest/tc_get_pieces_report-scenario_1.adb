@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013  Frank J Jorgensen
+--      Copyright (C) 2013-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -30,9 +30,9 @@ with Ada.Strings.Unbounded;
 with Utilities;
 with Player;
 with Landscape;
-with Server.Server;
+with Server.ServerAPI;
 with Test_ServerRCI;
-with Server.Server.Player_Action;
+--with Server.Server.Player_Action;
 with Status;
 with Observation;
 with Piece.Server;
@@ -43,8 +43,9 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
    Map_Player_1, Map_Player_2 : Hexagon.Client_Map.Type_Client_Map_Info;
    Test_Class1                : Test_Piece.Type_My_Test_Piece_Access_Class;
    Test_Class2                : Test_Piece.Type_My_Test_House_Access_Class;
+   Test_List                  : aliased Test_Piece.Type_Test_List;
 
-   Verbose : constant Boolean := True;
+   Verbose : constant Boolean := False;
 
    use Piece;
    use Player;
@@ -58,12 +59,14 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
       Adm_Status       : Status.Type_Adm_Status;
       Player_Name_List : Utilities.RemoteString_List.Vector;
       Test_Client_Class : Test_Piece.Type_Client_Access_Class;
+      Command_Line     : Utilities.RemoteString.Type_Command_Parameters;
    begin
       Test_Client_Class := new Test_Piece.Type_Client_Piece;
 
       Piece.Client_Piece.Init (Test_Client_Class.all);
 
-
+      Test_ServerRCI.Init (Command_Line);
+      Test_Piece.Test_List := Test_List'Access;
 
       Test_Class1               := new Test_Piece.Type_My_Test_Piece;
       Test_Class1.Id            := Piece.Undefined_Piece_Id;
@@ -75,7 +78,7 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
       Test_Class2.Type_Of_Piece := Piece.Undefined_Piece_Type;
       Test_Class2.Player_Id     := Player.Undefined_Player_Id;
 
-      Server.Server.Init
+      Server.ServerAPI.Init
         (Test_Class1.all,
          Test_Class2.all,
          Test_Piece.Landscapes_Type_Info_List,
@@ -90,10 +93,8 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
          Test_Piece.Test_Leaving_Game'Access,
          Test_Piece.Test_Start_Game'Access,
          Test_Piece.Test_Upkeep_Game'Access,
-         Test_Piece.Test_Start_Turn'Access,
-         Test_Piece.Test_End_Turn'Access,
          Test_Piece.Test_End_Game'Access);
-      Server.Server.Start;
+      Server.ServerAPI.Start;
 
       Utilities.RemoteString_List.Append
         (Player_Name_List,
@@ -163,13 +164,12 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
    procedure Tear_Down_Case (T : in out Test_Case) is
       pragma Unreferenced (T);
    begin
-      Server.Server.Stop;
+      Server.ServerAPI.Stop;
    end Tear_Down_Case;
 
    procedure Test_Get_Reports_1 (CWTC : in out AUnit.Test_Cases.Test_Case'Class) is
       Active_Patch             : Hexagon.Client_Map.Type_Client_Patch_Adress;
       A_Piece                  : Piece.Type_Piece;
-      Ret_Status               : Status.Type_Status;
       Result                   : Boolean;
       All_Current_Observations : Piece.Server.Type_Pieces_Report;
 
@@ -186,15 +186,14 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
 
       Active_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 2, 3);
       Piece.Client_Piece.Create_Piece
-        (Action.Type_Action_Type(1),
+        (Player_Id_1,
+         Action.Type_Action_Type(1300),
          A_Piece,
          Test_Piece.Sentry_Piece,
          Piece.Fighting_Piece,
-         Landscape.Type_Patch (Active_Patch.all),
-         Player_Id_1,
-         Ret_Status);
+         Landscape.Type_Patch (Active_Patch.all));
 
-      Text_IO.Put_Line (" 1 Status=" & Ret_Status'Img);
+      Test_Piece.Wait_For_Server(1300);
 
       Tc_Get_Pieces_Report.Test_Assistant.Update_From_Server (Player_Id_1, Map_Player_1);
 
@@ -232,7 +231,6 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
    procedure Test_Get_Reports_2 (CWTC : in out AUnit.Test_Cases.Test_Case'Class) is
       Active_Patch             : Hexagon.Client_Map.Type_Client_Patch_Adress;
       A_Piece                  : Piece.Type_Piece;
-      Ret_Status               : Status.Type_Status;
       Result                   : Boolean;
       All_Current_Observations : Piece.Server.Type_Pieces_Report;
 
@@ -249,15 +247,16 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
 
       Active_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 4, 3);
       Piece.Client_Piece.Create_Piece
-        (Action.Type_Action_Type(1),
+        (Player_Id_1,
+         Action.Type_Action_Type(1301),
          A_Piece,
          Test_Piece.Sentry_Piece,
          Piece.Fighting_Piece,
-         Landscape.Type_Patch (Active_Patch.all),
-         Player_Id_1,
-         Ret_Status);
+         Landscape.Type_Patch (Active_Patch.all));
 
-      Text_IO.Put_Line ("2 Status=" & Ret_Status'Img);
+      Test_Piece.Wait_For_Server(1301);
+
+      Text_IO.Put_Line ("2 Status=" & Test_Piece.Test_List.all(1301).Result'Img);
 
       Tc_Get_Pieces_Report.Test_Assistant.Update_From_Server (Player_Id_1, Map_Player_1);
 
@@ -284,8 +283,6 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
    procedure Test_Get_Reports_3 (CWTC : in out AUnit.Test_Cases.Test_Case'Class) is
       From_Patch, To_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
       From_Piece           : Piece.Type_Piece;
-
-      Ret_Status               : Status.Type_Status;
       Result                   : Boolean;
       All_Current_Observations : Piece.Server.Type_Pieces_Report;
 
@@ -316,12 +313,10 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
            1);
 
       Piece.Client_Piece.Perform_Move
-        (Action.Type_Action_Type(1),
+        (Player_Id_1,
+         Action.Type_Action_Type(1302),
          From_Piece,
-         Landscape.Type_Patch (From_Patch.all),
-         Landscape.Type_Patch (To_Patch.all),
-         Player_Id_1,
-         Ret_Status);
+         Landscape.Type_Patch (To_Patch.all));
 
       Tc_Get_Pieces_Report.Test_Assistant.Update_From_Server (Player_Id_1, Map_Player_1);
       Tc_Get_Pieces_Report.Test_Assistant.Clear_Pieces_Report (All_Current_Observations);
@@ -351,7 +346,6 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
    procedure Test_Get_Reports_4 (CWTC : in out AUnit.Test_Cases.Test_Case'Class) is
       Active_Patch             : Hexagon.Client_Map.Type_Client_Patch_Adress;
       A_Piece                  : Piece.Type_Piece;
-      Ret_Status               : Status.Type_Status;
       Result                   : Boolean;
       All_Current_Observations : Piece.Server.Type_Pieces_Report;
 
@@ -366,19 +360,16 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
         (Ada.Strings.Unbounded.To_Unbounded_String (Test_Piece.HTML_Path & "c023000.html"),
          Map_Player_2);
 
-      Result := Server.Server.Player_Action.End_Turn (Player_Id_1);
-
       Active_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 3, 3);
       Piece.Client_Piece.Create_Piece
-        (Action.Type_Action_Type(1),
+        (Player_Id_2,
+         Action.Type_Action_Type(1303),
          A_Piece,
          Test_Piece.Sentry_Piece,
          Piece.Fighting_Piece,
-         Landscape.Type_Patch (Active_Patch.all),
-         Player_Id_2,
-         Ret_Status);
+         Landscape.Type_Patch (Active_Patch.all));
 
-      Text_IO.Put_Line (" 4 Status=" & Ret_Status'Img);
+      Test_Piece.Wait_For_Server(1303);
 
       Tc_Get_Pieces_Report.Test_Assistant.Update_From_Server (Player_Id_2, Map_Player_2);
       Tc_Get_Pieces_Report.Test_Assistant.Clear_Pieces_Report (All_Current_Observations);
@@ -419,7 +410,6 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
       Active_Patch, From_Patch, To_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
       A_Piece                            : Piece.Type_Piece;
       Move_Piece                         : Piece.Type_Piece;
-      Ret_Status                         : Status.Type_Status;
       Result                             : Boolean;
       All_Current_Observations           : Piece.Server.Type_Pieces_Report;
 
@@ -434,29 +424,28 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
         (Ada.Strings.Unbounded.To_Unbounded_String (Test_Piece.HTML_Path & "c027000.html"),
          Map_Player_2);
 
-      Result := Server.Server.Player_Action.End_Turn (Player_Id_1);
 
       Active_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 3, 6);
       Piece.Client_Piece.Create_Piece
-        (Action.Type_Action_Type(1),
+        (Player_Id_2,
+         Action.Type_Action_Type(1304),
          A_Piece,
          Test_Piece.Sentry_Piece,
          Piece.Fighting_Piece,
-         Landscape.Type_Patch (Active_Patch.all),
-         Player_Id_2,
-         Ret_Status);
+         Landscape.Type_Patch (Active_Patch.all));
+
+      Test_Piece.Wait_For_Server(1304);
 
       Active_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 3, 4);
       Piece.Client_Piece.Create_Piece
-        (Action.Type_Action_Type(1),
+        (Player_Id_2,
+         Action.Type_Action_Type(1305),
          A_Piece,
          Test_Piece.Knight_Piece,
          Piece.Fighting_Piece,
-         Landscape.Type_Patch (Active_Patch.all),
-         Player_Id_2,
-         Ret_Status);
+         Landscape.Type_Patch (Active_Patch.all));
 
-      Text_IO.Put_Line (" 5 Status=" & Ret_Status'Img);
+      Test_Piece.Wait_For_Server(1305);
 
       Tc_Get_Pieces_Report.Test_Assistant.Update_From_Server (Player_Id_2, Map_Player_2);
       Tc_Get_Pieces_Report.Test_Assistant.Clear_Pieces_Report (All_Current_Observations);
@@ -502,13 +491,12 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
            2);
 
       Piece.Client_Piece.Perform_Move
-        (Action.Type_Action_Type(1),
+        (Player_Id_2,
+         Action.Type_Action_Type(1306),
          Move_Piece,
-         Landscape.Type_Patch (From_Patch.all),
-         Landscape.Type_Patch (To_Patch.all),
-         Player_Id_2,
-         Ret_Status);
-      Text_IO.Put_Line (" 5 Status=" & Ret_Status'Img);
+         Landscape.Type_Patch (To_Patch.all));
+
+      Test_Piece.Wait_For_Server(1306);
 
       Tc_Get_Pieces_Report.Test_Assistant.Update_From_Server (Player_Id_2, Map_Player_2);
       Tc_Get_Pieces_Report.Test_Assistant.Clear_Pieces_Report (All_Current_Observations);
@@ -524,15 +512,12 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
 
       Active_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 3, 4);
       Piece.Client_Piece.Create_Piece
-        (Action.Type_Action_Type(1),
+        (Player_Id_2,
+         Action.Type_Action_Type(1307),
          A_Piece,
          Test_Piece.Knight_Piece,
          Piece.Fighting_Piece,
-         Landscape.Type_Patch (Active_Patch.all),
-         Player_Id_2,
-         Ret_Status);
-
-      Text_IO.Put_Line (" 5 Status=" & Ret_Status'Img);
+         Landscape.Type_Patch (Active_Patch.all));
 
       Tc_Get_Pieces_Report.Test_Assistant.Update_From_Server (Player_Id_2, Map_Player_2);
       Tc_Get_Pieces_Report.Test_Assistant.Clear_Pieces_Report (All_Current_Observations);
@@ -552,8 +537,6 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
       Active_Patch, From_Patch, To_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
       A_Piece                            : Piece.Type_Piece;
       Move_Piece                         : Piece.Client_Piece.Type_Client_Piece_Class_Access;
-      Ret_Status                         : Status.Type_Status;
-      Result                             : Boolean;
       All_Current_Observations           : Piece.Server.Type_Pieces_Report;
 
       use Piece.Client_Piece;
@@ -574,42 +557,37 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
 
       Active_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 40, 40);
       Piece.Client_Piece.Create_Piece
-        (Action.Type_Action_Type(1),
+        (Player_Id_2,
+         Action.Type_Action_Type(1308),
          A_Piece,
          Test_Piece.Tower_House,
          Piece.House_Piece,
-         Landscape.Type_Patch (Active_Patch.all),
-         Player_Id_2,
-         Ret_Status);
+         Landscape.Type_Patch (Active_Patch.all));
 
-      text_io.Put_line("Nytt case Ret_Status=" & Ret_Status'Img);
-
-      Result := Server.Server.Player_Action.End_Turn (Player_Id_2);
+      Test_Piece.Wait_For_Server(1308);
 
       Active_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 46, 40);
 
       Piece.Client_Piece.Create_Piece
-        (Action.Type_Action_Type(1),
+        (Player_Id_1,
+         Action.Type_Action_Type(1309),
          A_Piece,
          Test_Piece.Tower_House,
          Piece.House_Piece,
-         Landscape.Type_Patch (Active_Patch.all),
-         Player_Id_1,
-         Ret_Status);
+         Landscape.Type_Patch (Active_Patch.all));
 
-      text_io.Put_line("Nytt case Ret_Status=" & Ret_Status'Img);
+      Test_Piece.Wait_For_Server(1309);
 
       Active_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 44, 39);
       Piece.Client_Piece.Create_Piece
-        (Action.Type_Action_Type(1),
+        (Player_Id_1,
+         Action.Type_Action_Type(1310),
          A_Piece,
          Test_Piece.Sentry_Piece,
          Piece.Fighting_Piece,
-         Landscape.Type_Patch (Active_Patch.all),
-         Player_Id_1,
-         Ret_Status);
+         Landscape.Type_Patch (Active_Patch.all));
 
-      text_io.Put_line("Nytt case Ret_Status=" & Ret_Status'Img);
+      Test_Piece.Wait_For_Server(1310);
 
       Tc_Get_Pieces_Report.Test_Assistant.Update_From_Server (Player_Id_1, Map_Player_1);
 
@@ -629,14 +607,14 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
       Move_Piece := Piece.Client_Piece.Find_Piece_In_List(12);
       From_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 44, 39);
       To_Patch   := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 43, 39);
+
       Piece.Client_Piece.Perform_Move
-        (Action.Type_Action_Type(1),
+        (Player_Id_1,
+         Action.Type_Action_Type(1311),
          Piece.Type_Piece(Move_Piece.all),
-         Landscape.Type_Patch (From_Patch.all),
-         Landscape.Type_Patch (To_Patch.all),
-         Player_Id_1,
-         Ret_Status);
-      Text_IO.Put_Line (" 5 Status=" & Ret_Status'Img);
+         Landscape.Type_Patch (To_Patch.all));
+
+      Test_Piece.Wait_For_Server(1311);
 
       Tc_Get_Pieces_Report.Test_Assistant.Update_From_Server (Player_Id_1, Map_Player_1);
 
@@ -656,14 +634,14 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
       Move_Piece := Piece.Client_Piece.Find_Piece_In_List(12);
       From_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 43, 39);
       To_Patch   := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 42, 39);
+
       Piece.Client_Piece.Perform_Move
-        (Action.Type_Action_Type(1),
+        (Player_Id_1,
+         Action.Type_Action_Type(1312),
          Piece.Type_Piece(Move_Piece.all),
-         Landscape.Type_Patch (From_Patch.all),
-         Landscape.Type_Patch (To_Patch.all),
-         Player_Id_1,
-         Ret_Status);
-      Text_IO.Put_Line (" 5 Status=" & Ret_Status'Img);
+         Landscape.Type_Patch (To_Patch.all));
+
+      Test_Piece.Wait_For_Server(1312);
 
       Tc_Get_Pieces_Report.Test_Assistant.Update_From_Server (Player_Id_1, Map_Player_1);
 
@@ -681,19 +659,17 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
       AUnit.Assertions.Assert (Condition => Piece.Client_Piece.Find_Piece_In_List(12) /= null, Message => "This player should see ID=12");
 
       --
-      Result := Server.Server.Player_Action.End_Turn (Player_Id_1);
 
       Active_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 46, 38);
       Piece.Client_Piece.Create_Piece
-        (Action.Type_Action_Type(1),
+        (Player_Id_2,
+         Action.Type_Action_Type(1313),
          A_Piece,
          Test_Piece.Sentry_Piece,
          Piece.Fighting_Piece,
-         Landscape.Type_Patch (Active_Patch.all),
-         Player_Id_2,
-         Ret_Status);
+         Landscape.Type_Patch (Active_Patch.all));
 
-      text_io.Put_line("Nytt case Ret_Status=" & Ret_Status'Img);
+      Test_Piece.Wait_For_Server(1313);
 
       Tc_Get_Pieces_Report.Test_Assistant.Update_From_Server (Player_Id_1, Map_Player_1);
 
@@ -714,14 +690,14 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
       Move_Piece := Piece.Client_Piece.Find_Piece_In_List(13);
       From_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 46, 38);
       To_Patch   := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 46, 37);
+
       Piece.Client_Piece.Perform_Move
-        (Action.Type_Action_Type(1),
+        (Player_Id_2,
+         Action.Type_Action_Type(1314),
          Piece.Type_Piece(Move_Piece.all),
-         Landscape.Type_Patch (From_Patch.all),
-         Landscape.Type_Patch (To_Patch.all),
-         Player_Id_2,
-         Ret_Status);
-      Text_IO.Put_Line (" 5 Status=" & Ret_Status'Img);
+         Landscape.Type_Patch (To_Patch.all));
+
+      Test_Piece.Wait_For_Server(1314);
 
       Tc_Get_Pieces_Report.Test_Assistant.Update_From_Server (Player_Id_1, Map_Player_1);
 
@@ -742,14 +718,14 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
      Move_Piece := Piece.Client_Piece.Find_Piece_In_List(13);
       From_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 46, 37);
       To_Patch   := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 46, 36);
+
       Piece.Client_Piece.Perform_Move
-        (Action.Type_Action_Type(1),
+        (Player_Id_2,
+         Action.Type_Action_Type(1315),
          Piece.Type_Piece(Move_Piece.all),
-         Landscape.Type_Patch (From_Patch.all),
-         Landscape.Type_Patch (To_Patch.all),
-         Player_Id_2,
-         Ret_Status);
-      Text_IO.Put_Line (" 5 Status=" & Ret_Status'Img);
+         Landscape.Type_Patch (To_Patch.all));
+
+      Test_Piece.Wait_For_Server(1315);
 
       Tc_Get_Pieces_Report.Test_Assistant.Update_From_Server (Player_Id_1, Map_Player_1);
 

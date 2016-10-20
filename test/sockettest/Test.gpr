@@ -1,0 +1,126 @@
+--
+--
+--      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
+--      Copyright (C) 2013-2016  Frank J Jorgensen
+--
+--      This program is free software: you can redistribute it and/or modify
+--      it under the terms of the GNU General Public License as published by
+--      the Free Software Foundation, either version 3 of the License, or
+--      (at your option) any later version.
+--
+--      This program is distributed in the hope that it will be useful,
+--      but WITHOUT ANY WARRANTY; without even the implied warranty of
+--      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+--      GNU General Public License for more details.
+--
+--      You should have received a copy of the GNU General Public License
+--      along with this program.  If not, see <http://www.gnu.org/licenses/>.
+--
+
+
+project Test is
+
+   for Object_Dir use "build";
+   type Gtkada_Kind_Type is
+      ("static", "relocatable");
+   Library_Type : Gtkada_Kind_Type := external ("LIBRARY_TYPE", "static");
+   type Runtime_Type is
+      ("full");
+   Runtime : Runtime_Type := external ("RUNTIME", "full");
+
+   case Library_Type is
+
+      when "static" =>
+
+         case Runtime is
+
+            when "full" =>
+               for Source_Dirs use ("client", "server", 
+               "..\..\src\socket", "..\..\src\socket\server", "..\..\src");
+               for Main use ("socket_client.adb", "socket_server.adb");
+               for Exec_Dir use ".";
+         end case;
+
+      when "relocatable" =>
+
+   end case;
+
+   package Dsa is
+
+      case Runtime is
+
+         when "full" =>
+
+            case Library_Type is
+
+               when "static" =>
+
+               when "relocatable" =>
+                  for Configuration_File use "config\hexagon_conf.cfg";
+            end case;
+      end case;
+   end Dsa;
+
+   package Ide is
+   end Ide;
+
+   package Compiler is
+
+      case Runtime is
+
+         when "full" =>
+
+            case Library_Type is
+
+               when "static" =>
+                  for Default_Switches ("ada") use ("-g");
+
+               when "relocatable" =>
+
+            end case;
+      end case;
+   end Compiler;
+
+   package Pretty_Printer is
+
+      case Runtime is
+
+         when "full" =>
+
+            case Library_Type is
+
+               when "static" =>
+                  for Default_Switches ("ada") use ("-M100", "-pU");
+
+               when "relocatable" =>
+
+            end case;
+      end case;
+   end Pretty_Printer;
+
+   package Builder is
+
+      case Runtime is
+
+         when "full" =>
+
+            case Library_Type is
+
+               when "static" =>
+                  for Default_Switches ("ada") use ("-g");
+
+               when "relocatable" =>
+
+            end case;
+      end case;
+   end Builder;
+
+   package Binder is
+   end Binder;
+
+   package Linker is
+
+   end Linker;
+
+end Test;
+

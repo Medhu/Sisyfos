@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -19,10 +19,9 @@
 
 with Ada.Strings.Unbounded;
 with Ada.Containers.Hashed_Maps;
-with Hexagon.Area;
-with Hexagon.Area.Server_Area;
 with Player;
 with Status;
+with Piece;
 
 package Hexagon.Utility is
 
@@ -32,11 +31,8 @@ package Hexagon.Utility is
       Parent   : Hexagon.Type_Hexagon_Position;
    end record;
 
-   type Type_Path_Extra_Command is (Move, Attack);
-
    function ID_Hashed (id : Hexagon.Type_Hexagon_Position) return Ada.Containers.Hash_Type;
 
-   use Hexagon.Area;
    package Action_Capability_Vector is new Ada.Containers.Hashed_Maps (
       Key_Type        => Hexagon.Type_Hexagon_Position,
       Element_Type    => Type_Path_Node,
@@ -44,16 +40,13 @@ package Hexagon.Utility is
       Equivalent_Keys => Hexagon."=");
 
    function Hexagon_Distance
-     (P_From_A, P_From_B : in Hexagon.Type_Hexagon_Numbers;
-      P_To_A, P_To_B     : in Hexagon.Type_Hexagon_Numbers)
+     (P_From, P_To : in Hexagon.Type_Hexagon_Position)
       return               Integer;
 
-   procedure Find_Accurate_Path
+   procedure Find_Path
      (P_Player_Id        : in Player.Type_Player_Id;
-      P_From_A, P_From_B : in Hexagon.Type_Hexagon_Numbers;
-      P_To_A, P_To_B     : in Hexagon.Type_Hexagon_Numbers;
-      P_Reachable        : in Hexagon.Area.Server_Area.Type_Action_Capabilities_Access;
-      P_Extra            : in Type_Path_Extra_Command;
+      P_Type_Piece_Type  : in Piece.Type_Piece_Type;
+      P_From, P_To       : in     Hexagon.Type_Hexagon_Position;
       P_Status           : out Status.Type_Status;
       P_Path             : out Hexagon.Path.Vector);
 

@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@
 
 with Landscape;
 with Ada.Strings.Unbounded;
-with Effect.Server;
 with Construction;
+with Effect;
 
 package Hexagon.Server_Map is
 

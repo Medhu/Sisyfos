@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -18,32 +18,36 @@
 --
 
 with Piece.Server;
+with Piece.Server.Fighting_Piece;
 with Hexagon.Server_Map;
 with Text_IO;
 with Construction.Server;
 with Landscape.Server;
+with Hexagon.Area;
+use Hexagon.Area;
 
 package body Hexagon.Utility is
 
    Verbose : constant Boolean := False;
 
-   function ID_Hashed (id : Hexagon.Type_Hexagon_Position) return Ada.Containers.Hash_Type is
+   function ID_Hashed
+     (id : Hexagon.Type_Hexagon_Position) return Ada.Containers.Hash_Type
+   is
    begin
       return Ada.Containers.Hash_Type (Integer (id.A) * 1000 + Integer (id.B));
    end ID_Hashed;
 
    function Hexagon_Distance
-     (P_From_A, P_From_B : in Hexagon.Type_Hexagon_Numbers;
-      P_To_A, P_To_B     : in Hexagon.Type_Hexagon_Numbers) return Integer
+     (P_From, P_To : in Hexagon.Type_Hexagon_Position) return Integer
    is
       A, B, AB : Integer;
    begin
       -- A bit of analysis on how the hexagon geometry behave is
       -- needed to understand this logic.
       --
-      A  := abs (Integer (P_To_A - P_From_A));
-      B  := abs (Integer (P_To_B - P_From_B));
-      AB := abs (Integer ((P_To_A - P_From_A) + (P_To_B - P_From_B)));
+      A  := abs (Integer (P_To.A - P_From.A));
+      B  := abs (Integer (P_To.B - P_From.B));
+      AB := abs (Integer ((P_To.A - P_From.A) + (P_To.B - P_From.B)));
 
       if A <= AB and then B <= AB then
          return A + B;
@@ -57,23 +61,22 @@ package body Hexagon.Utility is
 
    end Hexagon_Distance;
 
-   procedure Find_Accurate_Path
-     (P_Player_Id        : in     Player.Type_Player_Id;
-      P_From_A, P_From_B : in     Hexagon.Type_Hexagon_Numbers;
-      P_To_A, P_To_B     : in     Hexagon.Type_Hexagon_Numbers;
-      P_Reachable        : in     Hexagon.Area.Server_Area.Type_Action_Capabilities_Access;
-      P_Extra            : in     Type_Path_Extra_Command;
-      P_Status           :    out Status.Type_Status;
-      P_Path             :    out Hexagon.Path.Vector)
+   procedure Find_Path
+     (P_Player_Id       : in     Player.Type_Player_Id;
+      P_Type_Piece_Type : in     Piece.Type_Piece_Type;
+      P_From, P_To      : in     Hexagon.Type_Hexagon_Position;
+      P_Status          :    out Status.Type_Status;
+      P_Path            :    out Hexagon.Path.Vector)
    is
 
       Open_List, Closed_List : Action_Capability_Vector.Map;
 
-      Neigbour_Patch, Current_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
+      Neigbour_Patch,
+      Current_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
 
-      Current_A, Current_B, Neighbour_A, Neighbour_B : Hexagon.Type_Hexagon_Numbers;
-      Delta_A, Delta_B                               : Hexagon.Area.Type_Hexagon_Delta_Numbers;
-      Trav_Open, Trav_Path                           : Action_Capability_Vector.Cursor;
+      Current, Neighbour   : Hexagon.Type_Hexagon_Position;
+      Delta_A, Delta_B     : Hexagon.Area.Type_Hexagon_Delta_Numbers;
+      Trav_Open, Trav_Path : Action_Capability_Vector.Cursor;
 
       Min_So_Far           : Type_Path_Node;
       Min_So_Far_Cursor, N : Action_Capability_Vector.Cursor;
@@ -82,14 +85,16 @@ package body Hexagon.Utility is
       Done           : Boolean;
       F, G, H        : Integer;
 
-      type Type_Neighbour_Info is
-         record
-            Delta_Pos : Hexagon.Area.Type_Hexagon_Delta_Position;
-            Opposite_Neighbour_Number : Positive; -- This is the index that the neighbour patch has to refer back to Current_Patch
-                                                  -- We use this to be able to check for blocking constructions on the way into neighbour patch
-         end record;
+      type Type_Neighbour_Info is record
+         Delta_Pos                 : Hexagon.Area.Type_Hexagon_Delta_Position;
+         Opposite_Neighbour_Number : Positive; -- This is the index that the neighbour patch has to refer back to Current_Patch
+         -- We use this to be able to check for blocking constructions on the way into neighbour patch
+      end record;
 
-      type Type_Neighbours is array (1 .. 6) of Type_Neighbour_Info; -- Hexagon.Area.Type_Hexagon_Delta_Position;
+      type Type_Neighbours is
+        array
+        (1 ..
+             6) of Type_Neighbour_Info; -- Hexagon.Area.Type_Hexagon_Delta_Position;
       Neighbours : Type_Neighbours :=
         (((True, +1, 0), 4),
          ((True, +1, -1), 5),
@@ -105,34 +110,20 @@ package body Hexagon.Utility is
       if Verbose then
          Text_IO.Put_Line
            ("Hexagon.Utility.Find_Path - enter P_From_A=" &
-            P_From_A'Img &
+            P_From.A'Img &
             " P_From_B=" &
-            P_From_B'Img &
+            P_From.B'Img &
             " P_To_A=" &
-            P_To_A'Img &
+            P_To.A'Img &
             " P_To_B=" &
-            P_To_B'Img &
-            " P_Extra=" &
-            P_Extra'Img);
+            P_To.B'Img);
       end if;
 
       -- start point
       Action_Capability_Vector.Insert
         (Open_List,
-         Hexagon.Type_Hexagon_Position'
-           (True, Hexagon.Type_Hexagon_Numbers (P_From_A), Hexagon.Type_Hexagon_Numbers (P_From_B)),
-         Type_Path_Node'
-           (Hexagon.Type_Hexagon_Position'
-              (True,
-               Hexagon.Type_Hexagon_Numbers (P_From_A),
-               Hexagon.Type_Hexagon_Numbers (P_From_B)),
-            4,
-            0,
-            4,
-            Hexagon.Type_Hexagon_Position'
-              (True,
-               Hexagon.Type_Hexagon_Numbers (P_From_A),
-               Hexagon.Type_Hexagon_Numbers (P_From_B))));
+         P_From,
+         Type_Path_Node'(P_From, 4, 0, 4, P_From));
 
       Solution_Found := False;
       while not Solution_Found loop
@@ -142,11 +133,12 @@ package body Hexagon.Utility is
             Min_So_Far := Action_Capability_Vector.Element (Trav_Open);
 
             while Trav_Open /= Action_Capability_Vector.No_Element loop
-               if Action_Capability_Vector.Element (Trav_Open).F <= Min_So_Far.F then
+               if Action_Capability_Vector.Element (Trav_Open).F <=
+                 Min_So_Far.F
+               then
                   Min_So_Far_Cursor := Trav_Open;
-                  Min_So_Far        := Action_Capability_Vector.Element (Trav_Open);
-                  Current_A         := Min_So_Far.Position.A;
-                  Current_B         := Min_So_Far.Position.B;
+                  Min_So_Far := Action_Capability_Vector.Element (Trav_Open);
+                  Current           := Min_So_Far.Position;
                end if;
 
                Trav_Open := Action_Capability_Vector.Next (Trav_Open);
@@ -156,33 +148,48 @@ package body Hexagon.Utility is
                Solution_Found := True;
                P_Status       := Status.Ok;
             else
-               Current_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (Current_A, Current_B);
+               Current_Patch :=
+                 Hexagon.Server_Map.Get_Patch_Adress_From_AB
+                   (Current.A,
+                    Current.B);
                -- Find nearby patches
                for Trav in Neighbours'First .. Neighbours'Last loop
 
-                  if not Construction.Server.Is_Blocking_Neighbour_Number(Current_Patch.all.Constructions_Here, Trav) then
+                  if not Construction.Server.Is_Blocking_Neighbour_Number
+                      (Current_Patch.all.Constructions_Here,
+                       Trav)
+                  then
                      begin
-                        Neighbour_A :=
-                          Hexagon.Type_Hexagon_Numbers
-                            (Integer (Current_A) + Integer (Neighbours (Trav).Delta_Pos.A));
-                        Neighbour_B :=
-                          Hexagon.Type_Hexagon_Numbers
-                            (Integer (Current_B) + Integer (Neighbours (Trav).Delta_Pos.B));
+                        Neighbour :=
+                          Hexagon.Type_Hexagon_Position'
+                            (True,
+                             Hexagon.Type_Hexagon_Numbers
+                               (Integer (Current.A) +
+                                Integer (Neighbours (Trav).Delta_Pos.A)),
+                             Hexagon.Type_Hexagon_Numbers
+                               (Integer (Current.B) +
+                                Integer (Neighbours (Trav).Delta_Pos.B)));
                         Delta_A :=
                           Hexagon.Area.Type_Hexagon_Delta_Numbers
-                            (Integer (Neighbour_A) - Integer (P_From_A));
+                            (Integer (Neighbour.A) - Integer (P_From.A));
                         Delta_B :=
                           Hexagon.Area.Type_Hexagon_Delta_Numbers
-                            (Integer (Neighbour_B) - Integer (P_From_B));
+                            (Integer (Neighbour.B) - Integer (P_From.B));
 
                         Neigbour_Patch :=
-                          Hexagon.Server_Map.Get_Patch_Adress_From_AB (Neighbour_A, Neighbour_B);
+                          Hexagon.Server_Map.Get_Patch_Adress_From_AB
+                            (Neighbour.A,
+                             Neighbour.B);
                         --
-               -- Walls: When you are about to enter a new patch - check if there is a wall in the
-               -- new patch that is in the way
+                        -- Walls: When you are about to enter a new patch - check if there is a wall in the
+                        -- new patch that is in the way
                         --
-                        if Construction.Server.Is_Blocking_Neighbour_Number(Neigbour_Patch.all.Constructions_Here, Neighbours(Trav).Opposite_Neighbour_Number ) then
-                           Neigbour_Patch := null; -- not allowed to pass this way
+                        if Construction.Server.Is_Blocking_Neighbour_Number
+                            (Neigbour_Patch.all.Constructions_Here,
+                             Neighbours (Trav).Opposite_Neighbour_Number)
+                        then
+                           Neigbour_Patch :=
+                             null; -- not allowed to pass this way
                         end if;
 
                      exception
@@ -198,79 +205,44 @@ package body Hexagon.Utility is
                      if
                        ((Action_Capability_Vector.Find
                            (Closed_List,
-                            Hexagon.Type_Hexagon_Position'
-                              (True,
-                               Hexagon.Type_Hexagon_Numbers (Neighbour_A),
-                               Hexagon.Type_Hexagon_Numbers (Neighbour_B))) =
-                         Action_Capability_Vector.No_Element) and
-                        Hexagon.Area.Find
-                          (P_Reachable.all,
-                           Hexagon.Area.Type_Hexagon_Delta_Numbers (Delta_A),
-                           Hexagon.Area.Type_Hexagon_Delta_Numbers (Delta_B)))
+                            Neighbour) =
+                         Action_Capability_Vector.No_Element))
                      then
 
                         -- For this new position, calculate F, G and H:
                         G := Min_So_Far.G + 1;
-                        H := Hexagon_Distance (Neighbour_A, Neighbour_B, P_To_A, P_To_B);
+                        H := Hexagon_Distance (Neighbour, P_To);
                         F := G + H;
 
                         if
-                          ((Landscape.Server.Has_Patch_Free_Slot (Landscape.Type_Patch(Neigbour_Patch.all)) and
+                          ((Landscape.Server.Has_Patch_Free_Slot
+                              (Landscape.Type_Patch (Neigbour_Patch.all)) and
                             Piece.Server.Patch_Belongs_To_Player
-                              (Landscape.Type_Patch(Neigbour_Patch.all),
-                               P_Player_Id))) or
-                          (P_Extra = Attack and
-                           not Piece.Server.Patch_Belongs_To_Player
-                             (Landscape.Type_Patch(Neigbour_Patch.all), P_Player_Id) and
-                           H = 0)
+                              (Landscape.Type_Patch (Neigbour_Patch.all),
+                               P_Player_Id)) and
+                           Piece.Server.Fighting_Piece.Can_Move_Here
+                             (P_Type_Piece_Type,
+                              Neigbour_Patch.all.Landscape_Here))
                         then
 
                            N :=
                              Action_Capability_Vector.Find
                                (Open_List,
-                                Hexagon.Type_Hexagon_Position'
-                                  (True,
-                                   Hexagon.Type_Hexagon_Numbers (Neighbour_A),
-                                   Hexagon.Type_Hexagon_Numbers (Neighbour_B)));
+                                Neighbour);
                            if N = Action_Capability_Vector.No_Element then
                               Action_Capability_Vector.Include
                                 (Open_List,
-                                 Hexagon.Type_Hexagon_Position'
-                                   (True,
-                                    Hexagon.Type_Hexagon_Numbers (Neighbour_A),
-                                    Hexagon.Type_Hexagon_Numbers (Neighbour_B)),
-                                 Type_Path_Node'
-                                   (Hexagon.Type_Hexagon_Position'
-                                      (True,
-                                       Hexagon.Type_Hexagon_Numbers (Neighbour_A),
-                                       Hexagon.Type_Hexagon_Numbers (Neighbour_B)),
-                                    F,
-                                    G,
-                                    H,
-                                    Hexagon.Type_Hexagon_Position'
-                                      (True,
-                                       Hexagon.Type_Hexagon_Numbers (Current_A),
-                                       Hexagon.Type_Hexagon_Numbers (Current_B))));
+                                 Neighbour,
+                                 Type_Path_Node'(Neighbour, F, G, H, Current));
                            else
-                              if Action_Capability_Vector.Element (N).G > G then
+                              if Action_Capability_Vector.Element (N).G >
+                                G
+                              then
                                  Action_Capability_Vector.Include
                                    (Open_List,
-                                    Hexagon.Type_Hexagon_Position'
-                                      (True,
-                                       Hexagon.Type_Hexagon_Numbers (Neighbour_A),
-                                       Hexagon.Type_Hexagon_Numbers (Neighbour_B)),
+                                    Neighbour,
                                     Type_Path_Node'
-                                      (Hexagon.Type_Hexagon_Position'
-                                         (True,
-                                          Hexagon.Type_Hexagon_Numbers (Neighbour_A),
-                                          Hexagon.Type_Hexagon_Numbers (Neighbour_B)),
-                                       F,
-                                       G,
-                                       H,
-                                       Hexagon.Type_Hexagon_Position'
-                                         (True,
-                                          Hexagon.Type_Hexagon_Numbers (Current_A),
-                                          Hexagon.Type_Hexagon_Numbers (Current_B))));
+                                      (Neighbour, F, G, H, Current));
 
                               end if;
                            end if;
@@ -302,10 +274,14 @@ package body Hexagon.Utility is
 
       if P_Status = Status.Ok then
          Done      := False;
-         Trav_Path := Action_Capability_Vector.Find (Closed_List, Min_So_Far.Position);
-         while Trav_Path /= Action_Capability_Vector.No_Element and not Done loop
+         Trav_Path :=
+           Action_Capability_Vector.Find (Closed_List, Min_So_Far.Position);
+         while Trav_Path /= Action_Capability_Vector.No_Element and not Done
+         loop
 
-            Hexagon.Path.Prepend (P_Path, Action_Capability_Vector.Element (Trav_Path).Position);
+            Hexagon.Path.Prepend
+              (P_Path,
+               Action_Capability_Vector.Element (Trav_Path).Position);
 
             if Action_Capability_Vector.Element (Trav_Path).Position.A /=
               Action_Capability_Vector.Element (Trav_Path).Parent.A or
@@ -323,14 +299,12 @@ package body Hexagon.Utility is
                Done := True;
             end if;
          end loop;
-      else
-         Text_IO.Put_Line ("Path not found");
       end if;
 
       if Verbose then
          Text_IO.Put_Line ("Hexagon.Utility.Find_Path - exit");
       end if;
-   end Find_Accurate_Path;
+   end Find_Path;
 
    procedure Put_Line (P_Text : in Ada.Strings.Unbounded.Unbounded_String) is
    begin

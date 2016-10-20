@@ -1,10 +1,30 @@
+--
+--
+--      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
+--      Copyright (C) 2013-2016  Frank J Jorgensen
+--
+--      This program is free software: you can redistribute it and/or modify
+--      it under the terms of the GNU General Public License as published by
+--      the Free Software Foundation, either version 3 of the License, or
+--      (at your option) any later version.
+--
+--      This program is distributed in the hope that it will be useful,
+--      but WITHOUT ANY WARRANTY; without even the implied warranty of
+--      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+--      GNU General Public License for more details.
+--
+--      You should have received a copy of the GNU General Public License
+--      along with this program.  If not, see <http://www.gnu.org/licenses/>.
+--
+
+
 with "gtkada";
 with "aunit";
 with "lua";
 
 project Test is
 
-   for Object_Dir use "build"; 
+   for Object_Dir use "build";
    type Gtkada_Kind_Type is
       ("static", "relocatable");
    Library_Type : Gtkada_Kind_Type := external ("LIBRARY_TYPE", "static");
@@ -19,28 +39,9 @@ project Test is
          case Runtime is
 
             when "full" =>
-               for Source_Dirs use (".", "polyorb\server", "polyorb\client",
-               "..\..\src", 
-               "..\..\src\polyorb\server");
-               for Main use (
-               "harness0.adb", 
-               "harness1.adb", 
-               "harness10.adb", 
-               "harness11.adb", 
-               "harness12.adb", 
-               "harness13.adb", 
-               "harness14.adb", 
-               "harness15.adb", 
-               "harness16.adb", 
-               "harness17.adb", 
-               "harness18.adb", 
-               "harness2.adb", 
-               "harness21.adb", 
-               "harness3.adb", 
-               "harness4.adb", 
-               "harness5.adb", 
-               "harness6.adb", 
-               "harness8.adb");
+               for Source_Dirs use (".", "polyorb\server", "polyorb\client", "..\..\src", "..\..\src\polyorb\server");
+               for Main use ("harness0.adb", "harness1.adb", "harness10.adb", "harness11.adb", "harness12.adb", "harness13.adb", "harness14.adb", "harness15.adb", "harness16.adb", "harness17.adb", "harness18.adb", "harness2.adb", 
+                  "harness21.adb", "harness3.adb", "harness4.adb", "harness5.adb", "harness6.adb");
                for Exec_Dir use ".";
          end case;
 
@@ -53,7 +54,6 @@ project Test is
 
       case Runtime is
 
-
          when "full" =>
 
             case Library_Type is
@@ -63,7 +63,6 @@ project Test is
                when "relocatable" =>
                   for Configuration_File use "config\hexagon_conf.cfg";
             end case;
-
       end case;
    end Dsa;
 
@@ -84,7 +83,6 @@ project Test is
                when "relocatable" =>
 
             end case;
-
       end case;
    end Compiler;
 
@@ -97,12 +95,11 @@ project Test is
             case Library_Type is
 
                when "static" =>
-                  for Default_Switches ("ada") use ("-M100");
+                  for Default_Switches ("ada") use ("-M100", "-pU");
 
                when "relocatable" =>
 
             end case;
-
       end case;
    end Pretty_Printer;
 
@@ -120,7 +117,6 @@ project Test is
                when "relocatable" =>
 
             end case;
-
       end case;
    end Builder;
 
@@ -128,8 +124,7 @@ project Test is
    end Binder;
 
    package Linker is
-
-for Default_Switches ("ada") use ("-llua");
+      for Linker_Options use ("-L..", "-llua");
    end Linker;
 
 end Test;

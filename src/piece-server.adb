@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -25,9 +25,8 @@ with Construction;
 with Ada.Streams.Stream_IO;
 with Landscape.Server;
 
-
 package body Piece.Server is
-   Verbose : constant Boolean := True;
+   Verbose : constant Boolean := False;
 
    Next_Id : Integer := 0;
 
@@ -56,7 +55,8 @@ package body Piece.Server is
       end loop;
 
       if not Found then
-         raise Piece_Not_Found_Piece_Position;
+         raise Piece_Not_Found_Piece_Position
+           with "Did not find Piece.Id:" & P_Piece_Id'Img;
       end if;
 
       return Trav;
@@ -116,82 +116,14 @@ package body Piece.Server is
 
    end Get_Type_Of_Piece_Name;
 
-   procedure Validate_Create_Piece_Area
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in     Type_Piece'Class;
-      P_Pos         : in     Hexagon.Type_Hexagon_Position;
-      P_Status      :    out Status.Type_Status)
-   is
-      Allowed_Create_Piece_Area : Hexagon.Area.Server_Area
-        .Type_Action_Capabilities_Access_A :=
-        null;
-      Trav  : Positive;
-      Found : Boolean;
-
-      use Hexagon;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Piece.Server.Validate_Create_Piece_Area - enter P_Pos=" &
-            P_Pos.A'Img &
-            " " &
-            P_Pos.B'Img);
-      end if;
-
-      P_Status := Status.Ok;
-
-      Allowed_Create_Piece_Area := Piece.Server.Create_Piece_Area (P_Piece);
-
-      Found := False;
-      Trav  := Allowed_Create_Piece_Area'First;
-      while Trav in
-          Allowed_Create_Piece_Area'First .. Allowed_Create_Piece_Area'Last and
-        not Found
-      loop
-         Found := Allowed_Create_Piece_Area.all (Trav) = P_Pos;
-
-         Trav := Trav + 1;
-      end loop;
-
-      if not Found then
-
-         P_Status := Status.Piece_Cant_Be_Placed;
-      end if;
-
-      if Verbose then
-         Text_IO.Put_Line ("Piece.Server.Validate_Create_Piece_Area - exit");
-      end if;
-
-   end Validate_Create_Piece_Area;
-
-   function Validate_Put_Piece
-     (P_Action_Type : in Action.Type_Action_Type;
-      P_Pos         : in Hexagon.Type_Hexagon_Position;
-      P_Piece_Id    : in Piece.Server.Type_Piece;
-      P_Current_Player_Id,
-      P_Player_Id : in Player.Type_Player_Id)
-      return Boolean
+   procedure New_Piece
+     (P_Piece        : in     Piece.Type_Piece;
+      P_Server_Piece :    out Piece.Server.Type_Piece_Access_Class)
    is
    begin
-      Text_IO.Put_Line ("Piece.Server.Validate_Game_Action_Put_Piece");
-
-      return False;
-   end Validate_Put_Piece;
-
-   procedure Create_Piece
-     (P_Action_Type  : in     Action.Type_Action_Type;
-      P_Piece        : in     Piece.Type_Piece;
-      P_Server_Piece :    out Piece.Server.Type_Piece_Access_Class;
-      P_Status       :    out Status.Type_Status)
-   is
-
-      The_Piece_Name : Utilities.RemoteString.Type_String;
-   begin
       if Verbose then
-         Text_IO.Put_Line ("Piece.Server.Create_Piece - enter");
+         Text_IO.Put_Line ("Piece.Server.New_Piece - enter");
       end if;
-
-      P_Status := Status.Ok;
 
       if P_Piece.Category = Piece.House_Piece then
          P_Server_Piece :=
@@ -205,17 +137,54 @@ package body Piece.Server is
 
       end if;
 
-      P_Server_Piece.Type_Of_Piece := P_Piece.Type_Of_Piece;
-      P_Server_Piece.Category      := P_Piece.Category;
-      P_Server_Piece.Player_Id     := P_Piece.Player_Id;
-
-      Piece.Server.Init_Piece (P_Server_Piece.all);
+      P_Server_Piece.all.Type_Of_Piece := P_Piece.Type_Of_Piece;
+      P_Server_Piece.all.Category      := P_Piece.Category;
+      P_Server_Piece.all.Player_Id     := P_Piece.Player_Id;
 
       if Verbose then
-         Text_IO.Put_Line ("Piece.Server.Create_Piece - exit");
+         Text_IO.Put_Line ("Piece.Server.New_Piece - exit");
       end if;
 
-   end Create_Piece;
+   end New_Piece;
+
+   procedure Init_Piece
+     (P_Server_Piece : in out Piece.Server.Type_Piece_Access_Class)
+   is
+   begin
+      if Verbose then
+         Text_IO.Put_Line ("Piece.Server.Init_Piece - enter");
+      end if;
+
+      P_Server_Piece.all.Id := Piece.Server.Generate_Piece_Id;
+
+      -- Add the new piece to the server list
+      Piece.Server.Pieces_Server_List.Append
+        (Piece.Server.All_Pieces_In_Game,
+         Piece.Server.Type_Piece_Position'
+           (P_Server_Piece, Hexagon.Type_Hexagon_Position'(P_Valid => False)));
+
+      if Verbose then
+         Text_IO.Put_Line ("Piece.Server.Init_Piece - exit");
+      end if;
+
+   end Init_Piece;
+
+   procedure Delete_Piece
+     (P_Server_Piece : in out Piece.Server.Type_Piece_Access_Class)
+   is
+
+   begin
+      if Verbose then
+         Text_IO.Put_Line ("Piece.Server.Delete_Piece - enter");
+      end if;
+
+      Piece.Server.Free_Piece (P_Server_Piece);
+
+      if Verbose then
+         Text_IO.Put_Line ("Piece.Server.Delete_Piece - exit");
+      end if;
+
+   end Delete_Piece;
 
    procedure Put (P_Piece : in Type_Piece) is
    begin
@@ -284,12 +253,18 @@ package body Piece.Server is
    begin
       if Verbose then
          Text_IO.Put_Line
-           ("Piece.Server.Set_Position - enter Piece.Id=" &
-            P_Piece.Id'Img &
-            " P_Pos.A=" &
-            P_Pos.A'Img &
-            " P_Pos.B=" &
-            P_Pos.B'Img);
+           ("Piece.Server.Set_Position - enter Piece.Id=" & P_Piece.Id'Img);
+         if P_Pos.P_Valid then
+            Text_IO.Put_Line
+              (" P_Pos.A=" & P_Pos.A'Img & " P_B=" & P_Pos.B'Img);
+         else
+            Text_IO.Put_Line ("P_Pos=Invalid");
+         end if;
+
+      end if;
+
+      if P_Piece.Id = Piece.Undefined_Piece_Id then
+         raise Piece_Id_Not_Init;
       end if;
 
       Trav := Piece.Server.Find_Piece_In_List (P_Piece.Id);
@@ -298,10 +273,7 @@ package body Piece.Server is
         Type_Piece_Position'
           (Piece.Server.Pieces_Server_List.Element (Trav).Actual_Piece,
            Hexagon.Type_Hexagon_Position'(True, P_Pos.A, P_Pos.B));
-      --in list.
-      --chose not too trust the in -
-      --parameter :)
-      --Actual_Piece_Position.Actual_Pos := Hexagon.Type_Hexagon_Position'(True, P_Pos.A, P_Pos.B);
+
       Piece.Server.Pieces_Server_List.Replace_Element
         (All_Pieces_In_Game,
          Trav,
@@ -322,13 +294,14 @@ package body Piece.Server is
       use Hexagon;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Piece.Server.Unset_Position - enter Piece.Id=" &
-            P_Piece.Id'Img &
-            " P_Pos.A=" &
-            P_Pos.A'Img &
-            " P_B=" &
-            P_Pos.B'Img);
+         Text_IO.Put
+           ("Piece.Server.Unset_Position - enter Piece.Id=" & P_Piece.Id'Img);
+         if P_Pos.P_Valid then
+            Text_IO.Put_Line
+              (" P_Pos.A=" & P_Pos.A'Img & " P_B=" & P_Pos.B'Img);
+         else
+            Text_IO.Put_Line ("P_Pos=Invalid");
+         end if;
       end if;
 
       Trav := Piece.Server.Find_Piece_In_List (P_Piece.Id);
@@ -688,8 +661,7 @@ package body Piece.Server is
    end Get_Pieces_Report;
 
    function Get_Pieces_Players
-     (P_Patch : in Landscape.Type_Patch)
-      return Player.Type_Player_Id
+     (P_Patch : in Landscape.Type_Patch) return Player.Type_Player_Id
    is
       A_Piece : Piece.Server.Type_Piece_Access_Class;
       Trav    : Landscape.Pieces_Here_List.Cursor;
@@ -697,6 +669,9 @@ package body Piece.Server is
 
       use Piece;
    begin
+      if Verbose then
+         Text_IO.Put_Line ("Piece.Server.Get_Pieces_Players - enter");
+      end if;
 
       Trav :=
         Landscape.Pieces_Here_List.First
@@ -711,9 +686,47 @@ package body Piece.Server is
           .Actual_Piece;
       Ret := A_Piece.all.Player_Id;
 
+      if Verbose then
+         Text_IO.Put_Line
+           ("Piece.Server.Get_Pieces_Players -  Piece_Id=" &
+            A_Piece.all.Id'Img &
+            " Player_Id=" &
+            Ret'Img);
+      end if;
+
       return Ret;
 
    end Get_Pieces_Players;
+
+   function Is_Players_Piece
+     (P_Piece     : in Type_Piece;
+      P_Player_Id : in Player.Type_Player_Id) return Boolean
+   is
+      Ret : Boolean := True;
+
+      use Piece;
+      use Player;
+   begin
+      if Verbose then
+         Text_IO.Put_Line
+           ("Piece.Server.Fighting_Piece.Is_Players_Piece - enter P_Piece.Player_Id=" &
+            P_Piece.Player_Id'Img &
+            " P_Player_Id=" &
+            P_Player_Id'Img);
+      end if;
+
+      -- Player can only move his own piece
+      if P_Piece.Player_Id /= P_Player_Id then
+         Ret := False;
+      end if;
+
+      if Verbose then
+         Text_IO.Put_Line
+           ("Piece.Server.Fighting_Piece.Is_Players_Piece - exit");
+      end if;
+
+      return Ret;
+   end Is_Players_Piece;
 
    function Is_Type_Of_Piece_Here
      (P_Patch         : in Hexagon.Server_Map.Type_Server_Patch;
@@ -816,42 +829,47 @@ package body Piece.Server is
       return Ret;
    end Patch_Belongs_To_Player;
 
-   function Validate_Target_Patch_And_Piece
-     (P_Patch     : in Landscape.Type_Patch;
-      P_Piece     : in Type_Piece;
-      P_Player_Id : in Player.Type_Player_Id) return Boolean
+   procedure Validate_Target_Patch_And_Piece
+     (P_Patch     : in     Landscape.Type_Patch;
+      P_Piece     : in     Piece.Type_Piece;
+      P_Player_Id : in     Player.Type_Player_Id;
+      P_Status    :    out Status.Type_Status)
    is
-      Ret : Boolean := True;
+
       use Landscape;
    begin
       if Verbose then
          Text_IO.Put_Line
            ("Piece.Server.Validate_Target_Patch_And_Piece - enter");
       end if;
+      P_Status := Status.Ok;
 
-      if P_Piece.Category = Piece.Fighting_Piece
+      if not Landscape.Server.Has_Patch_Free_Slot (P_Patch) or
+        not Patch_Belongs_To_Player (P_Patch, P_Player_Id)
+      then
+         P_Status := Status.Patch_Occupied;
+      elsif P_Piece.Category = Piece.Fighting_Piece
         and then
         (not Piece.Server.Fighting_Piece.Can_Move_Here
            (P_Piece.Type_Of_Piece,
             P_Patch.Landscape_Here))
       then
-         Ret := False;
+         P_Status := Status.Patch_Bad_Terrain;
       elsif P_Piece.Category = Piece.House_Piece
         and then
         (not Piece.Server.House_Piece.Can_Construct_On_Land
            (P_Piece.Type_Of_Piece,
             P_Patch.Landscape_Here))
       then
-         Ret := False;
+         P_Status := Status.Patch_Bad_Terrain;
       end if;
 
       if Verbose then
          Text_IO.Put_Line
            ("Piece.Server.Validate_Target_Patch_And_Piece - exit, status=" &
-            Ret'Img);
+            P_Status'Img);
       end if;
 
-      return Ret;
    end Validate_Target_Patch_And_Piece;
 
    function Validate_Grant_Revoke_Effect_Piece
@@ -885,13 +903,14 @@ package body Piece.Server is
    end Validate_Grant_Revoke_Effect_Piece;
 
    procedure Put_Piece
-     (P_Action_Type : in     Action.Type_Action_Type;
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
       P_Patch       : in out Landscape.Type_Patch;
       P_Piece       : in out Type_Piece;
-      P_Player_Id   : in     Player.Type_Player_Id;
       P_Status      :    out Status.Type_Status)
    is
 
+      use Status;
       use Piece;
       use Landscape;
    begin
@@ -908,33 +927,17 @@ package body Piece.Server is
          end if;
       end if;
 
-      if not Landscape.Server.Has_Patch_Free_Slot (P_Patch) or
-        not Patch_Belongs_To_Player (P_Patch, P_Player_Id)
-      then
-         P_Status := Status.Patch_Occupied;
-      elsif not Validate_Target_Patch_And_Piece
-          (P_Patch,
-           P_Piece,
-           P_Player_Id)
-      then
-         P_Status := Status.Patch_Bad_Terrain;
-      else
+      Validate_Target_Patch_And_Piece
+        (P_Patch,
+         Piece.Type_Piece (P_Piece),
+         P_Player_Id,
+         P_Status);
 
+      if P_Status = Status.Ok then
          -- Copy new data from the client patch into the server patch
-         Landscape.Pieces_Here_List.Append
-           (P_Patch.Pieces_Here,
-            P_Piece.Id);
+         Landscape.Pieces_Here_List.Append (P_Patch.Pieces_Here, P_Piece.Id);
          Landscape.Pieces_Here_Sort.Sort (P_Patch.Pieces_Here);
          Piece.Server.Set_Position (P_Piece, P_Patch.Pos);
-
-         -- Call any customized game logic when we enter this patch.
-         -- We call this now, after the updates are done so that any
-         -- customized game logic will find data where it is expected.
-         Piece.Server.After_Put_Piece
-           (P_Action_Type,
-            Piece.Server.Type_Piece'Class (P_Piece),
-            Landscape.Type_Patch (P_Patch),
-            P_Player_Id);
 
          P_Status := Status.Ok;
       end if;
@@ -974,59 +977,37 @@ package body Piece.Server is
    end Validate_Removing_Piece;
 
    procedure Remove_Piece
-     (P_Action_Type : in     Action.Type_Action_Type;
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
       P_Patch       : in out Landscape.Type_Patch;
       P_Piece       : in out Type_Piece;
-      P_Player_Id   : in     Player.Type_Player_Id;
       P_Status      :    out Status.Type_Status)
    is
-      Index          : Positive;
-      A_Piece        : Piece.Server.Type_Piece_Access_Class;
+      Index   : Positive;
+      A_Piece : Piece.Server.Type_Piece_Access_Class;
 
       use Ada.Containers;
       use Piece;
    begin
       if Verbose then
          Text_IO.Put_Line
-           ("Piece.Server.Remove_Piece the piece in patch  P_Patch.Pos.A=" &
-            P_Patch.Pos.A'Img &
-            "  P_Pos.B=" &
-            P_Patch.Pos.B'Img);
+           ("Piece.Server.Remove_Piece the piece in patch  P_Piece.Id=" &
+            P_Piece.Id'Img);
       end if;
 
       A_Piece := Piece.Server.Find_Piece_In_List (P_Piece.Id).Actual_Piece;
-      -- We have received a position from the client. Find its patch here
-      -- on servers map
-      if Landscape.Pieces_Here_List.Length (P_Patch.Pieces_Here) =
-        0
-      then
-         P_Status := Status.Patch_Empty;
-      elsif not Is_Piece_Here
-          (P_Patch,
-           Piece.Type_Piece (P_Piece))
-      then
-         P_Status := Status.Inconsistent_Parameters;
-      elsif not Piece.Server.Validate_Removing_Piece
+
+      if not Piece.Server.Validate_Removing_Piece
           (Piece.Server.Type_Piece (A_Piece.all),
            P_Player_Id)
       then
          P_Status := Status.Not_Players_Piece;
       else
-         -- Call any customized game logic when we leave this patch.
-         -- We call this now, before the updates are done so that any
-         -- customized game logic will find data where it is expected.
-         Piece.Server.Before_Remove_Piece
-           (P_Action_Type,
-            Piece.Server.Type_Piece'Class (P_Piece),
-            Landscape.Type_Patch (P_Patch),
-            P_Player_Id);
-
          Index :=
            Piece.Server.Find_Slot_Of_Pieces
              (P_Patch,
               Piece.Type_Piece (P_Piece));
 
-         -- Copy new data from the client patch into the server patch
          Landscape.Pieces_Here_List.Delete (P_Patch.Pieces_Here, Index);
 
          Piece.Server.Unset_Position (P_Piece, P_Patch.Pos);
@@ -1039,10 +1020,10 @@ package body Piece.Server is
    end Remove_Piece;
 
    procedure Grant_Piece_Effect
-     (P_Action_Type : in     Action.Type_Action_Type;
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in out Type_Piece;
       P_Effect      : in     Effect.Type_Effect;
-      P_Player_Id   : in     Player.Type_Player_Id;
       P_Status      :    out Status.Type_Status)
    is
    begin
@@ -1071,10 +1052,10 @@ package body Piece.Server is
    end Grant_Piece_Effect;
 
    procedure Revoke_Piece_Effect
-     (P_Action_Type : in     Action.Type_Action_Type;
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in out Type_Piece;
       P_Effect      : in     Effect.Type_Effect;
-      P_Player_Id   : in     Player.Type_Player_Id;
       P_Status      :    out Status.Type_Status)
    is
    begin
@@ -1131,7 +1112,9 @@ package body Piece.Server is
 
          Ret :=
            Ret and
-           Piece.Server.Patch_Belongs_To_Player (Landscape.Type_Patch(A_Patch.all), P_Player_Id);
+           Piece.Server.Patch_Belongs_To_Player
+             (Landscape.Type_Patch (A_Patch.all),
+              P_Player_Id);
       end loop;
 
       if Verbose then
@@ -1143,31 +1126,24 @@ package body Piece.Server is
    end Validate_Grant_Revoke_Effect_Patch;
 
    procedure Grant_Patch_Effect
-     (P_Action_Type : in     Action.Type_Action_Type;
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in     Type_Piece;
-      P_Patch       : in out Hexagon.Server_Map.Type_Server_Patch;
       P_Effect      : in     Effect.Type_Effect;
       P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Player_Id   : in     Player.Type_Player_Id;
       P_Status      :    out Status.Type_Status)
    is
       A_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress := null;
    begin
       if Verbose then
          Text_IO.Put_Line
-           ("Piece.Server.Grant_Patch_Effect- enter P_Patch.Pos.A=" &
-            P_Patch.Pos.A'Img &
-            " P_Patch.Pos.B=" &
-            P_Patch.Pos.B'Img &
-            " Effect " &
+           ("Piece.Server.Grant_Patch_Effect- enter Effect " &
             P_Effect.Effect_Name'Img &
             " Aux=" &
             P_Effect.Aux'Img);
       end if;
 
-      if not Is_Piece_Here (Landscape.Type_Patch(P_Patch), Piece.Type_Piece (P_Piece)) then
-         P_Status := Status.Inconsistent_Parameters;
-      elsif not Piece.Server.Validate_Grant_Revoke_Effect_Piece
+      if not Piece.Server.Validate_Grant_Revoke_Effect_Piece
           (P_Piece,
            P_Player_Id)
       then
@@ -1181,14 +1157,6 @@ package body Piece.Server is
       else
          for Trav_Area in P_Area'First .. P_Area'Last loop
             if P_Area (Trav_Area).P_Valid then
-               Text_IO.Put_Line
-                 ("Trav_Area=" &
-                  Trav_Area'Img &
-                  " A=" &
-                  P_Area (Trav_Area).A'Img &
-                  " B=" &
-                  P_Area (Trav_Area).B'Img);
-
                A_Patch :=
                  Hexagon.Server_Map.Get_Patch_Adress_From_AB
                    (P_Area (Trav_Area).A,
@@ -1209,12 +1177,11 @@ package body Piece.Server is
    end Grant_Patch_Effect;
 
    procedure Revoke_Patch_Effect
-     (P_Action_Type : in     Action.Type_Action_Type;
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in     Type_Piece;
-      P_Patch       : in out Hexagon.Server_Map.Type_Server_Patch;
       P_Effect      : in     Effect.Type_Effect;
       P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Player_Id   : in     Player.Type_Player_Id;
       P_Status      :    out Status.Type_Status)
    is
       A_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress := null;
@@ -1237,14 +1204,6 @@ package body Piece.Server is
       else
          for Trav_Area in P_Area'First .. P_Area'Last loop
             if P_Area (Trav_Area).P_Valid then
-               Text_IO.Put_Line
-                 ("Trav_Area=" &
-                  Trav_Area'Img &
-                  " A=" &
-                  P_Area (Trav_Area).A'Img &
-                  " B=" &
-                  P_Area (Trav_Area).B'Img);
-
                A_Patch :=
                  Hexagon.Server_Map.Get_Patch_Adress_From_AB
                    (P_Area (Trav_Area).A,
@@ -1263,25 +1222,16 @@ package body Piece.Server is
       end if;
    end Revoke_Patch_Effect;
 
-   function Validate_Perform_Patch_Effect_Piece
-     (P_Piece     : in Type_Piece'Class;
-      P_Player_Id : in Player.Type_Player_Id) return Boolean
-   is
-      use Player;
-   begin
-      return P_Piece.Player_Id = P_Player_Id;
-   end Validate_Perform_Patch_Effect_Piece;
-
    function Validate_Patch_Effect
      (P_Action_Type : in Action.Type_Action_Type;
       P_Piece       : in Type_Piece'Class;
-      P_Patch       : in Landscape.Type_Patch;
       P_Effect      : in Effect.Type_Effect;
       P_Area : in Hexagon.Area.Type_Action_Capabilities_A) return Boolean
    is
-      Ret_Status : Boolean := False;
+      Found : Boolean := False;
       Trav_Area  : Positive;
       Cur_Effect : Effect.Effect_List.Cursor;
+      A_Patch    : Hexagon.Server_Map.Type_Server_Patch_Adress;
 
       use Hexagon;
    begin
@@ -1289,19 +1239,17 @@ package body Piece.Server is
          Text_IO.Put_Line ("Piece.Server.Validate_Patch_Effect - enter");
       end if;
 
-      Ret_Status := True;
       Trav_Area  := P_Area'First;
-      while Trav_Area in P_Area'First .. P_Area'Last and Ret_Status loop
+      while Trav_Area in P_Area'First .. P_Area'Last and not Found loop
 
+         A_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB(P_Area(Trav_Area).A, P_Area(Trav_Area).B);
          Cur_Effect :=
            Effect.Effect_List.Find
-             (P_Patch.Effects_Here,
+             (A_Patch.Effects_Here,
               P_Effect.Effect_Name);
 
          if Effect.Effect_List.Has_Element (Cur_Effect) then
-            Ret_Status := True;
-         else
-            Ret_Status := False;
+            Found := True;
          end if;
 
          Trav_Area := Trav_Area + 1;
@@ -1309,11 +1257,11 @@ package body Piece.Server is
 
       if Verbose then
          Text_IO.Put_Line
-           ("Piece.Server.Validate_Patch_Effect - exit Status=" &
-            Ret_Status'Img);
+           ("Piece.Server.Validate_Patch_Effect - exit Found=" &
+            Found'Img);
       end if;
 
-      return Ret_Status;
+      return Found;
    end Validate_Patch_Effect;
 
    function Validate_Piece_Effect
@@ -1352,12 +1300,11 @@ package body Piece.Server is
    procedure Print_Pieces_In_Game is
       Trav : Piece.Server.Pieces_Server_List.Cursor;
 
-      Trav_Effects : Effect.Effect_List.Cursor;
    begin
       Trav :=
         Piece.Server.Pieces_Server_List.Last (Piece.Server.All_Pieces_In_Game);
       Text_IO.Put_Line
-        ("length =" &
+        ("Printing Pieces In Game Length =" &
          Piece.Server.Pieces_Server_List.Length
            (Piece.Server.All_Pieces_In_Game)'
            Img);
@@ -1366,7 +1313,7 @@ package body Piece.Server is
          Text_IO.Put
            ("Index=" &
             Piece.Server.Pieces_Server_List.To_Index (Trav)'Img &
-            "Id=" &
+            " Id=" &
             Piece.Server.Pieces_Server_List.Element (Trav).Actual_Piece.Id'
               Img &
             " Type_Of_Piece=" &
@@ -1402,10 +1349,7 @@ package body Piece.Server is
       end loop;
    end Print_Pieces_In_Game;
 
-   procedure Upkeep_All
-     (P_Current_Player_Id : in Player.Type_Player_Id;
-      P_Player_Id         : in Player.Type_Player_Id)
-   is
+   procedure Upkeep_All (P_Player_Id : in Player.Type_Player_Id) is
       A_Patch : Hexagon.Server_Map.Type_Server_Patch :=
         Hexagon.Server_Map.Empty;
       A_Piece : Piece.Server.Type_Piece_Access_Class;
@@ -1439,21 +1383,44 @@ package body Piece.Server is
                    .Category =
                  Piece.Fighting_Piece
                then
-                  Piece.Server.Fighting_Piece.Upkeep
-                    (P_Current_Player_Id,
-                     A_Patch,
-                     Piece.Server.Fighting_Piece.Type_Piece'Class
-                       (A_Piece.all));
+                  begin
+                     Piece.Server.Fighting_Piece.Upkeep
+                       (A_Patch,
+                        Piece.Server.Fighting_Piece.Type_Piece'Class
+                          (A_Piece.all));
+                  exception
+                     when others =>
+                        Text_IO.Put_Line
+                          (Text_IO.Current_Error,
+                           "Piece.Server.Upkeep_All:");
+                        Text_IO.Put_Line
+                          (Text_IO.Current_Error,
+                           "Exception from Piece.Server.Fighting_Piece.Upkeep for Piece.Id:" &
+                           A_Piece.all.Id'Img);
+                        raise;
+                  end;
 
                elsif Piece.Server.Pieces_Server_List.Element (Trav)
                    .Actual_Piece
                    .Category =
                  Piece.House_Piece
                then
-                  Piece.Server.House_Piece.Upkeep
-                    (P_Current_Player_Id,
-                     A_Patch,
-                     Piece.Server.House_Piece.Type_House'Class (A_Piece.all));
+                  begin
+                     Piece.Server.House_Piece.Upkeep
+                       (A_Patch,
+                        Piece.Server.House_Piece.Type_House'Class
+                          (A_Piece.all));
+                  exception
+                     when others =>
+                        Text_IO.Put_Line
+                          (Text_IO.Current_Error,
+                           "Piece.Server.Upkeep_All:");
+                        Text_IO.Put_Line
+                          (Text_IO.Current_Error,
+                           "Exception from Piece.Server.House_Piece.Upkeep for Piece.Id:" &
+                           A_Piece.all.Id'Img);
+                        raise;
+                  end;
 
                end if;
 

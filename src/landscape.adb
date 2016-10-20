@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -35,9 +35,10 @@ package body Landscape is
          Text_IO.Put_Line ("Landscape.Put_Pieces_Here - enter");
       end if;
 
+      Text_IO.Put_Line("Print Pieces on this Patch");
       Trav := Landscape.Pieces_Here_List.First (P_Pieces_Here);
       while Landscape.Pieces_Here_List.Has_Element (Trav) loop
-         Text_IO.Put_Line ("Id=" & Landscape.Pieces_Here_List.Element (Trav)'Img);
+         Text_IO.Put_Line ("Piece_Id=" & Landscape.Pieces_Here_List.Element (Trav)'Img);
 
          Trav := Landscape.Pieces_Here_List.Next (Trav);
       end loop;

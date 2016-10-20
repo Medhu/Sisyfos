@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2016  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -21,19 +21,16 @@ with Hexagon.Area.Server_Area;
 with Hexagon.Server_Map;
 with Status;
 with Observation;
-with Effect.Server;
-with Ada.Streams;
-with Ada.Streams.Stream_IO;
-with Ada.Containers.Ordered_Sets;
 with Ada.Containers.Vectors;
 with Landscape;
 with Ada.Strings;
 with Ada.Strings.Unbounded;
 with Action;
+with Ada.Unchecked_Deallocation;
+with Effect;
 
 package Piece.Server is
    type Type_Piece is abstract new Piece.Type_Piece with record
-      Action_Points    : Integer := 10;
       Effects_On_Piece : Effect.Effect_List.Map;
    end record;
 
@@ -51,13 +48,6 @@ package Piece.Server is
      (P_Piece : in Type_Piece)
       return Hexagon.Area.Server_Area
        .Type_Action_Capabilities_Access is abstract;
-
-   function Create_Piece_Area
-     (P_Piece : in Type_Piece)
-      return Hexagon.Area.Server_Area
-       .Type_Action_Capabilities_Access_A is abstract;
-
-   procedure Init_Piece (P_Piece_Class : in out Type_Piece) is abstract;
 
    package Pieces_Server_List is new Ada.Containers.Vectors
      (Natural,
@@ -103,259 +93,318 @@ package Piece.Server is
      (P_Piece : in Type_Piece;
       P_Pos   : in Hexagon.Type_Hexagon_Position);
 
-   function Create_Piece_Name
-     (P_Piece : in Piece.Server.Type_Piece)
-      return Utilities.RemoteString.Type_String is abstract;
+   --
+   -- Create_Piece
+   --
+   procedure New_Piece
+     (P_Piece        : in     Piece.Type_Piece;
+      P_Server_Piece :    out Piece.Server.Type_Piece_Access_Class);
+
+   procedure Delete_Piece
+     (P_Server_Piece : in out Piece.Server.Type_Piece_Access_Class);
 
    function Validate_Create_Piece
-     (P_Action_Type : in Action.Type_Action_Type;
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
       P_Pos         : in Hexagon.Type_Hexagon_Position;
-      P_Piece       : in Piece.Server.Type_Piece;
-      P_Current_Player_Id,
-      P_Player_Id : in Player.Type_Player_Id)
-      return Boolean is abstract;
+      P_Piece       : in Piece.Server.Type_Piece) return Boolean is abstract;
 
-   procedure After_Create_Piece
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Pos                            : in     Hexagon.Type_Hexagon_Position;
-      P_Piece                          : in out Piece.Server.Type_Piece;
-      P_Current_Player_Id, P_Player_Id : in Player.Type_Player_Id) is abstract;
-
-   procedure Create_Piece
-     (P_Action_Type  : in     Action.Type_Action_Type;
-      P_Piece        : in     Piece.Type_Piece;
-      P_Server_Piece :    out Piece.Server.Type_Piece_Access_Class;
-      P_Status       :    out Status.Type_Status);
-
-   -- This procedure is called during creation of pieces so client code
-   -- is able to recalculate resources available. If not enough resources are
-   -- available, then the P_Status is returned as False.
-   procedure Spend_Resources_On_Piece
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in     Type_Piece;
+   procedure Before_Create_Piece
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
       P_Pos         : in     Hexagon.Type_Hexagon_Position;
-      P_Success     :    out Boolean) is abstract;
+      P_Piece       : in out Piece.Server.Type_Piece;
+      P_Result      :    out Status.Type_Result_Status) is abstract;
 
-   procedure Validate_Create_Piece_Area
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in     Type_Piece'Class;
-      P_Pos         : in     Hexagon.Type_Hexagon_Position;
+   procedure End_Create_Piece
+     (P_Player_Id          : in     Player.Type_Player_Id;
+      P_Action_Type        : in     Action.Type_Action_Type;
+      P_Pos                : in     Hexagon.Type_Hexagon_Position;
+      P_Piece              : in out Piece.Server.Type_Piece;
+      P_End_Status         : in     Status.Type_Status;
+      P_Attempts_Remaining : in out Integer) is abstract;
+
+   --
+   -- Put_Piece
+   --
+   procedure Put_Piece
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Patch       : in out Landscape.Type_Patch;
+      P_Piece       : in out Type_Piece;
       P_Status      :    out Status.Type_Status);
-
-   function Validate_Target_Patch_And_Piece
-     (P_Patch     : in Landscape.Type_Patch;
-      P_Piece     : in Type_Piece;
-      P_Player_Id : in Player.Type_Player_Id) return Boolean;
 
    function Validate_Put_Piece
-     (P_Action_Type : in Action.Type_Action_Type;
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
       P_Pos         : in Hexagon.Type_Hexagon_Position;
-      P_Piece_Id    : in Piece.Server.Type_Piece;
-      P_Current_Player_Id,
-      P_Player_Id : in Player.Type_Player_Id)
-      return Boolean;
+      P_Piece       : in Piece.Server.Type_Piece) return Boolean is abstract;
 
-   procedure Put_Piece
-     (P_Action_Type : in     Action.Type_Action_Type;
+   procedure Before_Put_Piece
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Pos         : in     Hexagon.Type_Hexagon_Position;
+      P_Piece       : in out Piece.Server.Type_Piece;
+      P_Result      :    out Status.Type_Result_Status) is abstract;
+
+   procedure End_Put_Piece
+     (P_Player_Id          : in     Player.Type_Player_Id;
+      P_Action_Type        : in     Action.Type_Action_Type;
+      P_Pos                : in     Hexagon.Type_Hexagon_Position;
+      P_Piece              : in out Piece.Server.Type_Piece;
+      P_End_Status         : in     Status.Type_Status;
+      P_Attempts_Remaining : in out Integer) is abstract;
+
+   --
+   -- Remove_Piece
+   --
+   procedure Remove_Piece
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
       P_Patch       : in out Landscape.Type_Patch;
-      P_Piece       : in out Type_Piece;
-      P_Player_Id   : in     Player.Type_Player_Id;
+      P_Piece       : in out Piece.Server.Type_Piece;
       P_Status      :    out Status.Type_Status);
-
-   procedure After_Put_Piece
-     (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece       : in Type_Piece;
-      P_Patch       : in Landscape.Type_Patch;
-      P_Player_Id   : in Player.Type_Player_Id) is abstract;
 
    function Validate_Remove_Piece
-     (P_Action_Type : in Action.Type_Action_Type;
-      P_Pos         : in Hexagon.Type_Hexagon_Position;
-      P_Piece_Id    : in Piece.Server.Type_Piece;
-      P_Current_Player_Id,
-      P_Player_Id : in Player.Type_Player_Id)
-      return Boolean is abstract;
-
-   procedure Remove_Piece
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Patch       : in out Landscape.Type_Patch;
-      P_Piece       : in out Type_Piece;
-      P_Player_Id   : in     Player.Type_Player_Id;
-      P_Status      :    out Status.Type_Status);
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece : in out Piece.Server.Type_Piece) return Boolean is abstract;
 
    procedure Before_Remove_Piece
-     (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece       : in Type_Piece;
-      P_From_Patch  : in Landscape.Type_Patch;
-      P_Player_Id   : in Player.Type_Player_Id) is abstract;
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece       : in out Piece.Server.Type_Piece;
+      P_Result      :    out Status.Type_Result_Status) is abstract;
 
-   function Validate_Grant_Piece_Effect
-     (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece       : in Piece.Server.Type_Piece;
-      P_Effect      : in Effect.Type_Effect;
-      P_Current_Player_Id,
-      P_Player_Id : in Player.Type_Player_Id)
-      return Boolean is abstract;
+   procedure End_Remove_Piece
+     (P_Player_Id          : in     Player.Type_Player_Id;
+      P_Action_Type        : in     Action.Type_Action_Type;
+      P_Patch              : in out Landscape.Type_Patch;
+      P_Piece              : in out Piece.Server.Type_Piece;
+      P_End_Status         : in     Status.Type_Status;
+      P_Attempts_Remaining : in out Integer) is abstract;
 
-   procedure Grant_Piece_Effect
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Type_Piece;
-      P_Effect      : in     Effect.Type_Effect;
-      P_Player_Id   : in     Player.Type_Player_Id;
-      P_Status      :    out Status.Type_Status);
-
-   procedure After_Grant_Piece_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece                          : in out Piece.Server.Type_Piece;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Current_Player_Id, P_Player_Id : in Player.Type_Player_Id) is abstract;
-
-   function Validate_Revoke_Piece_Effect
-     (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece       : in Piece.Server.Type_Piece;
-      P_Effect      : in Effect.Type_Effect;
-      P_Current_Player_Id,
-      P_Player_Id : in Player.Type_Player_Id)
-      return Boolean is abstract;
-
-   procedure Revoke_Piece_Effect
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Type_Piece;
-      P_Effect      : in     Effect.Type_Effect;
-      P_Player_Id   : in     Player.Type_Player_Id;
-      P_Status      :    out Status.Type_Status);
-
-   procedure After_Revoke_Piece_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece                          : in out Piece.Server.Type_Piece;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Current_Player_Id, P_Player_Id : in Player.Type_Player_Id) is abstract;
-
-   function Validate_Grant_Patch_Effect
-     (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece       : in Piece.Server.Type_Piece;
-      P_Patch       : in Hexagon.Server_Map.Type_Server_Patch;
-      P_Effect      : in Effect.Type_Effect;
-      P_Current_Player_Id,
-      P_Player_Id : in Player.Type_Player_Id)
-      return Boolean is abstract;
-
-   procedure Grant_Patch_Effect
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in     Type_Piece;
-      P_Patch       : in out Hexagon.Server_Map.Type_Server_Patch;
-      P_Effect      : in     Effect.Type_Effect;
+   --
+   -- Perform_Patch_Effect
+   --
+   procedure Perform_Patch_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece       : in out Piece.Server.Type_Piece;
       P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Player_Id   : in     Player.Type_Player_Id;
-      P_Status      :    out Status.Type_Status);
-
-   procedure After_Grant_Patch_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece                          : in out Piece.Server.Type_Piece;
-      P_Patch : in     Hexagon.Server_Map.Type_Server_Patch;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Current_Player_Id, P_Player_Id : in Player.Type_Player_Id) is abstract;
-
-   function Validate_Revoke_Patch_Effect
-     (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece       : in Piece.Server.Type_Piece;
-      P_Patch       : in Hexagon.Server_Map.Type_Server_Patch;
-      P_Effect      : in Effect.Type_Effect;
-      P_Current_Player_Id,
-      P_Player_Id : in Player.Type_Player_Id)
-      return Boolean is abstract;
-
-   procedure Revoke_Patch_Effect
-     (P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in     Type_Piece;
-      P_Patch       : in out Hexagon.Server_Map.Type_Server_Patch;
-      P_Effect      : in     Effect.Type_Effect;
-      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Player_Id   : in     Player.Type_Player_Id;
-      P_Status      :    out Status.Type_Status);
-
-   procedure After_Revoke_Patch_Effect
-     (P_Action_Type                    : in     Action.Type_Action_Type;
-      P_Piece                          : in out Piece.Server.Type_Piece;
-      P_Patch : in     Hexagon.Server_Map.Type_Server_Patch;
-      P_Effect                         : in     Effect.Type_Effect;
-      P_Current_Player_Id, P_Player_Id : in Player.Type_Player_Id) is abstract;
+      P_Effect      : in     Effect.Type_Effect) is abstract;
 
    function Validate_Perform_Patch_Effect
-     (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece       : in Type_Piece;
-      P_Pos         : in Hexagon.Type_Hexagon_Position;
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece       : in Piece.Server.Type_Piece;
       P_Effect      : in Effect.Type_Effect;
-      P_Area        : in Hexagon.Area.Type_Action_Capabilities_A;
-      P_Current_Player_Id,
-      P_Player_Id : in Player.Type_Player_Id)
+      P_Area        : in Hexagon.Area.Type_Action_Capabilities_A)
       return Boolean is abstract;
 
-   function Validate_Perform_Patch_Effect_Piece
-     (P_Piece     : in Type_Piece'Class;
-      P_Player_Id : in Player.Type_Player_Id) return Boolean;
+   procedure Before_Perform_Patch_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece       : in out Piece.Server.Type_Piece;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Result      :    out Status.Type_Result_Status) is abstract;
 
    function Validate_Patch_Effect
      (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece       : in Type_Piece'Class;
-      P_Patch       : in Landscape.Type_Patch;
+      P_Piece       : in Piece.Server.Type_Piece'Class;
       P_Effect      : in Effect.Type_Effect;
-      P_Area        : in Hexagon.Area.Type_Action_Capabilities_A) return Boolean;
+      P_Area : in Hexagon.Area.Type_Action_Capabilities_A) return Boolean;
 
-   procedure Calculate_Patch_Effect
-     (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece       : in Type_Piece;
-      P_Patch       : in Landscape.Type_Patch;
-      P_Effect      : in Effect.Type_Effect;
-      P_Area        : in Hexagon.Area.Type_Action_Capabilities_A;
-      P_Player_Id   : in Player.Type_Player_Id) is abstract;
+   procedure End_Perform_Patch_Effect
+     (P_Player_Id          : in     Player.Type_Player_Id;
+      P_Action_Type        : in     Action.Type_Action_Type;
+      P_Piece              : in out Piece.Server.Type_Piece;
+      P_Effect             : in     Effect.Type_Effect;
+      P_Area               : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_End_Status         : in     Status.Type_Status;
+      P_Attempts_Remaining : in out Integer) is abstract;
 
-   function Calculate_Patch_Effect_Action_Points
-     (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece       : in Type_Piece;
-      P_Patch       : in Landscape.Type_Patch;
-      P_Effect      : in Effect.Type_Effect;
-      P_Area        : in Hexagon.Area.Type_Action_Capabilities_A;
-      P_Player_Id   : in Player.Type_Player_Id) return Integer is abstract;
-
+   --
+   -- Perform_Piece_Effect
+   --
    function Validate_Perform_Piece_Effect
-     (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece       : in Type_Piece;
-      P_Pos         : in Hexagon.Type_Hexagon_Position;
-      P_Effect      : in Effect.Type_Effect;
-      P_Current_Player_Id,
-      P_Player_Id : in Player.Type_Player_Id)
-      return Boolean is abstract;
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece       : in Piece.Server.Type_Piece;
+      P_Effect      : in Effect.Type_Effect) return Boolean is abstract;
+
+   procedure Before_Perform_Piece_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece       : in out Piece.Server.Type_Piece;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Result      :    out Status.Type_Result_Status) is abstract;
 
    function Validate_Piece_Effect
      (P_Action_Type : in Action.Type_Action_Type;
       P_Piece       : in Type_Piece'Class;
       P_Effect      : in Effect.Type_Effect) return Boolean;
 
-   procedure Calculate_Piece_Effect
-     (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece       : in Type_Piece;
-      P_Patch       : in Landscape.Type_Patch;
-      P_Effect      : in Effect.Type_Effect;
-      P_Player_Id   : in Player.Type_Player_Id) is abstract;
+   procedure Perform_Piece_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece       : in out Piece.Server.Type_Piece;
+      P_Effect      : in     Effect.Type_Effect) is abstract;
 
-   function Calculate_Piece_Effect_Action_Points
-     (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece       : in Type_Piece;
-      P_Patch       : in Landscape.Type_Patch;
-      P_Effect      : in Effect.Type_Effect;
-      P_Player_Id   : in Player.Type_Player_Id) return Integer is abstract;
+   procedure End_Perform_Piece_Effect
+     (P_Player_Id          : in     Player.Type_Player_Id;
+      P_Action_Type        : in     Action.Type_Action_Type;
+      P_Piece              : in out Piece.Server.Type_Piece;
+      P_Effect             : in     Effect.Type_Effect;
+      P_End_Status         : in     Status.Type_Status;
+      P_Attempts_Remaining : in out Integer) is abstract;
+
+   --
+   -- Grant_Piece_Effect
+   --
+   procedure Grant_Piece_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece       : in out Piece.Server.Type_Piece;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Status      :    out Status.Type_Status);
+
+   function Validate_Grant_Piece_Effect
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece       : in Piece.Server.Type_Piece;
+      P_Effect      : in Effect.Type_Effect) return Boolean is abstract;
+
+   procedure Before_Grant_Piece_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece       : in out Piece.Server.Type_Piece;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Result      :    out Status.Type_Result_Status) is abstract;
+
+   procedure End_Grant_Piece_Effect
+     (P_Player_Id          : in     Player.Type_Player_Id;
+      P_Action_Type        : in     Action.Type_Action_Type;
+      P_Piece              : in out Piece.Server.Type_Piece;
+      P_Effect             : in     Effect.Type_Effect;
+      P_End_Status         : in     Status.Type_Status;
+      P_Attempts_Remaining : in out Integer) is abstract;
+
+   --
+   -- Revoke_Piece_Effect
+   --
+   procedure Revoke_Piece_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece       : in out Piece.Server.Type_Piece;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Status      :    out Status.Type_Status);
+
+   function Validate_Revoke_Piece_Effect
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece       : in Piece.Server.Type_Piece;
+      P_Effect      : in Effect.Type_Effect) return Boolean is abstract;
+
+   procedure Before_Revoke_Piece_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece       : in out Piece.Server.Type_Piece;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Result      :    out Status.Type_Result_Status) is abstract;
+
+   procedure End_Revoke_Piece_Effect
+     (P_Player_Id          : in     Player.Type_Player_Id;
+      P_Action_Type        : in     Action.Type_Action_Type;
+      P_Piece              : in out Piece.Server.Type_Piece;
+      P_Effect             : in     Effect.Type_Effect;
+      P_End_Status         : in     Status.Type_Status;
+      P_Attempts_Remaining : in out Integer) is abstract;
+
+   --
+   -- Grant_Patch_Effect
+   --
+   procedure Grant_Patch_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece       : in     Piece.Server.Type_Piece;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Status      :    out Status.Type_Status);
+
+   function Validate_Grant_Patch_Effect
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece       : in Piece.Server.Type_Piece;
+      P_Area        : in Hexagon.Area.Type_Action_Capabilities_A;
+      P_Effect      : in Effect.Type_Effect) return Boolean is abstract;
+
+   procedure Before_Grant_Patch_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece       : in out Piece.Server.Type_Piece;
+      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Result      :    out Status.Type_Result_Status) is abstract;
+
+   procedure End_Grant_Patch_Effect
+     (P_Player_Id          : in     Player.Type_Player_Id;
+      P_Action_Type        : in     Action.Type_Action_Type;
+      P_Piece              : in out Piece.Server.Type_Piece;
+      P_Area               : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Effect             : in     Effect.Type_Effect;
+      P_End_Status         : in     Status.Type_Status;
+      P_Attempts_Remaining : in out Integer) is abstract;
+
+   --
+   -- Revoke_Patch_Effects
+   --
+   procedure Revoke_Patch_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece       : in     Piece.Server.Type_Piece;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Status      :    out Status.Type_Status);
+
+   function Validate_Revoke_Patch_Effect
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece       : in Piece.Server.Type_Piece;
+      P_Area        : in Hexagon.Area.Type_Action_Capabilities_A;
+      P_Effect      : in Effect.Type_Effect) return Boolean is abstract;
+
+   procedure Before_Revoke_Patch_Effect
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece       : in out Piece.Server.Type_Piece;
+      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Effect      : in     Effect.Type_Effect;
+      P_Result      :    out Status.Type_Result_Status) is abstract;
+
+   procedure End_Revoke_Patch_Effect
+     (P_Player_Id          : in     Player.Type_Player_Id;
+      P_Action_Type        : in     Action.Type_Action_Type;
+      P_Piece              : in out Piece.Server.Type_Piece;
+      P_Area               : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Effect             : in     Effect.Type_Effect;
+      P_End_Status         : in     Status.Type_Status;
+      P_Attempts_Remaining : in out Integer) is abstract;
 
    procedure Print_Pieces_In_Game;
    procedure Put_All_Pieces_Positions (P_Player_Id : in Player.Type_Player_Id);
    procedure Put (P_Piece : in Type_Piece);
 
    function Get_Pieces_Players
-     (P_Patch : in Landscape.Type_Patch)
-      return Player.Type_Player_Id;
+     (P_Patch : in Landscape.Type_Patch) return Player.Type_Player_Id;
 
    function Patch_Belongs_To_Player
      (P_Patch     : in Landscape.Type_Patch;
+      P_Player_Id : in Player.Type_Player_Id) return Boolean;
+
+   function Is_Players_Piece
+     (P_Piece     : in Type_Piece;
       P_Player_Id : in Player.Type_Player_Id) return Boolean;
 
    function Is_Piece_Here
@@ -376,9 +425,7 @@ package Piece.Server is
      (P_Player_Id     : in     Player.Type_Player_Id;
       P_Pieces_Report :    out Type_Pieces_Report);
 
-   procedure Upkeep_All
-     (P_Current_Player_Id : in Player.Type_Player_Id;
-      P_Player_Id         : in Player.Type_Player_Id);
+   procedure Upkeep_All (P_Player_Id : in Player.Type_Player_Id);
 
    procedure Save_Pieces
      (P_File_Name  : in Ada.Strings.Unbounded.Unbounded_String;
@@ -388,13 +435,17 @@ package Piece.Server is
      (P_File_Name  : in     Ada.Strings.Unbounded.Unbounded_String;
       P_Piece_List :    out Pieces_Server_List.Vector);
 
+   procedure Free_Piece is new Ada.Unchecked_Deallocation
+     (Object => Piece.Server.Type_Piece'Class,
+      Name   => Piece.Server.Type_Piece_Access_Class);
+
    All_Pieces_In_Game : Pieces_Server_List.Vector;
 
    Type_Of_Piece_Missing_Implementation : exception;
    Init_Not_Undefined_Piece_Id : exception;
-   Init_Not_Undefined_Piece_Type : exception;
    Init_Not_Undefined_Player_Id : exception;
    Piece_Not_Found_Piece_Position : exception;
    Winner_Not_Returned_Properly : exception;
+   Piece_Id_Not_Init : exception;
 
 end Piece.Server;

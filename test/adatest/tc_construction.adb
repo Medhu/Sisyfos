@@ -1,3 +1,22 @@
+--
+--
+--      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
+--      Copyright (C) 2013-2016  Frank J Jorgensen
+--
+--      This program is free software: you can redistribute it and/or modify
+--      it under the terms of the GNU General Public License as published by
+--      the Free Software Foundation, either version 3 of the License, or
+--      (at your option) any later version.
+--
+--      This program is distributed in the hope that it will be useful,
+--      but WITHOUT ANY WARRANTY; without even the implied warranty of
+--      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+--      GNU General Public License for more details.
+--
+--      You should have received a copy of the GNU General Public License
+--      along with this program.  If not, see <http://www.gnu.org/licenses/>.
+--
+
 with AUnit.Assertions;
 with Test_ServerRCI;
 with Text_IO;
@@ -11,7 +30,7 @@ with Hexagon.Server_Map;
 with Utilities;
 with Ada.Strings.Unbounded;
 with Player;
-with Server.Server;
+with Server.ServerAPI;
 with Test_Piece;
 with Status;
 with Piece.Server.Fighting_Piece;
@@ -21,12 +40,13 @@ with Construction;
 with Action;
 
 package body Tc_Construction is
-   Verbose : constant Boolean := True;
+   Verbose : constant Boolean := False;
 
    Player_Id_1, Player_Id_2   : Player.Type_Player_Id;
    Map_Player_1, Map_Player_2 : Hexagon.Client_Map.Type_Client_Map_Info;
    Test_Class1                : Test_Piece.Type_My_Test_Piece_Access_Class;
    Test_Class2                : Test_Piece.Type_My_Test_House_Access_Class;
+   Test_List                  : aliased Test_Piece.Type_Test_List;
 
    ------------
    -- Set_Up --
@@ -61,12 +81,16 @@ package body Tc_Construction is
       Adm_Status : Status.Type_Adm_Status;
 
       Player_Name_List : Utilities.RemoteString_List.Vector;
+      Command_Line     : Utilities.RemoteString.Type_Command_Parameters;
 
       use Player;
    begin
       if Verbose then
          Text_IO.Put_Line ("tc_construction.Test_Game_Start - enter");
       end if;
+
+      Test_ServerRCI.Init (Command_Line);
+      Test_Piece.Test_List := Test_List'Access;
 
       Test_Class1               := new Test_Piece.Type_My_Test_Piece;
       Test_Class1.Id            := Piece.Undefined_Piece_Id;
@@ -78,7 +102,7 @@ package body Tc_Construction is
       Test_Class2.Type_Of_Piece := Piece.Undefined_Piece_Type;
       Test_Class2.Player_Id     := Player.Undefined_Player_Id;
 
-      Server.Server.Init
+      Server.ServerAPI.Init
         (Test_Class1.all,
          Test_Class2.all,
          Test_Piece.Landscapes_Type_Info_List,
@@ -93,13 +117,15 @@ package body Tc_Construction is
          Test_Piece.Test_Leaving_Game'Access,
          Test_Piece.Test_Start_Game'Access,
          Test_Piece.Test_Upkeep_Game'Access,
-         Test_Piece.Test_Start_Turn'Access,
-         Test_Piece.Test_End_Turn'Access,
          Test_Piece.Test_End_Game'Access);
-      Server.Server.Start;
+      Server.ServerAPI.Start;
 
-      Utilities.RemoteString_List.Append(Player_Name_List, Utilities.RemoteString.To_Unbounded_String ("User A"));
-      Utilities.RemoteString_List.Append(Player_Name_List, Utilities.RemoteString.To_Unbounded_String ("User B"));
+      Utilities.RemoteString_List.Append
+        (Player_Name_List,
+         Utilities.RemoteString.To_Unbounded_String ("User A"));
+      Utilities.RemoteString_List.Append
+        (Player_Name_List,
+         Utilities.RemoteString.To_Unbounded_String ("User B"));
       Test_ServerRCI.Create_Game
         (Utilities.RemoteString.To_Unbounded_String ("test0000.dat"),
          Player_Name_List,
@@ -136,85 +162,15 @@ package body Tc_Construction is
       end if;
    end Test_Game_Start;
 
-   procedure Test_Perform_Construction_AP_1
-     (CWTC : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      A_Piece                       : Piece.Type_Piece;
-      A_Patch, A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      Ret_Status                    : Status.Type_Status;
-
-      Current_Player_Id : Player.Type_Player_Id;
-      Countdown         : Positive;
-      System_Messages   : Observation.Activity.Activity_Report.Vector;
-      Game_Status       : Status.Type_Game_Status;
-
-      use Ada.Containers;
-      use Status;
-      use Piece;
-      use Hexagon;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("tc_construction.Test_Perform_Construction_AP_1 - enter");
-      end if;
-
-      A_Piece.Id := 1;
-      Hexagon.Client_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path &
-            "tc_construction-Test_Perform_Construction_AP_1_01.html"),
-         Map_Player_1);
-
-      Test_ServerRCI.Get_Updates_Summary
-        (Player_Id_1,
-         Current_Player_Id,
-         Countdown,
-         Game_Status,
-         System_Messages);
-
-      A_Patch              := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 4, 4);
-      A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 5, 6);
-
-      Test_Piece.Construction_Action_Point_Example := 10;
-
-      Test_ServerRCI.Perform_Construction
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall1,
-         1,
-         Ret_Status);
-
-      Test_Piece.Construction_Action_Point_Example := 1;
-
-      Hexagon.Server_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path &
-            "tc_construction-Test_Perform_Construction_AP_1_02.html"));
-
-      AUnit.Assertions.Assert
-        (Condition => Ret_Status = Status.Out_Of_Moves,
-         Message   => "Expected Out_Of_Moves, got " & Ret_Status'Img);
-
-      if Verbose then
-         Text_IO.Put_Line ("tc_construction.Test_Perform_Construction_AP_1 - exit");
-      end if;
-
-   end Test_Perform_Construction_AP_1;
-
    procedure Test_Perform_Construction_Allowed_Patch_1
      (CWTC : in out AUnit.Test_Cases.Test_Case'Class)
    is
       A_Piece                       : Piece.Type_Piece;
-      A_Patch, A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      Ret_Status                    : Status.Type_Status;
-      A_Server_Piece                : Piece.Server.Type_Piece_Access_Class;
+      A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
 
-      Current_Player_Id : Player.Type_Player_Id;
-      Countdown         : Positive;
-      System_Messages   : Observation.Activity.Activity_Report.Vector;
-      Game_Status       : Status.Type_Game_Status;
-      Ret               : Boolean;
+      Countdown       : Positive;
+      System_Messages : Observation.Activity.Activity_Report.Vector;
+      Game_Status     : Status.Type_Game_Status;
 
       use Ada.Containers;
       use Status;
@@ -225,9 +181,6 @@ package body Tc_Construction is
          Text_IO.Put_Line ("tc_construction.Test_Perform_Construction_Allowed_Patch_1 - enter");
       end if;
 
-      Ret := Test_ServerRCI.End_Turn(1);
-      Ret := Test_ServerRCI.End_Turn(2);
-
       A_Piece.Id := 1;
       Hexagon.Client_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
@@ -235,45 +188,27 @@ package body Tc_Construction is
             "tc_construction-Test_Perform_Construction_Allowed_Patch_1_01.html"),
          Map_Player_1);
 
-      Test_ServerRCI.Get_Updates_Summary
-        (Player_Id_1,
-         Current_Player_Id,
-         Countdown,
-         Game_Status,
-         System_Messages);
+      Test_ServerRCI.Get_Updates_Summary (Player_Id_1, Countdown, Game_Status, System_Messages);
 
-      A_Patch              := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 4, 4);
       A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 5, 6);
 
-      A_Server_Piece := Piece.Server.Find_Piece_In_List(A_Piece.Id).Actual_Piece;
+      Piece.Client_Piece.Perform_Construction
+        (1,
+         Action.Type_Action_Type (1100),
+         A_Piece,
+         Landscape.Type_Patch (A_Construction_Patch.all),
+         Test_Piece.Construction_Wall1);
 
-      AUnit.Assertions.Assert
-        (Condition =>  A_Server_Piece.all.Action_Points = 5,
-         Message   => "Expected Action Point=5 before Perform_Construction, but found " & A_Server_Piece.all.Action_Points'Img);
+      Test_Piece.Wait_For_Server (1100);
 
-
-      Test_ServerRCI.Perform_Construction
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall1,
-         1,
-         Ret_Status);
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path &
             "tc_construction-Test_Perform_Construction_Allowed_Patch_1_02.html"));
 
       AUnit.Assertions.Assert
-        (Condition => Ret_Status = Status.Ok,
-         Message   => "Could not create piece " & Ret_Status'Img);
-
-      A_Server_Piece := Piece.Server.Find_Piece_In_List(A_Piece.Id).Actual_Piece;
-
-      AUnit.Assertions.Assert
-        (Condition =>  A_Server_Piece.all.Action_Points = 4,
-         Message   => "Expected Action Point=5 after Perform_Construction, but found " & A_Server_Piece.all.Action_Points'Img);
+        (Condition => Test_Piece.Test_List.all (1100).Result = Status.Ok,
+         Message   => "Could not create construction " & Test_Piece.Test_List.all (1100).Result'Img);
 
       if Verbose then
          Text_IO.Put_Line ("tc_construction.Test_Perform_Construction_Allowed_Patch_1 - exit");
@@ -286,14 +221,10 @@ package body Tc_Construction is
    is
       A_Piece                       : Piece.Type_Piece;
       A_Patch, A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      Ret_Status                    : Status.Type_Status;
 
-      Current_Player_Id : Player.Type_Player_Id;
-      Countdown         : Positive;
-      System_Messages   : Observation.Activity.Activity_Report.Vector;
-      Game_Status       : Status.Type_Game_Status;
-
-      Ret               : Boolean;
+      Countdown       : Positive;
+      System_Messages : Observation.Activity.Activity_Report.Vector;
+      Game_Status     : Status.Type_Game_Status;
 
       use Ada.Containers;
       use Status;
@@ -304,42 +235,36 @@ package body Tc_Construction is
          Text_IO.Put_Line ("tc_construction.Test_Perform_Construction_Occupied_Patch - enter");
       end if;
 
-      Ret := Test_ServerRCI.End_Turn(1);
-      Ret := Test_ServerRCI.End_Turn(2);
-
       A_Piece.Id := 1;
-      Hexagon.Client_Map.Save_Scenario
+      Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path &
-            "tc_construction-Test_Perform_Construction_Occupied_Patch_01.html"),
-         Map_Player_1);
+            "tc_construction-Test_Perform_Construction_Occupied_Patch_01.html"));
 
-      Test_ServerRCI.Get_Updates_Summary
-        (Player_Id_1,
-         Current_Player_Id,
-         Countdown,
-         Game_Status,
-         System_Messages);
+      Test_ServerRCI.Get_Updates_Summary (Player_Id_1, Countdown, Game_Status, System_Messages);
 
       A_Patch              := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 4, 4);
       A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 5, 5);
 
-      Test_ServerRCI.Perform_Construction
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall1,
-         1,
-         Ret_Status);
+      Piece.Client_Piece.Perform_Construction
+        (1,
+         Action.Type_Action_Type (1101),
+         A_Piece,
+         Landscape.Type_Patch (A_Construction_Patch.all),
+         Test_Piece.Construction_Wall1);
+
+      Test_Piece.Wait_For_Server (1101);
+
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path &
             "tc_construction-Test_Perform_Construction_Occupied_Patch_02.html"));
 
       AUnit.Assertions.Assert
-        (Condition => Ret_Status = Status.Target_Patch_Occupied,
-         Message   => "Expected Target_Patch_Occupied got status " & Ret_Status'Img);
+        (Condition => Test_Piece.Test_List.all (1101).Result = Status.Target_Patch_Occupied,
+         Message   =>
+           "Expected Target_Patch_Occupied got status " &
+           Test_Piece.Test_List.all (1101).Result'Img);
 
       if Verbose then
          Text_IO.Put_Line ("tc_construction.Test_Perform_Construction_Occupied_Patch - exit");
@@ -347,18 +272,15 @@ package body Tc_Construction is
 
    end Test_Perform_Construction_Occupied_Patch;
 
-   procedure Test_Perform_Construction_Outside_Capability
+   procedure Test_Perform_Construction_Not_Before_Perform_Construction
      (CWTC : in out AUnit.Test_Cases.Test_Case'Class)
    is
       A_Piece                       : Piece.Type_Piece;
       A_Patch, A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      Ret_Status                    : Status.Type_Status;
 
-      Current_Player_Id : Player.Type_Player_Id;
-      Countdown         : Positive;
-      System_Messages   : Observation.Activity.Activity_Report.Vector;
-      Game_Status       : Status.Type_Game_Status;
-      Ret               : Boolean;
+      Countdown       : Positive;
+      System_Messages : Observation.Activity.Activity_Report.Vector;
+      Game_Status     : Status.Type_Game_Status;
 
       use Ada.Containers;
       use Status;
@@ -366,129 +288,56 @@ package body Tc_Construction is
       use Hexagon;
    begin
       if Verbose then
-         Text_IO.Put_Line ("tc_construction.Test_Perform_Construction_Outside_Capability - enter");
+         Text_IO.Put_Line
+           ("tc_construction.Test_Perform_Construction_Not_Before_Perform_Construction - enter");
       end if;
-
-      Ret := Test_ServerRCI.End_Turn(1);
-      Ret := Test_ServerRCI.End_Turn(2);
 
       A_Piece.Id := 1;
       Hexagon.Client_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path &
-            "tc_construction-Test_Perform_Construction_Outside_Capability_01.html"),
+            "tc_construction-Test_Perform_Construction_Not_Before_Perform_Construction_01.html"),
          Map_Player_1);
 
-      Test_ServerRCI.Get_Updates_Summary
-        (Player_Id_1,
-         Current_Player_Id,
-         Countdown,
-         Game_Status,
-         System_Messages);
-
-      A_Patch              := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 4, 4);
-      A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 50, 50);
-
-      Test_ServerRCI.Perform_Construction
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall1,
-         1,
-         Ret_Status);
-      Hexagon.Server_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path &
-            "tc_construction-Test_Perform_Construction_Outside_Capability_02.html"));
-
-      AUnit.Assertions.Assert
-        (Condition => Ret_Status = Status.Not_Reachable,
-         Message   => "Expected Not_Reachable got status " & Ret_Status'Img);
-
-      if Verbose then
-         Text_IO.Put_Line ("tc_construction.Test_Perform_Construction_Outside_Capability - exit");
-      end if;
-
-   end Test_Perform_Construction_Outside_Capability;
-
-   procedure Test_Perform_Construction_Not_Players_Turn
-     (CWTC : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      A_Piece                       : Piece.Type_Piece;
-      A_Patch, A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      Ret_Status                    : Status.Type_Status;
-
-      Current_Player_Id : Player.Type_Player_Id;
-      Countdown         : Positive;
-      System_Messages   : Observation.Activity.Activity_Report.Vector;
-      Game_Status       : Status.Type_Game_Status;
-      Ret               : Boolean;
-
-      use Ada.Containers;
-      use Status;
-      use Piece;
-      use Hexagon;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("tc_construction.Test_Perform_Construction_Not_Players_Turn - enter");
-      end if;
-
-      Ret := Test_ServerRCI.End_Turn(1);
-      Ret := Test_ServerRCI.End_Turn(2);
-
-      A_Piece.Id := 1;
-      Hexagon.Client_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path &
-            "tc_construction-Test_Perform_Construction_Not_Players_Turn_01.html"),
-         Map_Player_1);
-
-      Test_ServerRCI.Get_Updates_Summary
-        (Player_Id_1,
-         Current_Player_Id,
-         Countdown,
-         Game_Status,
-         System_Messages);
+      Test_ServerRCI.Get_Updates_Summary (Player_Id_1, Countdown, Game_Status, System_Messages);
 
       A_Patch              := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 4, 4);
-      A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 5, 6);
+      A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 5, 7);
 
-      Test_ServerRCI.Perform_Construction
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall1,
-         2,
-         Ret_Status);
+      Piece.Client_Piece.Perform_Construction
+        (1,
+         Action.Type_Action_Type (1102),
+         A_Piece,
+         Landscape.Type_Patch (A_Construction_Patch.all),
+         Test_Piece.Construction_Wall1);
+
+      Test_Piece.Wait_For_Server (1102);
+
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path &
-            "tc_construction-Test_Perform_Construction_Not_Players_Turn_02.html"));
+            "tc_construction-Test_Perform_Construction_Not_Before_Perform_Construction_02.html"));
 
       AUnit.Assertions.Assert
-        (Condition => Ret_Status = Status.Not_Players_Turn,
-         Message   => "Expected Not_Players_Turn, got " & Ret_Status'Img);
+        (Condition => Test_Piece.Test_List (1102).Result = Status.Not_Before_Perform_Construction,
+         Message   => "Expected Not_Players_Turn, got " & Test_Piece.Test_List (1102).Result'Img);
 
       if Verbose then
-         Text_IO.Put_Line ("tc_construction.Test_Perform_Construction_Not_Players_Turn - exit");
+         Text_IO.Put_Line
+           ("tc_construction.Test_Perform_Construction_Not_Before_Perform_Construction - exit");
       end if;
 
-   end Test_Perform_Construction_Not_Players_Turn;
+   end Test_Perform_Construction_Not_Before_Perform_Construction;
 
    procedure Test_Perform_Construction_Construct_Two_Things
      (CWTC : in out AUnit.Test_Cases.Test_Case'Class)
    is
       A_Piece                       : Piece.Type_Piece;
       A_Patch, A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      Ret_Status                    : Status.Type_Status;
 
-      Current_Player_Id : Player.Type_Player_Id;
-      Countdown         : Positive;
-      System_Messages   : Observation.Activity.Activity_Report.Vector;
-      Game_Status       : Status.Type_Game_Status;
-      Ret               : Boolean;
+      Countdown       : Positive;
+      System_Messages : Observation.Activity.Activity_Report.Vector;
+      Game_Status     : Status.Type_Game_Status;
 
       use Ada.Containers;
       use Status;
@@ -500,9 +349,6 @@ package body Tc_Construction is
            ("tc_construction.Test_Perform_Construction_Construct_Two_Things - enter");
       end if;
 
-      Ret := Test_ServerRCI.End_Turn(1);
-      Ret := Test_ServerRCI.End_Turn(2);
-
       A_Piece.Id := 1;
       Hexagon.Client_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
@@ -510,45 +356,42 @@ package body Tc_Construction is
             "tc_construction-Test_Perform_Construction_Construct_Two_Things_01.html"),
          Map_Player_1);
 
-      Test_ServerRCI.Get_Updates_Summary
-        (Player_Id_1,
-         Current_Player_Id,
-         Countdown,
-         Game_Status,
-         System_Messages);
+      Test_ServerRCI.Get_Updates_Summary (Player_Id_1, Countdown, Game_Status, System_Messages);
 
       A_Patch              := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 4, 4);
       A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 5, 6);
 
-      Test_ServerRCI.Perform_Construction
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall1,
-         1,
-         Ret_Status);
+      Piece.Client_Piece.Perform_Construction
+        (1,
+         Action.Type_Action_Type (1103),
+         A_Piece,
+         Landscape.Type_Patch (A_Construction_Patch.all),
+         Test_Piece.Construction_Wall1);
+
+      Test_Piece.Wait_For_Server (1103);
+
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path &
             "tc_construction-Test_Perform_Construction_Construct_Two_Things_02.html"));
 
-      Test_ServerRCI.Perform_Construction
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall2,
-         1,
-         Ret_Status);
+      Piece.Client_Piece.Perform_Construction
+        (1,
+         Action.Type_Action_Type (1104),
+         A_Piece,
+         Landscape.Type_Patch (A_Construction_Patch.all),
+         Test_Piece.Construction_Wall2);
+
+      Test_Piece.Wait_For_Server (1104);
+
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path &
             "tc_construction-Test_Perform_Construction_Construct_Two_Things_03.html"));
 
       AUnit.Assertions.Assert
-        (Condition => Ret_Status = Status.Ok,
-         Message   => "Expected Ok, got " & Ret_Status'Img);
+        (Condition => Test_Piece.Test_List.all (1104).Result = Status.Ok,
+         Message   => "Expected Ok, got " & Test_Piece.Test_List.all (1104).Result'Img);
 
       if Verbose then
          Text_IO.Put_Line ("tc_construction.Test_Perform_Construction_Construct_Two_Things - exit");
@@ -561,13 +404,10 @@ package body Tc_Construction is
    is
       A_Piece                       : Piece.Type_Piece;
       A_Patch, A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      Ret_Status                    : Status.Type_Status;
 
-      Current_Player_Id : Player.Type_Player_Id;
-      Countdown         : Positive;
-      System_Messages   : Observation.Activity.Activity_Report.Vector;
-      Game_Status       : Status.Type_Game_Status;
-      Ret               : Boolean;
+      Countdown       : Positive;
+      System_Messages : Observation.Activity.Activity_Report.Vector;
+      Game_Status     : Status.Type_Game_Status;
 
       use Ada.Containers;
       use Status;
@@ -578,9 +418,6 @@ package body Tc_Construction is
          Text_IO.Put_Line ("tc_construction.Test_Perform_Construction_Construct_Twice - enter");
       end if;
 
-      Ret := Test_ServerRCI.End_Turn(1);
-      Ret := Test_ServerRCI.End_Turn(2);
-
       A_Piece.Id := 1;
       Hexagon.Client_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
@@ -588,32 +425,29 @@ package body Tc_Construction is
             "tc_construction-Test_Perform_Construction_Construct_Twice_01.html"),
          Map_Player_1);
 
-      Test_ServerRCI.Get_Updates_Summary
-        (Player_Id_1,
-         Current_Player_Id,
-         Countdown,
-         Game_Status,
-         System_Messages);
+      Test_ServerRCI.Get_Updates_Summary (Player_Id_1, Countdown, Game_Status, System_Messages);
 
       A_Patch              := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 4, 4);
       A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 5, 6);
 
-      Test_ServerRCI.Perform_Construction
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall1,
-         1,
-         Ret_Status);
+      Piece.Client_Piece.Perform_Construction
+        (1,
+         Action.Type_Action_Type (1105),
+         A_Piece,
+         Landscape.Type_Patch (A_Construction_Patch.all),
+         Test_Piece.Construction_Wall1);
+
+      Test_Piece.Wait_For_Server (1105);
+
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path &
             "tc_construction-Test_Perform_Construction_Construct_Twice_02.html"));
 
       AUnit.Assertions.Assert
-        (Condition => Ret_Status = Status.Construction_Exists,
-         Message   => "Expected Construction_Exists, got " & Ret_Status'Img);
+        (Condition => Test_Piece.Test_List.all (1105).Result = Status.Construction_Exists,
+         Message   =>
+           "Expected Construction_Exists, got " & Test_Piece.Test_List.all (1105).Result'Img);
 
       if Verbose then
          Text_IO.Put_Line ("tc_construction.Test_Perform_Construction_Construct_Twice - exit");
@@ -621,88 +455,13 @@ package body Tc_Construction is
 
    end Test_Perform_Construction_Construct_Twice;
 
-   procedure Test_Perform_Demolition_AP_1 (CWTC : in out AUnit.Test_Cases.Test_Case'Class) is
-      A_Piece                       : Piece.Type_Piece;
-      A_Patch, A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      Ret_Status                    : Status.Type_Status;
-
-      Current_Player_Id : Player.Type_Player_Id;
-      Countdown         : Positive;
-      System_Messages   : Observation.Activity.Activity_Report.Vector;
-      Game_Status       : Status.Type_Game_Status;
-      Ret               : Boolean;
-
-      use Ada.Containers;
-      use Status;
-      use Piece;
-      use Hexagon;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("tc_construction.Test_Perform_Demolition_AP_1 - enter");
-      end if;
-
-      Ret := Test_ServerRCI.End_Turn(1);
-      Ret := Test_ServerRCI.End_Turn(2);
-
-      A_Piece.Id := 1;
-      Hexagon.Client_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path & "tc_construction-Test_Perform_Demolition_AP_1_01.html"),
-         Map_Player_1);
-
-      Test_ServerRCI.Get_Updates_Summary
-        (Player_Id_1,
-         Current_Player_Id,
-         Countdown,
-         Game_Status,
-         System_Messages);
-
-      Hexagon.Server_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path & "tc_construction-Test_Perform_Demolition_AP_1_02.html"));
-
-      A_Patch              := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 4, 4);
-      A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 5, 6);
-
-      Test_Piece.Demolition_Action_Point_Example := 10;
-
-      Test_ServerRCI.Perform_Demolition
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall1,
-         1,
-         Ret_Status);
-
-      Test_Piece.Demolition_Action_Point_Example := 1;
-
-      Hexagon.Server_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path & "tc_construction-Test_Perform_Demolition_AP_1_03.html"));
-
-      AUnit.Assertions.Assert
-        (Condition => Ret_Status = Status.Out_Of_Moves,
-         Message   => "Expected Out_Of_Moves got status " & Ret_Status'Img);
-
-      if Verbose then
-         Text_IO.Put_Line ("tc_construction.Test_Perform_Demolition_AP_1 - exit");
-      end if;
-
-   end Test_Perform_Demolition_AP_1;
-
-
    procedure Test_Perform_Demolition_1 (CWTC : in out AUnit.Test_Cases.Test_Case'Class) is
       A_Piece                       : Piece.Type_Piece;
-      A_Patch, A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      Ret_Status                    : Status.Type_Status;
+      A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
 
-      Current_Player_Id : Player.Type_Player_Id;
-      Countdown         : Positive;
-      System_Messages   : Observation.Activity.Activity_Report.Vector;
-      Game_Status       : Status.Type_Game_Status;
-      Ret               : Boolean;
-      A_Server_Piece    : Piece.Server.Type_Piece_Access_Class;
+      Countdown       : Positive;
+      System_Messages : Observation.Activity.Activity_Report.Vector;
+      Game_Status     : Status.Type_Game_Status;
 
       use Ada.Containers;
       use Status;
@@ -713,56 +472,36 @@ package body Tc_Construction is
          Text_IO.Put_Line ("tc_construction.Test_Perform_Demolition_1 - enter");
       end if;
 
-      Ret := Test_ServerRCI.End_Turn(1);
-      Ret := Test_ServerRCI.End_Turn(2);
-
       A_Piece.Id := 1;
       Hexagon.Client_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path & "tc_construction-Test_Perform_Demolition_1_01.html"),
          Map_Player_1);
 
-      Test_ServerRCI.Get_Updates_Summary
-        (Player_Id_1,
-         Current_Player_Id,
-         Countdown,
-         Game_Status,
-         System_Messages);
+      Test_ServerRCI.Get_Updates_Summary (Player_Id_1, Countdown, Game_Status, System_Messages);
 
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path & "tc_construction-Test_Perform_Demolition_1_02.html"));
 
-      A_Patch              := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 4, 4);
       A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 5, 6);
 
-      A_Server_Piece := Piece.Server.Find_Piece_In_List(A_Piece.Id).Actual_Piece;
+      Piece.Client_Piece.Perform_Demolition
+        (1,
+         Action.Type_Action_Type (1106),
+         A_Piece,
+         Landscape.Type_Patch (A_Construction_Patch.all),
+         Test_Piece.Construction_Wall1);
 
-      AUnit.Assertions.Assert
-        (Condition =>  A_Server_Piece.all.Action_Points = 5,
-         Message   => "Expected Action Point=5 before Perform_Demolition, but found " & A_Server_Piece.all.Action_Points'Img);
+      Test_Piece.Wait_For_Server (1106);
 
-      Test_ServerRCI.Perform_Demolition
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall1,
-         1,
-         Ret_Status);
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path & "tc_construction-Test_Perform_Demolition_1_03.html"));
 
-      A_Server_Piece := Piece.Server.Find_Piece_In_List(A_Piece.Id).Actual_Piece;
-
       AUnit.Assertions.Assert
-        (Condition =>  A_Server_Piece.all.Action_Points = 4,
-         Message   => "Expected Action Point=5 after Perform_Demolition, but found " & A_Server_Piece.all.Action_Points'Img);
-
-      AUnit.Assertions.Assert
-        (Condition => Ret_Status = Status.Ok,
-         Message   => "Expected Ok got status " & Ret_Status'Img);
+        (Condition => Test_Piece.Test_List.all (1106).Result = Status.Ok,
+         Message   => "Expected Ok got status " & Test_Piece.Test_List.all (1106).Result'Img);
 
       if Verbose then
          Text_IO.Put_Line ("tc_construction.Test_Perform_Demolition_1 - exit");
@@ -775,13 +514,10 @@ package body Tc_Construction is
    is
       A_Piece                       : Piece.Type_Piece;
       A_Patch, A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      Ret_Status                    : Status.Type_Status;
 
-      Current_Player_Id : Player.Type_Player_Id;
-      Countdown         : Positive;
-      System_Messages   : Observation.Activity.Activity_Report.Vector;
-      Game_Status       : Status.Type_Game_Status;
-      Ret               : Boolean;
+      Countdown       : Positive;
+      System_Messages : Observation.Activity.Activity_Report.Vector;
+      Game_Status     : Status.Type_Game_Status;
 
       use Ada.Containers;
       use Status;
@@ -792,9 +528,6 @@ package body Tc_Construction is
          Text_IO.Put_Line ("tc_construction.Test_Perform_Demolition_Occupied_Patch - enter");
       end if;
 
-      Ret := Test_ServerRCI.End_Turn(1);
-      Ret := Test_ServerRCI.End_Turn(2);
-
       A_Piece.Id := 1;
       Hexagon.Client_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
@@ -802,32 +535,30 @@ package body Tc_Construction is
             "tc_construction-Test_Perform_Demolition_Occupied_Patch_01.html"),
          Map_Player_1);
 
-      Test_ServerRCI.Get_Updates_Summary
-        (Player_Id_1,
-         Current_Player_Id,
-         Countdown,
-         Game_Status,
-         System_Messages);
+      Test_ServerRCI.Get_Updates_Summary (Player_Id_1, Countdown, Game_Status, System_Messages);
 
       A_Patch              := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 4, 4);
       A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 5, 5);
 
-      Test_ServerRCI.Perform_Demolition
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall1,
-         1,
-         Ret_Status);
+      Piece.Client_Piece.Perform_Demolition
+        (1,
+         Action.Type_Action_Type (1107),
+         A_Piece,
+         Landscape.Type_Patch (A_Construction_Patch.all),
+         Test_Piece.Construction_Wall1);
+
+      Test_Piece.Wait_For_Server (1107);
+
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path &
             "tc_construction-Test_Perform_Demolition_Occupied_Patch_02.html"));
 
       AUnit.Assertions.Assert
-        (Condition => Ret_Status = Status.Target_Patch_Occupied,
-         Message   => "Expected Target_Patch_Occupied got status " & Ret_Status'Img);
+        (Condition => Test_Piece.Test_List.all (1107).Result = Status.Target_Patch_Occupied,
+         Message   =>
+           "Expected Target_Patch_Occupied got status " &
+           Test_Piece.Test_List.all (1107).Result'Img);
 
       if Verbose then
          Text_IO.Put_Line ("tc_construction.Test_Perform_Demolition_Occupied_Patch - exit");
@@ -835,18 +566,15 @@ package body Tc_Construction is
 
    end Test_Perform_Demolition_Occupied_Patch;
 
-   procedure Test_Perform_Demolition_Outside_Capability
+   procedure Test_Perform_Demolition_Not_Before_Perform_Demolition
      (CWTC : in out AUnit.Test_Cases.Test_Case'Class)
    is
       A_Piece                       : Piece.Type_Piece;
       A_Patch, A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      Ret_Status                    : Status.Type_Status;
 
-      Current_Player_Id : Player.Type_Player_Id;
-      Countdown         : Positive;
-      System_Messages   : Observation.Activity.Activity_Report.Vector;
-      Game_Status       : Status.Type_Game_Status;
-      Ret               : Boolean;
+      Countdown       : Positive;
+      System_Messages : Observation.Activity.Activity_Report.Vector;
+      Game_Status     : Status.Type_Game_Status;
 
       use Ada.Containers;
       use Status;
@@ -854,129 +582,71 @@ package body Tc_Construction is
       use Hexagon;
    begin
       if Verbose then
-         Text_IO.Put_Line ("tc_construction.Test_Perform_Demolition_Outside_Capability - enter");
+         Text_IO.Put_Line ("tc_construction.Not_Before_Perform_Demolition - enter");
       end if;
 
-      Ret := Test_ServerRCI.End_Turn(1);
-      Ret := Test_ServerRCI.End_Turn(2);
-
       A_Piece.Id := 1;
-      Hexagon.Client_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path &
-            "tc_construction-Test_Perform_Demolition_Outside_Capability_01.html"),
-         Map_Player_1);
-
-      Test_ServerRCI.Get_Updates_Summary
-        (Player_Id_1,
-         Current_Player_Id,
-         Countdown,
-         Game_Status,
-         System_Messages);
-
-      A_Patch              := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 4, 4);
-      A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 50, 50);
-
-      Test_ServerRCI.Perform_Demolition
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall1,
-         1,
-         Ret_Status);
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path &
-            "tc_construction-Test_Perform_Demolition_Outside_Capability_02.html"));
+            "tc_construction-Test_Perform_Demolition_Not_Before_Perform_Demolition_01.html"));
 
-      AUnit.Assertions.Assert
-        (Condition => Ret_Status = Status.Not_Reachable,
-         Message   => "Expected Not_Reachable got status " & Ret_Status'Img);
-
-      if Verbose then
-         Text_IO.Put_Line ("tc_construction.Test_Perform_Demolition_Outside_Capability - exit");
-      end if;
-
-   end Test_Perform_Demolition_Outside_Capability;
-
-   procedure Test_Perform_Demolition_Not_Players_Turn
-     (CWTC : in out AUnit.Test_Cases.Test_Case'Class)
-   is
-      A_Piece                       : Piece.Type_Piece;
-      A_Patch, A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      Ret_Status                    : Status.Type_Status;
-
-      Current_Player_Id : Player.Type_Player_Id;
-      Countdown         : Positive;
-      System_Messages   : Observation.Activity.Activity_Report.Vector;
-      Game_Status       : Status.Type_Game_Status;
-      Ret               : Boolean;
-
-      use Ada.Containers;
-      use Status;
-      use Piece;
-      use Hexagon;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("tc_construction.Test_Perform_Demolition_Not_Players_Turn - enter");
-      end if;
-
-      Ret := Test_ServerRCI.End_Turn(1);
-      Ret := Test_ServerRCI.End_Turn(2);
-
-      A_Piece.Id := 1;
-      Hexagon.Client_Map.Save_Scenario
-        (Ada.Strings.Unbounded.To_Unbounded_String
-           (Test_Piece.HTML_Path &
-            "tc_construction-Test_Perform_Demolition_Not_Players_Turn_01.html"),
-         Map_Player_1);
-
-      Test_ServerRCI.Get_Updates_Summary
-        (Player_Id_1,
-         Current_Player_Id,
-         Countdown,
-         Game_Status,
-         System_Messages);
+      Test_ServerRCI.Get_Updates_Summary (Player_Id_1, Countdown, Game_Status, System_Messages);
 
       A_Patch              := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 4, 4);
-      A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 5, 6);
+      A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_2, 5, 4);
 
-      Test_ServerRCI.Perform_Demolition
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall1,
-         2,
-         Ret_Status);
+      Piece.Client_Piece.Perform_Construction
+        (1,
+         Action.Type_Action_Type (1108),
+         A_Piece,
+         Landscape.Type_Patch (A_Construction_Patch.all),
+         Test_Piece.Construction_Wall1);
+
+      Test_Piece.Wait_For_Server (1108);
+
+      AUnit.Assertions.Assert
+        (Condition => Test_Piece.Test_List.all (1108).Result = Status.Ok,
+         Message   =>
+           "Tried to build a construction for further testing " &
+           Test_Piece.Test_List.all (1108).Result'Img);
+
+      Piece.Client_Piece.Perform_Demolition
+        (1,
+         Action.Type_Action_Type (1109),
+         A_Piece,
+         Landscape.Type_Patch (A_Construction_Patch.all),
+         Test_Piece.Construction_Wall1);
+
+      Test_Piece.Wait_For_Server (1109);
+
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path &
-            "tc_construction-Test_Perform_Demolition_Not_Players_Turn_02.html"));
+            "tc_construction-Test_Perform_Demolition_Not_Before_Perform_Demolition_02.html"));
 
       AUnit.Assertions.Assert
-        (Condition => Ret_Status = Status.Not_Players_Turn,
-         Message   => "Expected Nt_Players_Turn, got " & Ret_Status'Img);
+        (Condition => Test_Piece.Test_List.all (1109).Result = Status.Not_Before_Perform_Demolition,
+         Message   =>
+           "Expected Not_Before_Perform Demolition, got " &
+           Test_Piece.Test_List.all (1109).Result'Img);
 
       if Verbose then
-         Text_IO.Put_Line ("tc_construction.Test_Perform_Demolition_Not_Players_Turn - exit");
+         Text_IO.Put_Line
+           ("tc_construction.Test_Perform_Demolition_Not_Before_Perform_Demolition - exit");
       end if;
 
-   end Test_Perform_Demolition_Not_Players_Turn;
+   end Test_Perform_Demolition_Not_Before_Perform_Demolition;
 
    procedure Test_Perform_Demolition_Construct_Two_Things
      (CWTC : in out AUnit.Test_Cases.Test_Case'Class)
    is
       A_Piece                       : Piece.Type_Piece;
       A_Patch, A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      Ret_Status                    : Status.Type_Status;
 
-      Current_Player_Id : Player.Type_Player_Id;
-      Countdown         : Positive;
-      System_Messages   : Observation.Activity.Activity_Report.Vector;
-      Game_Status       : Status.Type_Game_Status;
-      Ret               : Boolean;
+      Countdown       : Positive;
+      System_Messages : Observation.Activity.Activity_Report.Vector;
+      Game_Status     : Status.Type_Game_Status;
 
       use Ada.Containers;
       use Status;
@@ -987,9 +657,6 @@ package body Tc_Construction is
          Text_IO.Put_Line ("tc_construction.Test_Perform_Demolition_Construct_Two_Things - enter");
       end if;
 
-      Ret := Test_ServerRCI.End_Turn(1);
-      Ret := Test_ServerRCI.End_Turn(2);
-
       A_Piece.Id := 1;
       Hexagon.Client_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
@@ -997,45 +664,40 @@ package body Tc_Construction is
             "tc_construction-Test_Perform_Demolition_Construct_Two_Things_01.html"),
          Map_Player_1);
 
-      Test_ServerRCI.Get_Updates_Summary
-        (Player_Id_1,
-         Current_Player_Id,
-         Countdown,
-         Game_Status,
-         System_Messages);
+      Test_ServerRCI.Get_Updates_Summary (Player_Id_1, Countdown, Game_Status, System_Messages);
 
       A_Patch              := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 4, 4);
       A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 5, 6);
 
-      Test_ServerRCI.Perform_Demolition
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall1,
-         1,
-         Ret_Status);
+      Piece.Client_Piece.Perform_Demolition
+        (1,
+         Action.Type_Action_Type (1110),
+         A_Piece,
+         Landscape.Type_Patch (A_Construction_Patch.all),
+         Test_Piece.Construction_Wall1);
+
+      Test_Piece.Wait_For_Server (1110);
+
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path &
             "tc_construction-Test_Perform_Demolition_Construct_Two_Things_02.html"));
 
-      Test_ServerRCI.Perform_Demolition
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall2,
-         1,
-         Ret_Status);
+      Piece.Client_Piece.Perform_Demolition
+        (1,
+         Action.Type_Action_Type (1111),
+         A_Piece,
+         Landscape.Type_Patch (A_Construction_Patch.all),
+         Test_Piece.Construction_Wall2);
+
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path &
             "tc_construction-Test_Perform_Demolition_Construct_Two_Things_03.html"));
 
       AUnit.Assertions.Assert
-        (Condition => Ret_Status = Status.Ok,
-         Message   => "Expected Ok, got " & Ret_Status'Img);
+        (Condition => Test_Piece.Test_List.all (1111).Result = Status.Ok,
+         Message   => "Expected Ok, got " & Test_Piece.Test_List.all (1111).Result'Img);
 
       if Verbose then
          Text_IO.Put_Line ("tc_construction.Test_Perform_Demolition_Construct_Two_Things - exit");
@@ -1048,13 +710,10 @@ package body Tc_Construction is
    is
       A_Piece                       : Piece.Type_Piece;
       A_Patch, A_Construction_Patch : Hexagon.Client_Map.Type_Client_Patch_Adress;
-      Ret_Status                    : Status.Type_Status;
 
-      Current_Player_Id : Player.Type_Player_Id;
-      Countdown         : Positive;
-      System_Messages   : Observation.Activity.Activity_Report.Vector;
-      Game_Status       : Status.Type_Game_Status;
-      Ret               : Boolean;
+      Countdown       : Positive;
+      System_Messages : Observation.Activity.Activity_Report.Vector;
+      Game_Status     : Status.Type_Game_Status;
 
       use Ada.Containers;
       use Status;
@@ -1065,9 +724,6 @@ package body Tc_Construction is
          Text_IO.Put_Line ("tc_construction.Test_Perform_Demolition_Construct_Twice - enter");
       end if;
 
-      Ret := Test_ServerRCI.End_Turn(1);
-      Ret := Test_ServerRCI.End_Turn(2);
-
       A_Piece.Id := 1;
       Hexagon.Client_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
@@ -1075,32 +731,29 @@ package body Tc_Construction is
             "tc_construction-Test_Perform_Demolition_Construct_Twice_01.html"),
          Map_Player_1);
 
-      Test_ServerRCI.Get_Updates_Summary
-        (Player_Id_1,
-         Current_Player_Id,
-         Countdown,
-         Game_Status,
-         System_Messages);
+      Test_ServerRCI.Get_Updates_Summary (Player_Id_1, Countdown, Game_Status, System_Messages);
 
       A_Patch              := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 4, 4);
       A_Construction_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 5, 6);
 
-      Test_ServerRCI.Perform_Demolition
-        (Action.Type_Action_Type(1),
-         A_Piece.Id,
-         A_Patch.all.Pos,
-         A_Construction_Patch.all.Pos,
-         Test_Piece.Construction_Wall1,
-         1,
-         Ret_Status);
+      Piece.Client_Piece.Perform_Demolition
+        (1,
+         Action.Type_Action_Type (1112),
+         A_Piece,
+         Landscape.Type_Patch (A_Construction_Patch.all),
+         Test_Piece.Construction_Wall1);
+
+      Test_Piece.Wait_For_Server (1112);
+
       Hexagon.Server_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
            (Test_Piece.HTML_Path &
             "tc_construction-Test_Perform_Demolition_Construct_Twice_02.html"));
 
       AUnit.Assertions.Assert
-        (Condition => Ret_Status = Status.Construction_Doesnt_Exist,
-         Message   => "Expected Construction_Exists, got " & Ret_Status'Img);
+        (Condition => Test_Piece.Test_List.all (1112).Result = Status.Construction_Doesnt_Exist,
+         Message   =>
+           "Expected Construction_Exists, got " & Test_Piece.Test_List.all (1112).Result'Img);
 
       if Verbose then
          Text_IO.Put_Line ("tc_construction.Test_Perform_Demolition_Construct_Twice - exit");
@@ -1140,12 +793,6 @@ package body Tc_Construction is
 
       AUnit.Test_Cases.Registration.Register_Routine
         (Test    => T,
-         Routine => Test_Perform_Construction_AP_1'Access,
-         Name    => "Test Perform Construction too few AP");
-
-
-      AUnit.Test_Cases.Registration.Register_Routine
-        (Test    => T,
          Routine => Test_Perform_Construction_Allowed_Patch_1'Access,
          Name    => "Test Perform Construction on allowed patch 1");
 
@@ -1156,13 +803,8 @@ package body Tc_Construction is
 
       AUnit.Test_Cases.Registration.Register_Routine
         (Test    => T,
-         Routine => Test_Perform_Construction_Outside_Capability'Access,
-         Name    => "Test Perform Construction Outside capability");
-
-      AUnit.Test_Cases.Registration.Register_Routine
-        (Test    => T,
-         Routine => Test_Perform_Construction_Not_Players_Turn'Access,
-         Name    => "Test Perform Construction Not players turn");
+         Routine => Test_Perform_Construction_Not_Before_Perform_Construction'Access,
+         Name    => "Test Perform Construction Not Before Construction");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (Test    => T,
@@ -1177,11 +819,6 @@ package body Tc_Construction is
 
       AUnit.Test_Cases.Registration.Register_Routine
         (Test    => T,
-         Routine => Test_Perform_Demolition_AP_1'Access,
-         Name    => "Test Perform Demolition too few AP");
-
-      AUnit.Test_Cases.Registration.Register_Routine
-        (Test    => T,
          Routine => Test_Perform_Demolition_1'Access,
          Name    => "Test Perform Demolition that succeeds");
 
@@ -1192,13 +829,8 @@ package body Tc_Construction is
 
       AUnit.Test_Cases.Registration.Register_Routine
         (Test    => T,
-         Routine => Test_Perform_Demolition_Outside_Capability'Access,
-         Name    => "Test Perform Demolition ouside capability");
-
-      AUnit.Test_Cases.Registration.Register_Routine
-        (Test    => T,
-         Routine => Test_Perform_Demolition_Not_Players_Turn'Access,
-         Name    => "Test Perform Demolition Not players turn");
+         Routine => Test_Perform_Demolition_Not_Before_Perform_Demolition'Access,
+         Name    => "Test Perform Demolition Not_Before_Perform_Demolition");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (Test    => T,
