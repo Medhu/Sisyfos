@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2016  Frank J Jorgensen
+--      Copyright (C) 2015-2017  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -967,6 +967,8 @@ package body Server.Server.Piece_Action is
                  (An_Attacking_Piece_Position.Actual_Piece.all),
                Piece.Server.Fighting_Piece.Type_Piece'Class
                  (An_Attacked_Piece_Position.Actual_Piece.all),
+               An_Attacking_Piece_Position.Actual_Pos,
+               An_Attacked_Piece_Position.Actual_Pos,
                Result_Status);
 
             if Result_Status /= Status.Proceed then
@@ -983,8 +985,8 @@ package body Server.Server.Piece_Action is
                  (An_Attacking_Piece_Position.Actual_Piece.all),
                Piece.Server.Fighting_Piece.Type_Piece'Class
                  (An_Attacked_Piece_Position.Actual_Piece.all),
-               Landscape.Type_Patch (An_Attacking_Patch.all),
-               Landscape.Type_Patch (An_Attacked_Patch.all),
+               An_Attacking_Patch.all.Pos,
+               An_Attacked_Patch.all.Pos,
                A_Winner);
 
             Piece.Server.Fighting_Piece.Perform_Attack
@@ -1007,8 +1009,8 @@ package body Server.Server.Piece_Action is
               (An_Attacking_Piece_Position.Actual_Piece.all),
             Piece.Server.Fighting_Piece.Type_Piece'Class
               (An_Attacked_Piece_Position.Actual_Piece.all),
-            Landscape.Type_Patch (An_Attacking_Patch.all),
-            Landscape.Type_Patch (An_Attacked_Patch.all),
+            An_Attacking_Patch.all.Pos,
+            An_Attacked_Patch.all.Pos,
             A_Winner,
             P_Status,
             P_Attempts_Remaining);
@@ -1138,6 +1140,8 @@ package body Server.Server.Piece_Action is
                  (An_Attacking_Piece_Position.Actual_Piece.all),
                Piece.Server.Fighting_Piece.Type_Piece'Class
                  (An_Attacked_Piece_Position.Actual_Piece.all),
+               An_Attacking_Piece_Position.Actual_Pos,
+               An_Attacked_Piece_Position.Actual_Pos,
                Result_Status);
 
             if Result_Status /= Status.Proceed then
@@ -1154,8 +1158,8 @@ package body Server.Server.Piece_Action is
                  (An_Attacking_Piece_Position.Actual_Piece.all),
                Piece.Server.Fighting_Piece.Type_Piece'Class
                  (An_Attacked_Piece_Position.Actual_Piece.all),
-               Landscape.Type_Patch (An_Attacking_Patch.all),
-               Landscape.Type_Patch (An_Attacked_Patch.all),
+               An_Attacking_Patch.all.Pos,
+               An_Attacked_Patch.all.Pos,
                A_Winner);
 
             Piece.Server.Fighting_Piece.Perform_Ranged_Attack
@@ -1178,8 +1182,8 @@ package body Server.Server.Piece_Action is
               (An_Attacking_Piece_Position.Actual_Piece.all),
             Piece.Server.Fighting_Piece.Type_Piece'Class
               (An_Attacked_Piece_Position.Actual_Piece.all),
-            Landscape.Type_Patch (An_Attacking_Patch.all),
-            Landscape.Type_Patch (An_Attacked_Patch.all),
+            An_Attacking_Patch.all.Pos,
+            An_Attacked_Patch.all.Pos,
             A_Winner,
             P_Status,
             P_Attempts_Remaining);
@@ -1214,7 +1218,7 @@ package body Server.Server.Piece_Action is
      (P_Player_Id          : in     Player.Type_Player_Id;
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece_Id           : in     Piece.Type_Piece_Id;
-      P_To_Pos             : in     Hexagon.Type_Hexagon_Position;
+      P_End_Pos             : in     Hexagon.Type_Hexagon_Position;
       P_Status             :    out Status.Type_Status;
       P_Attempts_Remaining : in out Integer)
    is
@@ -1283,19 +1287,31 @@ package body Server.Server.Piece_Action is
               (P_Player_Id,
                A_Moving_Piece_Position.Actual_Piece.all.Type_Of_Piece,
                A_From_Pos,
-               P_To_Pos,
+               P_End_Pos,
                P_Status,
                Move_Path);
 
          end if;
 
          if P_Status = Status.Ok then
+            -- next patch in the current path
+            Next_Path_Cursor := Hexagon.Path.First (Move_Path);
+            Next_Path_Cursor := Hexagon.Path.Next (Next_Path_Cursor);
+
+            A_To_Pos         := Hexagon.Path.Element (Next_Path_Cursor);
+            A_To_Patch       :=
+              Hexagon.Server_Map.Get_Patch_Adress_From_AB
+                (A_To_Pos.A,
+                 A_To_Pos.B);
+
             Piece.Server.Fighting_Piece.Before_Perform_Move
               (P_Player_Id,
                P_Action_Type,
                Piece.Server.Fighting_Piece.Type_Piece'Class
                  (A_Moving_Piece_Position.Actual_Piece.all),
-               P_To_Pos,
+               A_From_Pos,
+               A_To_Pos,
+               P_End_Pos,
                Result_Status);
 
             if Result_Status /= Status.Proceed then
@@ -1304,14 +1320,6 @@ package body Server.Server.Piece_Action is
          end if;
 
          if P_Status = Status.Ok then
-            -- next patch in the current path
-            Next_Path_Cursor := Hexagon.Path.First (Move_Path);
-            Next_Path_Cursor := Hexagon.Path.Next (Next_Path_Cursor);
-            A_To_Pos         := Hexagon.Path.Element (Next_Path_Cursor);
-            A_To_Patch       :=
-              Hexagon.Server_Map.Get_Patch_Adress_From_AB
-                (A_To_Pos.A,
-                 A_To_Pos.B);
 
             Piece.Server.Fighting_Piece.Perform_Move_Step
               (P_Player_Id,
@@ -1321,7 +1329,7 @@ package body Server.Server.Piece_Action is
                Landscape.Type_Patch (A_From_Patch.all),
                Landscape.Type_Patch (A_To_Patch.all));
 
-            if A_To_Pos = P_To_Pos then
+            if A_To_Pos = P_End_Pos then
                P_Status := Status.Completed_Ok;
             end if;
 
@@ -1335,6 +1343,7 @@ package body Server.Server.Piece_Action is
               (A_Moving_Piece_Position.Actual_Piece.all),
             A_From_Pos,
             A_To_Pos,
+            P_End_Pos,
             P_Status,
             P_Attempts_Remaining);
 
@@ -1358,12 +1367,12 @@ package body Server.Server.Piece_Action is
             P_Action_Type'Img &
             " P_Piece:" &
             P_Piece_Id'Img);
-         if P_To_Pos.P_Valid then
+         if P_End_Pos.P_Valid then
             Text_IO.Put
               (Text_IO.Current_Error,
-               " P_To_Pos:" & P_To_Pos.A'Img & ", " & P_To_Pos.B'Img);
+               " P_End_Pos:" & P_End_Pos.A'Img & ", " & P_End_Pos.B'Img);
          else
-            Text_IO.Put (Text_IO.Current_Error, " P_To_Pos:Invalid");
+            Text_IO.Put (Text_IO.Current_Error, " P_End_Pos:Invalid");
          end if;
          Text_IO.Put_Line
            (Text_IO.Current_Error,

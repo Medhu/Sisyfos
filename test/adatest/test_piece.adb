@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2016  Frank J Jorgensen
+--      Copyright (C) 2013-2017  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -295,9 +295,9 @@ package body Test_Piece is
    end End_Put_Piece;
 
    function Validate_Remove_Piece
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_Piece) return Boolean
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece       : in Test_Piece.Type_My_Test_Piece) return Boolean
    is
       use Player;
    begin
@@ -309,9 +309,9 @@ package body Test_Piece is
    end Validate_Remove_Piece;
 
    function Validate_Remove_Piece
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_House) return Boolean
+     (P_Player_Id   : in Player.Type_Player_Id;
+      P_Action_Type : in Action.Type_Action_Type;
+      P_Piece       : in Test_Piece.Type_My_Test_House) return Boolean
    is
       use Player;
    begin
@@ -410,11 +410,11 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Perform_Patch_Effect (Piece) - enter - exit");
       end if;
 
-      A_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB(P_Area(1).A, P_Area(1).B);
-      Cursor_Effect := Effect.Effect_List.Find(A_Patch.all.Effects_Here, P_Effect.Effect_Name);
+      A_Patch       := Hexagon.Server_Map.Get_Patch_Adress_From_AB (P_Area (1).A, P_Area (1).B);
+      Cursor_Effect := Effect.Effect_List.Find (A_Patch.all.Effects_Here, P_Effect.Effect_Name);
 
-      if Effect.Effect_List.Has_Element(Cursor_Effect) then
-         Effect.Effect_List.Delete(A_Patch.all.Effects_Here, Cursor_Effect);
+      if Effect.Effect_List.Has_Element (Cursor_Effect) then
+         Effect.Effect_List.Delete (A_Patch.all.Effects_Here, Cursor_Effect);
       end if;
    end Perform_Patch_Effect;
 
@@ -598,10 +598,10 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Perform_Piece_Effect (Piece) - enter - exit");
       end if;
 
-      Cursor_Effect := Effect.Effect_List.Find(P_Piece.Effects_On_Piece, P_Effect.Effect_Name);
+      Cursor_Effect := Effect.Effect_List.Find (P_Piece.Effects_On_Piece, P_Effect.Effect_Name);
 
-      if Effect.Effect_List.Has_Element(Cursor_Effect) then
-         Effect.Effect_List.Delete(P_Piece.Effects_On_Piece, Cursor_Effect);
+      if Effect.Effect_List.Has_Element (Cursor_Effect) then
+         Effect.Effect_List.Delete (P_Piece.Effects_On_Piece, Cursor_Effect);
       end if;
    end Perform_Piece_Effect;
 
@@ -1060,6 +1060,7 @@ package body Test_Piece is
      (P_Player_Id                         : in     Player.Type_Player_Id;
       P_Action_Type                       : in     Action.Type_Action_Type;
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
+      P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Result                            :    out Status.Type_Result_Status)
    is
    begin
@@ -1073,8 +1074,8 @@ package body Test_Piece is
    procedure Calculate_Attack_Result
      (P_Player_Id                         : in     Player.Type_Player_Id;
       P_Action_Type                       : in     Action.Type_Action_Type;
-      P_Attacking_Piece, P_Attacked_Piece : in     Test_Piece.Type_My_Test_Piece;
-      P_From_Patch, P_To_Patch            : in     Landscape.Type_Patch;
+      P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
+      P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Winner                            :    out Player.Type_Player_Id)
    is
       use Piece;
@@ -1142,7 +1143,7 @@ package body Test_Piece is
      (P_Player_Id                         : in     Player.Type_Player_Id;
       P_Action_Type                       : in     Action.Type_Action_Type;
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
-      P_From_Patch, P_To_Patch            : in out Landscape.Type_Patch;
+      P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Winner                            : in     Player.Type_Player_Id;
       P_End_Status                        : in     Status.Type_Status;
       P_Attempts_Remaining                : in out Integer)
@@ -1180,6 +1181,7 @@ package body Test_Piece is
      (P_Player_Id                         : in     Player.Type_Player_Id;
       P_Action_Type                       : in     Action.Type_Action_Type;
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
+      P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Result                            :    out Status.Type_Result_Status)
    is
    begin
@@ -1193,8 +1195,8 @@ package body Test_Piece is
    procedure Calculate_Ranged_Attack_Result
      (P_Player_Id                         : in     Player.Type_Player_Id;
       P_Action_Type                       : in     Action.Type_Action_Type;
-      P_Attacking_Piece, P_Attacked_Piece : in     Test_Piece.Type_My_Test_Piece;
-      P_From_Patch, P_To_Patch            : in     Landscape.Type_Patch;
+      P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
+      P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Winner                            :    out Player.Type_Player_Id)
    is
       use Piece;
@@ -1215,7 +1217,7 @@ package body Test_Piece is
      (P_Player_Id                         : in     Player.Type_Player_Id;
       P_Action_Type                       : in     Action.Type_Action_Type;
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
-      P_From_Patch, P_To_Patch            : in out Landscape.Type_Patch;
+      P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Winner                            : in     Player.Type_Player_Id;
       P_End_Status                        : in     Status.Type_Status;
       P_Attempts_Remaining                : in out Integer)
@@ -1252,7 +1254,9 @@ package body Test_Piece is
      (P_Player_Id    : in     Player.Type_Player_Id;
       P_Action_Type  : in     Action.Type_Action_Type;
       P_Moving_Piece : in out Test_Piece.Type_My_Test_Piece;
-      P_To_Pos       : in     Hexagon.Type_Hexagon_Position;
+      P_From_Pos     : in     Hexagon.Type_Hexagon_Position;
+      P_To_Pos       : in out Hexagon.Type_Hexagon_Position;
+      P_End_Pos      : in     Hexagon.Type_Hexagon_Position;
       P_Result       :    out Status.Type_Result_Status)
    is
       use Action;
@@ -1273,6 +1277,7 @@ package body Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Moving_Piece       : in out Test_Piece.Type_My_Test_Piece;
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
+      P_End_Pos            : in     Hexagon.Type_Hexagon_Position;
       P_End_Status         : in     Status.Type_Status;
       P_Attempts_Remaining : in out Integer)
    is

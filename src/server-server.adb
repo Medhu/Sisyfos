@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2016  Frank J Jorgensen
+--      Copyright (C) 2015-2017  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ package body Server.Server is
          Text_IO.Put_Line ("Server.Server.Init - enter");
       end if;
 
-      Text_IO.Put_Line ("Sisyfos Server - v0.5. Copyright (C) 2015-2016  Frank J Jorgensen");
+      Text_IO.Put_Line ("Sisyfos Server - v0.5.1 Copyright (C) 2015-2017  Frank J Jorgensen");
       Text_IO.Put_Line
         ("This program comes with ABSOLUTELY NO WARRANTY; for details see attached gpl.txt");
       Text_IO.Put_Line ("or <http://www.gnu.org/licenses/>");

@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2016  Frank J Jorgensen
+--      Copyright (C) 2013-2017  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -157,12 +157,12 @@ package Test_Piece is
    function Validate_Remove_Piece
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_Piece) return Boolean;
+      P_Piece       : in     Test_Piece.Type_My_Test_Piece) return Boolean;
 
    function Validate_Remove_Piece
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_House) return Boolean;
+      P_Piece       : in     Test_Piece.Type_My_Test_House) return Boolean;
 
    procedure Before_Remove_Piece
      (P_Player_Id   : in     Player.Type_Player_Id;
@@ -518,20 +518,21 @@ package Test_Piece is
      (P_Player_Id                         : in     Player.Type_Player_Id;
       P_Action_Type                       : in     Action.Type_Action_Type;
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
+      P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Result                            :    out Status.Type_Result_Status);
 
    procedure Calculate_Attack_Result
      (P_Player_Id                         : in     Player.Type_Player_Id;
       P_Action_Type                       : in     Action.Type_Action_Type;
-      P_Attacking_Piece, P_Attacked_Piece : in     Test_Piece.Type_My_Test_Piece;
-      P_From_Patch, P_To_Patch            : in     Landscape.Type_Patch;
+      P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
+      P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Winner                            :    out Player.Type_Player_Id);
 
    procedure End_Perform_Attack
      (P_Player_Id                         : in     Player.Type_Player_Id;
       P_Action_Type                       : in     Action.Type_Action_Type;
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
-      P_From_Patch, P_To_Patch            : in out Landscape.Type_Patch;
+      P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Winner                            : in     Player.Type_Player_Id;
       P_End_Status                        : in     Status.Type_Status;
       P_Attempts_Remaining                : in out Integer);
@@ -548,20 +549,21 @@ package Test_Piece is
      (P_Player_Id                         : in     Player.Type_Player_Id;
       P_Action_Type                       : in     Action.Type_Action_Type;
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
+      P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Result                            :    out Status.Type_Result_Status);
 
    procedure Calculate_Ranged_Attack_Result
      (P_Player_Id                         : in     Player.Type_Player_Id;
       P_Action_Type                       : in     Action.Type_Action_Type;
-      P_Attacking_Piece, P_Attacked_Piece : in     Test_Piece.Type_My_Test_Piece;
-      P_From_Patch, P_To_Patch            : in     Landscape.Type_Patch;
+      P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
+      P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Winner                            :    out Player.Type_Player_Id);
 
    procedure End_Perform_Ranged_Attack
      (P_Player_Id                         : in     Player.Type_Player_Id;
       P_Action_Type                       : in     Action.Type_Action_Type;
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
-      P_From_Patch, P_To_Patch            : in out Landscape.Type_Patch;
+      P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Winner                            : in     Player.Type_Player_Id;
       P_End_Status                        : in     Status.Type_Status;
       P_Attempts_Remaining                : in out Integer);
@@ -579,7 +581,9 @@ package Test_Piece is
      (P_Player_Id    : in     Player.Type_Player_Id;
       P_Action_Type  : in     Action.Type_Action_Type;
       P_Moving_Piece : in out Test_Piece.Type_My_Test_Piece;
-      P_To_Pos       : in     Hexagon.Type_Hexagon_Position;
+      P_From_Pos     : in     Hexagon.Type_Hexagon_Position;
+      P_To_Pos       : in out Hexagon.Type_Hexagon_Position;
+      P_End_Pos      : in     Hexagon.Type_Hexagon_Position;
       P_Result       :    out Status.Type_Result_Status);
 
    procedure End_Perform_Move
@@ -587,6 +591,7 @@ package Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Moving_Piece       : in out Test_Piece.Type_My_Test_Piece;
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
+      P_End_Pos            : in     Hexagon.Type_Hexagon_Position;
       P_End_Status         : in     Status.Type_Status;
       P_Attempts_Remaining : in out Integer);
 

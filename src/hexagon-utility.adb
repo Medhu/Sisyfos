@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2016  Frank J Jorgensen
+--      Copyright (C) 2015-2017  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -75,7 +75,6 @@ package body Hexagon.Utility is
       Current_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
 
       Current, Neighbour   : Hexagon.Type_Hexagon_Position;
-      Delta_A, Delta_B     : Hexagon.Area.Type_Hexagon_Delta_Numbers;
       Trav_Open, Trav_Path : Action_Capability_Vector.Cursor;
 
       Min_So_Far           : Type_Path_Node;
@@ -169,12 +168,6 @@ package body Hexagon.Utility is
                              Hexagon.Type_Hexagon_Numbers
                                (Integer (Current.B) +
                                 Integer (Neighbours (Trav).Delta_Pos.B)));
-                        Delta_A :=
-                          Hexagon.Area.Type_Hexagon_Delta_Numbers
-                            (Integer (Neighbour.A) - Integer (P_From.A));
-                        Delta_B :=
-                          Hexagon.Area.Type_Hexagon_Delta_Numbers
-                            (Integer (Neighbour.B) - Integer (P_From.B));
 
                         Neigbour_Patch :=
                           Hexagon.Server_Map.Get_Patch_Adress_From_AB

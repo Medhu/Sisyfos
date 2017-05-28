@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2016  Frank J Jorgensen
+--      Copyright (C) 2015-2017  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ procedure socket_client is
 begin
    Text_IO.Put_Line ("Socket Test");
    Client.ClientRPC.Init;
-   Client.ClientRPC.Connect (Utilities.RemoteString.To_Unbounded_String ("10.0.1.9"), 4000);
+   Client.ClientRPC.Connect (Utilities.RemoteString.To_Unbounded_String ("10.0.1.11"), 4000);
    Text_IO.Put_Line ("Client managed to connect");
 
    Client.ClientRPC.Start;

@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2016  Frank J Jorgensen
+--      Copyright (C) 2015-2017  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -76,26 +76,27 @@ package Piece.Server.Fighting_Piece is
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Attacking_Piece,
-      P_Attacked_Piece : in out Piece.Server.Fighting_Piece.Type_Piece;
-      P_Result         :    out Status.Type_Result_Status) is abstract;
+      P_Attacked_Piece     : in out Piece.Server.Fighting_Piece.Type_Piece;
+      P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
+      P_Result             :    out Status.Type_Result_Status) is abstract;
 
    procedure Calculate_Attack_Result
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Attacking_Piece,
-      P_Attacked_Piece         : in     Piece.Server.Fighting_Piece.Type_Piece;
-      P_From_Patch, P_To_Patch : in     Landscape.Type_Patch;
-      P_Winner                 :    out Player.Type_Player_Id) is abstract;
+      P_Attacked_Piece     : in out Piece.Server.Fighting_Piece.Type_Piece;
+      P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
+      P_Winner             :    out Player.Type_Player_Id) is abstract;
 
    procedure End_Perform_Attack
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Attacking_Piece,
-      P_Attacked_Piece         : in out Piece.Server.Fighting_Piece.Type_Piece;
-      P_From_Patch, P_To_Patch : in out Landscape.Type_Patch;
-      P_Winner                 : in     Player.Type_Player_Id;
-      P_End_Status             : in     Status.Type_Status;
-      P_Attempts_Remaining     : in out Integer) is abstract;
+      P_Attacked_Piece     : in out Piece.Server.Fighting_Piece.Type_Piece;
+      P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
+      P_Winner             : in     Player.Type_Player_Id;
+      P_End_Status         : in     Status.Type_Status;
+      P_Attempts_Remaining : in out Integer) is abstract;
 
    --
    -- Perform Ranged Attack
@@ -119,26 +120,27 @@ package Piece.Server.Fighting_Piece is
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Attacking_Piece,
-      P_Attacked_Piece : in out Piece.Server.Fighting_Piece.Type_Piece;
-      P_Result         :    out Status.Type_Result_Status) is abstract;
+      P_Attacked_Piece     : in out Piece.Server.Fighting_Piece.Type_Piece;
+      P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
+      P_Result             :    out Status.Type_Result_Status) is abstract;
 
    procedure Calculate_Ranged_Attack_Result
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Attacking_Piece,
-      P_Attacked_Piece         : in     Piece.Server.Fighting_Piece.Type_Piece;
-      P_From_Patch, P_To_Patch : in     Landscape.Type_Patch;
-      P_Winner                 :    out Player.Type_Player_Id) is abstract;
+      P_Attacked_Piece     : in out Piece.Server.Fighting_Piece.Type_Piece;
+      P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
+      P_Winner             :    out Player.Type_Player_Id) is abstract;
 
    procedure End_Perform_Ranged_Attack
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Attacking_Piece,
-      P_Attacked_Piece         : in out Piece.Server.Fighting_Piece.Type_Piece;
-      P_From_Patch, P_To_Patch : in out Landscape.Type_Patch;
-      P_Winner                 : in     Player.Type_Player_Id;
-      P_End_Status             : in     Status.Type_Status;
-      P_Attempts_Remaining     : in out Integer) is abstract;
+      P_Attacked_Piece     : in out Piece.Server.Fighting_Piece.Type_Piece;
+      P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
+      P_Winner             : in     Player.Type_Player_Id;
+      P_End_Status         : in     Status.Type_Status;
+      P_Attempts_Remaining : in out Integer) is abstract;
 
    --
    -- Perform_Move
@@ -147,13 +149,15 @@ package Piece.Server.Fighting_Piece is
      (P_Player_Id    : in Player.Type_Player_Id;
       P_Action_Type  : in Action.Type_Action_Type;
       P_Moving_Piece : in Piece.Server.Fighting_Piece.Type_Piece;
-      P_To_Pos : in Hexagon.Type_Hexagon_Position) return Boolean is abstract;
+      P_End_Pos : in Hexagon.Type_Hexagon_Position) return Boolean is abstract;
 
    procedure Before_Perform_Move
      (P_Player_Id    : in     Player.Type_Player_Id;
       P_Action_Type  : in     Action.Type_Action_Type;
       P_Moving_Piece : in out Piece.Server.Fighting_Piece.Type_Piece;
-      P_To_Pos       : in     Hexagon.Type_Hexagon_Position;
+      P_From_Pos     : in     Hexagon.Type_Hexagon_Position;
+      P_To_Pos       : in out Hexagon.Type_Hexagon_Position;
+      P_End_Pos      : in     Hexagon.Type_Hexagon_Position;
       P_Result       :    out Status.Type_Result_Status) is abstract;
 
    procedure End_Perform_Move
@@ -161,6 +165,7 @@ package Piece.Server.Fighting_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Moving_Piece       : in out Piece.Server.Fighting_Piece.Type_Piece;
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
+      P_End_Pos            : in     Hexagon.Type_Hexagon_Position;
       P_End_Status         : in     Status.Type_Status;
       P_Attempts_Remaining : in out Integer) is abstract;
 

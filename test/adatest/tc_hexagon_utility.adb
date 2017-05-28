@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2016  Frank J Jorgensen
+--      Copyright (C) 2013-2017  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -1735,6 +1735,130 @@ package body Tc_Hexagon_Utility is
    --
    --
 
+   procedure Test_Find_Path_to_17_26_to_12_15 (CWTC : in out AUnit.Test_Cases.Test_Case'Class) is
+      From_A, From_B : Hexagon.Type_Hexagon_Numbers;
+      To_A, To_B     : Hexagon.Type_Hexagon_Numbers;
+      Ret_Status     : Status.Type_Status;
+      Path           : Hexagon.Path.Vector;
+      Trav           : Hexagon.Path.Cursor;
+
+      Answer : Type_Answer_Path :=
+        ((True, 17, 26), (True, 16, 26), (True, 15, 26), (True, 14, 26), (True, 13, 26), (True, 12, 26),
+        (True, 12, 25), (True, 12, 24), (True, 12, 23), (True, 12,22), (True, 12, 21),
+        (True, 12, 20), (True, 12, 19), (True, 12, 18), (True, 12, 17), (True, 12, 16), (True, 12, 15)
+        );
+
+      Result : Boolean;
+
+      use Hexagon;
+      use Ada.Containers;
+      use Piece;
+   begin
+      if Verbose then
+         Text_IO.Put_Line ("TC_hexagon_utility.Test_Find_Path_to_17_26_to_12_15 - enter");
+      end if;
+
+      From_A := 17;
+      From_B := 26;
+      To_A   := 12;
+      To_B   := 15;
+
+      Hexagon.Utility.Find_Path
+        (Player.Type_Player_Id (1),
+         Test_Piece.Sentry_Piece,
+         Hexagon.Type_Hexagon_Position'(True, From_A, From_B),
+         Hexagon.Type_Hexagon_Position'(True, To_A, To_B),
+         Ret_Status,
+         Path);
+
+      Result := True;
+      Trav   := Hexagon.Path.First (Path);
+      while Hexagon.Path.Has_Element (Trav) loop
+         if Hexagon.Path.Element (Trav).A /= Answer (Hexagon.Path.To_Index (Trav)).A or
+           Hexagon.Path.Element (Trav).B /= Answer (Hexagon.Path.To_Index (Trav)).B
+         then
+            Result := False;
+         end if;
+         Trav := Hexagon.Path.Next (Trav);
+      end loop;
+
+      if Hexagon.Path.Length (Path) /= Answer'Length then
+         Result := False;
+      end if;
+
+      AUnit.Assertions.Assert
+        (Condition => Result,
+         Message   =>
+           "Didnt find path from 17, 26 to 12, 15");
+
+      if Verbose then
+         Text_IO.Put_Line ("TC_hexagon_utility.Test_Find_Path_to_17_26_to_12_15 - exit");
+      end if;
+
+   end Test_Find_Path_to_17_26_to_12_15;
+
+   procedure Test_Find_Path_to_17_26_to_11_16 (CWTC : in out AUnit.Test_Cases.Test_Case'Class) is
+      From_A, From_B : Hexagon.Type_Hexagon_Numbers;
+      To_A, To_B     : Hexagon.Type_Hexagon_Numbers;
+      Ret_Status     : Status.Type_Status;
+      Path           : Hexagon.Path.Vector;
+      Trav           : Hexagon.Path.Cursor;
+
+      Answer : Type_Answer_Path :=
+        ((True, 17, 26), (True, 16, 26), (True, 15, 26), (True, 14, 26), (True, 13, 26), (True, 12, 26),
+        (True, 12, 25), (True, 12, 24), (True, 12, 23), (True, 11,23), (True, 11, 22),
+        (True, 11, 21), (True, 11, 20), (True, 11, 19), (True, 11, 18), (True, 11, 17), (True, 11, 16)
+        );
+
+      Result : Boolean;
+
+      use Hexagon;
+      use Ada.Containers;
+      use Piece;
+   begin
+      if Verbose then
+         Text_IO.Put_Line ("TC_hexagon_utility.Test_Find_Path_to_17_26_to_12_15 - enter");
+      end if;
+
+      From_A := 17;
+      From_B := 26;
+      To_A   := 11;
+      To_B   := 16;
+
+      Hexagon.Utility.Find_Path
+        (Player.Type_Player_Id (1),
+         Test_Piece.Sentry_Piece,
+         Hexagon.Type_Hexagon_Position'(True, From_A, From_B),
+         Hexagon.Type_Hexagon_Position'(True, To_A, To_B),
+         Ret_Status,
+         Path);
+
+      Result := True;
+      Trav   := Hexagon.Path.First (Path);
+      while Hexagon.Path.Has_Element (Trav) loop
+         if Hexagon.Path.Element (Trav).A /= Answer (Hexagon.Path.To_Index (Trav)).A or
+           Hexagon.Path.Element (Trav).B /= Answer (Hexagon.Path.To_Index (Trav)).B
+         then
+            Result := False;
+         end if;
+         Trav := Hexagon.Path.Next (Trav);
+      end loop;
+
+      if Hexagon.Path.Length (Path) /= Answer'Length then
+         Result := False;
+      end if;
+
+      AUnit.Assertions.Assert
+        (Condition => Result,
+         Message   =>
+           "Didnt find path from 17, 26 to 12, 15");
+
+      if Verbose then
+         Text_IO.Put_Line ("TC_hexagon_utility.Test_Find_Path_to_17_26_to_12_15 - exit");
+      end if;
+
+   end Test_Find_Path_to_17_26_to_11_16;
+
    --------------------
    -- Register_Tests --
    --------------------
@@ -1874,6 +1998,17 @@ package body Tc_Hexagon_Utility is
         (Test    => T,
          Routine => Test_Find_Path_to_4_6_to_3_3'Access,
          Name    => "Path Test find to 4, 6 to 3, 3");
+
+      AUnit.Test_Cases.Registration.Register_Routine
+        (Test    => T,
+         Routine => Test_Find_Path_to_17_26_to_12_15'Access,
+         Name    => "Path Test find to 17, 26 to 12, 15");
+
+      AUnit.Test_Cases.Registration.Register_Routine
+        (Test    => T,
+         Routine => Test_Find_Path_to_17_26_to_11_16'Access,
+         Name    => "Path Test find to 17, 26 to 11, 16");
+
       --
 
    end Register_Tests;

@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2016  Frank J Jorgensen
+--      Copyright (C) 2013-2017  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -700,6 +700,13 @@ package body TC_Hexagon_Server_Map is
       AUnit.Assertions.Assert
         (Condition => not Hexagon.Server_Map.Are_Neighbours (Active_Patch.all, Neighbour.all),
          Message   => "Patch 5,8 and 4,10 are not supposed to be neighbours");
+
+      Active_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (11, 16);
+      Neighbour    := Hexagon.Server_Map.Get_Patch_Adress_From_AB (12, 15);
+
+      AUnit.Assertions.Assert
+        (Condition => Hexagon.Server_Map.Are_Neighbours (Active_Patch.all, Neighbour.all),
+         Message   => "Patch 11,16 and 12,15 are supposed to be neighbours");
 
       if Verbose then
          Text_IO.Put_Line ("tc_hexagon_server_map-Test_Are_Neighbours - exit");
