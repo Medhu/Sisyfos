@@ -45,8 +45,6 @@ package Server.Server is
       P_Scenario_Name : in Utilities.RemoteString.Type_String);
    type Type_Game_Start_Procedure is access procedure;
    type Type_Game_Upkeep_Procedure is access procedure;
-   type Type_Game_Turn_Procedure is access procedure
-     (P_Player_Id : in Player.Type_Player_Id);
    type Type_Game_Joining_Leaving_Procedure is access procedure;
    type Type_Game_End_Procedure is access procedure
      (P_Game_Status : out Status.Type_Game_Status);
