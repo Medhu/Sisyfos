@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ with Ada.Strings.Maps.Constants;
 with Text_IO;
 with Socket_ServerRCI;
 with Utilities;
+
 procedure socket_server
 is
       Command_Line  : Utilities.RemoteString.Type_Command_Parameters;

@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2017  Frank J Jorgensen
+--      Copyright (C) 2013-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ with Hexagon;
 with Ada.Containers;
 with Test_Piece;
 with Utilities;
-with Construction;
 with Effect;
 with Landscape.Server;
 
@@ -53,7 +52,6 @@ package body Tc_Landscape is
          Hexagon.Type_Hexagon_Position'(True, 99, 99),
          Test_Piece.Landscape_Grass,
          Landscape.Pieces_Here_List.Empty_Vector,
-         Construction.Construction_List.Empty_Set,
          Effect.Effect_List.Empty_Map);
 
       A_Piece : Piece.Type_Piece;
@@ -87,7 +85,6 @@ package body Tc_Landscape is
          Hexagon.Type_Hexagon_Position'(True, 99, 99),
          Test_Piece.Landscape_Grass,
          Landscape.Pieces_Here_List.Empty_Vector,
-         Construction.Construction_List.Empty_Set,
          Effect.Effect_List.Empty_Map);
       A_Piece : Piece.Type_Piece;
    begin
@@ -119,7 +116,6 @@ package body Tc_Landscape is
          Hexagon.Type_Hexagon_Position'(True, 99, 99),
          Test_Piece.Landscape_Grass,
          Landscape.Pieces_Here_List.Empty_Vector,
-         Construction.Construction_List.Empty_Set,
          Effect.Effect_List.Empty_Map);
 
       A_Piece : Piece.Type_Piece;

@@ -35,9 +35,14 @@ project Test is
          case Runtime is
 
             when "full" =>
-               for Source_Dirs use ("client", "server", 
-               "..\..\src\socket", "..\..\src\socket\server", "..\..\src");
-               for Main use ("socket_client.adb", "socket_server.adb");
+               for Source_Dirs use 
+			         ("client", 
+					  "server", 
+                      "..\..\src\socket", 
+					  "..\..\src\socket\server", 
+					  "..\..\src");
+               for Main use ("socket_client.adb", 
+			                 "socket_server.adb");
                for Exec_Dir use ".";
          end case;
 

@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -18,10 +18,8 @@
 --
 
 with Text_IO;
-with Landscape;
 with Piece.Server.House_Piece;
 with Piece.Server.Fighting_Piece;
-with Construction;
 with Ada.Streams.Stream_IO;
 with Landscape.Server;
 
@@ -430,45 +428,6 @@ package body Piece.Server is
       end if;
    end Get_Effects_On_Patch;
 
-   procedure Get_Constructions_On_Patch
-     (P_Patch : in     Hexagon.Server_Map.Type_Server_Patch;
-      P_Observed_Patches_Constructions : in out Observation
-        .Observation_Of_Construction
-        .Observations_Of_Construction
-        .Set)
-   is
-      Trav_Observed_Constructions : Construction.Construction_List.Cursor;
-      Any_Construction            : Construction.Type_Construction;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Piece.Server.Get_Constructions_On_Patch - enter");
-      end if;
-
-      Trav_Observed_Constructions :=
-        Construction.Construction_List.First (P_Patch.Constructions_Here);
-
-      while Construction.Construction_List.Has_Element
-          (Trav_Observed_Constructions)
-      loop
-         Any_Construction :=
-           Construction.Construction_List.Element
-             (Trav_Observed_Constructions);
-
-         Observation.Observation_Of_Construction.Observations_Of_Construction
-           .Include
-           (P_Observed_Patches_Constructions,
-            Observation.Observation_Of_Construction.Type_Patch_Construction'
-              (P_Patch.Pos, Any_Construction, True));
-
-         Trav_Observed_Constructions :=
-           Construction.Construction_List.Next (Trav_Observed_Constructions);
-      end loop;
-
-      if Verbose then
-         Text_IO.Put_Line ("Piece.Server.Get_Constructions_On_Patch - exit");
-      end if;
-   end Get_Constructions_On_Patch;
-
    procedure Get_Pieces_Report
      (P_Player_Id     : in     Player.Type_Player_Id;
       P_Pieces_Report :    out Type_Pieces_Report)
@@ -634,10 +593,6 @@ package body Piece.Server is
                              Landscape.Pieces_Here_List.Next
                                (Trav_Observed_Pieces);
                         end loop; -- Trav all pieces on patch
-
-                        Piece.Server.Get_Constructions_On_Patch
-                          (Patch_Observed_Adress.all,
-                           P_Pieces_Report.Observed_Constructions);
 
                      end if;
 

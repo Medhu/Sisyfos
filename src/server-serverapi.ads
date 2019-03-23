@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 with Player;
 with Hexagon;
 with Piece;
-with Construction;
 with Effect;
 with Status;
 with Utilities;
@@ -30,7 +29,6 @@ with Server.Server;
 with Landscape.Server;
 with Piece.Server.Fighting_Piece;
 with Piece.Server.House_Piece;
-with Construction.Server;
 with Effect.Server;
 with Hexagon.Area;
 
@@ -54,8 +52,6 @@ package Server.ServerAPI is
       P_Landscape_Info    : in Landscape.Server.Type_Landscape_Type_Info_List;
       P_Piece_Info : in Piece.Server.Fighting_Piece.Type_Piece_Type_Info_List;
       P_House_Info : in Piece.Server.House_Piece.Type_House_Type_Info_List;
-      P_Construction_Info : in Construction.Server
-        .Type_Construction_Type_Info_List;
       P_Effect_Info : in Effect.Server.Type_Effect_Type_Info_List;
    --
       P_Game_Creating,
@@ -164,24 +160,6 @@ package Server.ServerAPI is
       P_Effect      : in     Effect.Type_Effect;
       P_Status      :    out Status.Type_Status);
 
-   procedure Perform_Construction
-     (P_Player_Id        : in     Player.Type_Player_Id;
-      P_Action_Type      : in     Action.Type_Action_Type;
-      P_Piece_Id         : in     Piece.Type_Piece_Id;
-      P_Piece_Pos        : in     Hexagon.Type_Hexagon_Position;
-      P_Construction_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Construction     : in     Construction.Type_Construction;
-      P_Status           :    out Status.Type_Status);
-
-   procedure Perform_Demolition
-     (P_Player_Id      : in     Player.Type_Player_Id;
-      P_Action_Type    : in     Action.Type_Action_Type;
-      P_Piece_Id       : in     Piece.Type_Piece_Id;
-      P_Piece_Pos      : in     Hexagon.Type_Hexagon_Position;
-      P_Demolition_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Construction   : in     Construction.Type_Construction;
-      P_Status         :    out Status.Type_Status);
-
    function Find_Piece_In_List
      (P_Piece_Id : in Piece.Type_Piece_Id) return Type_Piece_Position;
 
@@ -209,10 +187,6 @@ package Server.ServerAPI is
    function Get_Map_Terrain
      (P_Pos : in Hexagon.Type_Hexagon_Position)
       return Landscape.Type_Landscape;
-
-   function Get_Map_Construction_List
-     (P_Pos : in Hexagon.Type_Hexagon_Position)
-      return Construction.Construction_List.Set;
 
    function Get_Map_Pieces_List
      (P_Pos : in Hexagon.Type_Hexagon_Position)

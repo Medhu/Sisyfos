@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -57,12 +57,5 @@ package Hexagon is
       Item   : out Type_Hexagon_Position);
    for Type_Hexagon_Position'Read use Read_Hexagon_Position;
 
-   package Path is new Ada.Containers.Vectors (Positive, Type_Hexagon_Position);
-
-   type Type_Path is
-      record
-         This_Path : Path.Vector;
-         Direction : Integer;
-      end record;
-
+   function To_String (P_Position : in Type_Hexagon_Position) return String;
 end Hexagon;

@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 with Text_IO;
 with Player;
 with Hexagon.Area.Server_Area;
+with Hexagon.Server_Navigation;
 
 package body Server.ServerAPI is
 
@@ -32,8 +33,6 @@ package body Server.ServerAPI is
       P_Landscape_Info    : in Landscape.Server.Type_Landscape_Type_Info_List;
       P_Piece_Info : in Piece.Server.Fighting_Piece.Type_Piece_Type_Info_List;
       P_House_Info : in Piece.Server.House_Piece.Type_House_Type_Info_List;
-      P_Construction_Info : in Construction.Server
-        .Type_Construction_Type_Info_List;
       P_Effect_Info : in Effect.Server.Type_Effect_Type_Info_List;
 
       P_Game_Creating,
@@ -573,7 +572,7 @@ package body Server.ServerAPI is
       P_Status : out Status.Type_Status)
    is
       A_Moving_Piece : Piece.Server.Type_Piece_Access_Class := null;
-      Move_Path      : Hexagon.Path.Vector;
+      Move_Path      : Hexagon.Server_Navigation.Path_Pkg.Vector;
 
       use Hexagon;
       use Player;
@@ -679,186 +678,6 @@ package body Server.ServerAPI is
             P_Status'Img);
       end if;
    end Perform_Ranged_Attack;
-
-   procedure Perform_Construction
-     (P_Player_Id        : in Player.Type_Player_Id;
-      P_Action_Type      : in Action.Type_Action_Type;
-      P_Piece_Id         : in Piece.Type_Piece_Id;
-      P_Piece_Pos        : in Hexagon.Type_Hexagon_Position;
-      P_Construction_Pos : in Hexagon.Type_Hexagon_Position;
-      P_Construction     : in Construction.Type_Construction;
-
-      P_Status : out Status.Type_Status)
-   is
-      use Player;
-      use Hexagon;
-      use Piece;
-      use Construction;
-      use Action;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Perform_Construction - enter");
-         Text_IO.Put_Line
-           ("Perform_Construction : " &
-            " P_Player_Id=" &
-            P_Player_Id'Img &
-            " P_Constructing_Piece_Id=" &
-            P_Piece_Id'Img &
-            " P_Piece_Pos.A=" &
-            P_Piece_Pos.A'Img &
-            " P_Piece_Pos.B=" &
-            P_Piece_Pos.B'Img &
-            " P_Construction_Pos.A=" &
-            P_Construction_Pos.A'Img &
-            " P_Construction_Pos.B=" &
-            P_Construction_Pos.B'Img &
-            " P_Construction=" &
-            P_Construction'Img);
-      end if;
-
-      Text_IO.Put_Line ("Server.ServerAPI.Perform_Construction (LUA) - TEST");
-      P_Status := Status.Ok;
-
-      if P_Action_Type /= 908 then
-         Text_IO.Put_Line
-           ("P_Action_Type=" & P_Action_Type'Img & " we expected 908");
-      elsif P_Player_Id /= 8 then
-         Text_IO.Put_Line
-           ("P_Player_Id=" & P_Player_Id'Img & " we expected 8");
-      elsif not P_Piece_Pos.P_Valid then
-         Text_IO.Put_Line
-           ("P_Piece_Pos.P_Valid=" &
-            P_Piece_Pos.P_Valid'Img &
-            " we expected 'True'");
-      elsif P_Piece_Pos.A /= 2 then
-         Text_IO.Put_Line
-           ("P_Piece_Pos.A=" & P_Piece_Pos.A'Img & " we expected '2'");
-      elsif P_Piece_Pos.B /= 3 then
-         Text_IO.Put_Line
-           ("P_Piece_Pos.B=" & P_Piece_Pos.B'Img & " we expected '3'");
-      elsif not P_Construction_Pos.P_Valid then
-         Text_IO.Put_Line
-           ("P_Construction_Pos.P_Valid=" &
-            P_Construction_Pos.P_Valid'Img &
-            " we expected 'True'");
-      elsif P_Construction_Pos.A /= 4 then
-         Text_IO.Put_Line
-           ("P_Construction_Pos.A=" &
-            P_Construction_Pos.A'Img &
-            " we expected '4'");
-      elsif P_Construction_Pos.B /= 5 then
-         Text_IO.Put_Line
-           ("P_Construction_Pos.B=" &
-            P_Construction_Pos.B'Img &
-            " we expected '5'");
-      elsif P_Piece_Id /= 1 then
-         Text_IO.Put_Line
-           ("P_Constructing_Piece_Id=" & P_Piece_Id'Img & " we expected '1'");
-      elsif P_Construction /= 6 then
-         Text_IO.Put_Line
-           ("P_Construction=" & P_Construction'Img & " we expected '22'");
-      else
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Construction (LUA) -                       OK");
-      end if;
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Construction - exit P_Status=" &
-            P_Status'Img);
-      end if;
-   end Perform_Construction;
-
-   procedure Perform_Demolition
-     (P_Player_Id      : in Player.Type_Player_Id;
-      P_Action_Type    : in Action.Type_Action_Type;
-      P_Piece_Id       : in Piece.Type_Piece_Id;
-      P_Piece_Pos      : in Hexagon.Type_Hexagon_Position;
-      P_Demolition_Pos : in Hexagon.Type_Hexagon_Position;
-      P_Construction   : in Construction.Type_Construction;
-
-      P_Status : out Status.Type_Status)
-
-   is
-      use Player;
-      use Hexagon;
-      use Piece;
-      use Construction;
-      use Action;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Server.ServerAPI.Perform_Demolition - enter");
-         Text_IO.Put_Line
-           ("Perform_Demolition : " &
-            " P_Player_Id=" &
-            P_Player_Id'Img &
-            " P_Constructing_Piece_Id=" &
-            P_Piece_Id'Img &
-            " P_Piece_Pos.A=" &
-            P_Piece_Pos.A'Img &
-            " P_Piece_Pos.B=" &
-            P_Piece_Pos.B'Img &
-            " P_Demolition_Pos.A=" &
-            P_Demolition_Pos.A'Img &
-            " P_Demolition_Pos.B=" &
-            P_Demolition_Pos.B'Img &
-            " P_Construction=" &
-            P_Construction'Img);
-      end if;
-
-      Text_IO.Put_Line ("Server.ServerAPI.Perform_Demolition (LUA) - TEST");
-
-      P_Status := Status.Ok;
-
-      if P_Action_Type /= 909 then
-         Text_IO.Put_Line
-           ("P_Action_Type=" & P_Action_Type'Img & " we expected 909");
-      elsif P_Player_Id /= 88 then
-         Text_IO.Put_Line
-           ("P_Player_Id=" & P_Player_Id'Img & " we expected 88");
-      elsif not P_Piece_Pos.P_Valid then
-         Text_IO.Put_Line
-           ("P_Piece_Pos.P_Valid=" &
-            P_Piece_Pos.P_Valid'Img &
-            " we expected 'True'");
-      elsif P_Piece_Pos.A /= 22 then
-         Text_IO.Put_Line
-           ("P_Piece_Pos.A=" & P_Piece_Pos.A'Img & " we expected '22'");
-      elsif P_Piece_Pos.B /= 33 then
-         Text_IO.Put_Line
-           ("P_Piece_Pos.B=" & P_Piece_Pos.B'Img & " we expected '33'");
-      elsif not P_Demolition_Pos.P_Valid then
-         Text_IO.Put_Line
-           ("P_Demolition_Pos.P_Valid=" &
-            P_Demolition_Pos.P_Valid'Img &
-            " we expected 'True'");
-      elsif P_Demolition_Pos.A /= 44 then
-         Text_IO.Put_Line
-           ("P_Demolition_Pos.A=" &
-            P_Demolition_Pos.A'Img &
-            " we expected '44'");
-      elsif P_Demolition_Pos.B /= 55 then
-         Text_IO.Put_Line
-           ("P_Construction_Pos.B=" &
-            P_Demolition_Pos.B'Img &
-            " we expected '55'");
-      elsif P_Piece_Id /= 11 then
-         Text_IO.Put_Line
-           ("P_Piece_Id=" & P_Piece_Id'Img & " we expected '11'");
-      elsif P_Construction /= 66 then
-         Text_IO.Put_Line
-           ("P_Construction=" & P_Construction'Img & " we expected '66'");
-      else
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Demolition (LUA) -                         OK");
-      end if;
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Demolition - exit P_Status=" &
-            P_Status'Img);
-      end if;
-   end Perform_Demolition;
 
    procedure Grant_Piece_Effect
      (P_Player_Id   : in Player.Type_Player_Id;
@@ -1516,35 +1335,6 @@ package body Server.ServerAPI is
    begin
       return Landscape.Type_Landscape (3);
    end Get_Map_Terrain;
-
-   function Get_Map_Construction_List
-     (P_Pos : in Hexagon.Type_Hexagon_Position)
-      return Construction.Construction_List.Set
-   is
-      Test_Construction_List : Construction.Construction_List.Set;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Get_Map_Construction_List - enter");
-      end if;
-
-      Construction.Construction_List.Include
-        (Test_Construction_List,
-         Construction.Type_Construction (201));
-      Construction.Construction_List.Include
-        (Test_Construction_List,
-         Construction.Type_Construction (202));
-      Construction.Construction_List.Include
-        (Test_Construction_List,
-         Construction.Type_Construction (203));
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Get_Map_Construction_List - enter");
-      end if;
-
-      return Test_Construction_List;
-   end Get_Map_Construction_List;
 
    function Get_Map_Pieces_List
      (P_Pos : in Hexagon.Type_Hexagon_Position)

@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -32,8 +32,6 @@ package Game_RPC is
                      Perform_Move_Start, Perform_Move_End,
                      Perform_Patch_Effect_Start, Perform_Patch_Effect_End,
                      Perform_Piece_Effect_Start, Perform_Piece_Effect_End,
-                     Perform_Construction_Start, Perform_Construction_End,
-                     Perform_Demolition_Start, Perform_Demolition_End,
                      Perform_Ranged_Attack_Start, Perform_Ranged_Attack_End,
                      Grant_Piece_Effect_Start, Grant_Piece_Effect_End,
                      Revoke_Piece_Effect_Start, Revoke_Piece_Effect_End,

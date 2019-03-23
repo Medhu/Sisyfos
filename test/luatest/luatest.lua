@@ -68,14 +68,6 @@ print("")
 ret_status = Sisyfos.Perform_Ranged_Attack(81,907,11,22)
 print("")
 
-ret_status = Sisyfos.Perform_Construction(8,908,1,2,3,4,5,6)
-print ("ret_status=" .. ret_status)
-print("")
-
-ret_status = Sisyfos.Perform_Demolition(88,909,11,22,33,44,55,66)
-print ("ret_status=" .. ret_status)
-print("")
-
 ret_status = Sisyfos.Grant_Piece_Effect(2,910,3,4,5)
 print ("ret_status=" .. ret_status)
 print("")
@@ -155,19 +147,6 @@ if a_terrain == 3 then
   print("Get_Map_Terrain -                                                   OK")
 else
   print("Get_Map_Terrain -                                                   FAILED")
-end
-
-print("")
-print("Get_Map_Construction_List - TEST")
-local a_construction_list = Sisyfos.Get_Map_Construction_List(6, 8)
-
-print("1: " .. a_construction_list[1] .. " 2: " .. a_construction_list[2] .. " 3: " .. a_construction_list[3])
-if a_construction_list[1] == 201
-and a_construction_list[2] == 202 
-and a_construction_list[3] == 203 then
-  print("Get_Map_Construction_List -                                         OK")
-else
-  print("Get_Map_Construction_List -                                         FAILED")
 end
 
 print("")

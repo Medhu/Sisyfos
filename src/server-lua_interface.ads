@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -74,13 +74,6 @@ package Server.Lua_Interface is
      (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Revoke_Patch_Effect, "Revoke_Patch_Effect");
 
-   function Perform_Construction
-     (P_Lua_State : in Lua.Lua_State) return Integer;
-   pragma Export (C, Perform_Construction, "Perform_Construction");
-
-   function Perform_Demolition (P_Lua_State : in Lua.Lua_State) return Integer;
-   pragma Export (C, Perform_Demolition, "Perform_Demolition");
-
    function Find_Piece_In_List (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Find_Piece_In_List, "Find_Piece_In_List");
 
@@ -117,10 +110,6 @@ package Server.Lua_Interface is
 
    function Get_Map_Terrain (P_Lua_State : Lua.Lua_State) return Integer;
    pragma Export (C, Get_Map_Terrain, "Get_Map_Landscape");
-
-   function Get_Map_Construction_List
-     (P_Lua_State : Lua.Lua_State) return Integer;
-   pragma Export (C, Get_Map_Construction_List, "Get_Map_Construction_List");
 
    function Get_Map_Pieces_List (P_Lua_State : Lua.Lua_State) return Integer;
    pragma Export (C, Get_Map_Pieces_List, "Get_Map_Pieces_List");

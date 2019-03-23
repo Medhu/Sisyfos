@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2017  Frank J Jorgensen
+--      Copyright (C) 2013-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -39,14 +39,38 @@ project Test is
          case Runtime is
 
             when "full" =>
-               for Source_Dirs use (".", "polyorb\server", "polyorb\client", "..\..\src", "..\..\src\polyorb\server");
-               for Main use ("harness0.adb", "harness1.adb", "harness10.adb", "harness11.adb", "harness12.adb", "harness13.adb", "harness14.adb", "harness15.adb", "harness16.adb", "harness17.adb", "harness18.adb", "harness2.adb", 
-                  "harness21.adb", "harness3.adb", "harness4.adb", "harness5.adb", "harness6.adb");
+               for Source_Dirs use (".", 
+			                        "polyorb\server", 
+									"polyorb\client", 
+									"..\..\src", 
+									"..\..\src\polyorb\server");
+
+               for Main use ("harness0.adb", 
+			                 "harness1.adb", 
+							 "harness2.adb", 
+							 "harness3.adb", 
+							 "harness4.adb", 
+							 "harness5.adb", 
+							 "harness6.adb", 
+							 "harness7.adb",
+							 "harness10.adb", 
+							 "harness11.adb", 
+							 "harness12.adb", 
+							 "harness13.adb", 
+							 "harness14.adb", 
+							 "harness15.adb", 
+                             "harness21.adb");
                for Exec_Dir use ".";
          end case;
 
       when "relocatable" =>
-         for Source_Dirs use (".", "src\gui", "src\engine", "src\map", "src\landscape", "src\piece", "src\report");
+         for Source_Dirs use (".", 
+		                      "src\gui", 
+		                      "src\engine", 
+							  "src\map", 
+							  "src\landscape", 
+							  "src\piece", 
+							  "src\report");
          for Main use ("main_server.adb", "window1.adb");
    end case;
 

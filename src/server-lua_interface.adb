@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ with Text_IO;
 with Player;
 with Hexagon;
 with Piece;
-with Construction;
 with Effect;
 with Status;
 with Server.ServerAPI;
@@ -123,14 +122,6 @@ package body Server.Lua_Interface is
          Perform_Ranged_Attack'Access);
       Lua.Register_Function
         (P_Lua_State,
-         "Sisyfos.Perform_Construction",
-         Perform_Construction'Access);
-      Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Perform_Demolition",
-         Perform_Demolition'Access);
-      Lua.Register_Function
-        (P_Lua_State,
          "Sisyfos.Grant_Piece_Effect",
          Grant_Piece_Effect'Access);
       Lua.Register_Function
@@ -181,10 +172,6 @@ package body Server.Lua_Interface is
         (P_Lua_State,
          "Sisyfos.Get_Map_Terrain",
          Get_Map_Terrain'Access);
-      Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Get_Map_Construction_List",
-         Get_Map_Construction_List'Access);
       Lua.Register_Function
         (P_Lua_State,
          "Sisyfos.Get_Map_Pieces_List",
@@ -399,19 +386,6 @@ package body Server.Lua_Interface is
 
       return Piece_Id;
    end Parameter_Piece_Id_Input;
-
-   function Parameter_Construction_Input
-     (P_Lua_State : in Lua.Lua_State;
-      P_Index     :    Lua.Lua_Index) return Construction.Type_Construction
-   is
-      A_Lua_Integer  : Lua.Lua_Integer;
-      A_Construction : Construction.Type_Construction;
-   begin
-      A_Lua_Integer  := Lua.To_Ada (P_Lua_State, P_Index);
-      A_Construction := Construction.Type_Construction (A_Lua_Integer);
-
-      return A_Construction;
-   end Parameter_Construction_Input;
 
    function Parameter_Type_Of_Piece_Input
      (P_Lua_State : in Lua.Lua_State;
@@ -675,48 +649,6 @@ package body Server.Lua_Interface is
            ("Server.Lua_Interface.Parameter_Landscape_Output - exit ");
       end if;
    end Parameter_Landscape_Output;
-
-   procedure Parameter_Construction_List_Output
-     (P_Lua_State         : in Lua.Lua_State;
-      P_Construction_List : in Construction.Construction_List.Set)
-   is
-      Stack_Top_On_Start : Lua.Lua_Index;
-      Lua_Integer        : Lua.Lua_Integer;
-      Table_Index        : Positive;
-
-      Trav_Constructions : Construction.Construction_List.Cursor;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Construction_List_Output - enter ");
-      end if;
-      Stack_Top_On_Start := Lua.Get_Top (P_Lua_State);
-
-      Lua.Create_Table (P_Lua_State);
-      Trav_Constructions :=
-        Construction.Construction_List.First (P_Construction_List);
-      Table_Index := 1;
-      while Construction.Construction_List.Has_Element (Trav_Constructions)
-      loop
-
-         Lua.Push (P_Lua_State, Lua.Lua_Integer (Table_Index));
-         Lua_Integer :=
-           Lua.Lua_Integer
-             (Construction.Construction_List.Element (Trav_Constructions));
-         Lua.Push (P_Lua_State, Lua_Integer);
-
-         Lua.Set_Table (P_Lua_State, Stack_Top_On_Start + 1);
-
-         Table_Index        := Table_Index + 1;
-         Trav_Constructions :=
-           Construction.Construction_List.Next (Trav_Constructions);
-      end loop;
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Construction_List_Output - exit ");
-      end if;
-   end Parameter_Construction_List_Output;
 
    procedure Parameter_Pieces_List_Output
      (P_Lua_State   : in Lua.Lua_State;
@@ -1246,95 +1178,6 @@ package body Server.Lua_Interface is
       return 1;
    end Revoke_Patch_Effect;
 
-   function Perform_Construction
-     (P_Lua_State : in Lua.Lua_State) return Integer
-   is
-      Player_Id   : Player.Type_Player_Id;
-      Action_Type : Action.Type_Action_Type;
-      Construction_Pos,
-      Piece_Pos : Hexagon.Type_Hexagon_Position :=
-        Hexagon.Type_Hexagon_Position'(True, 1, 1);
-      Constructing_Piece_Id : Piece.Type_Piece_Id := Piece.Undefined_Piece_Id;
-      A_Construction        : Construction.Type_Construction;
-
-      Ret_Status : Status.Type_Status := Status.Ok;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Perform_Construction - enter");
-      end if;
-
-      Player_Id             := Parameter_Player_Id_Input (P_Lua_State, 1);
-      Action_Type           := Parameter_Action_Type_Input (P_Lua_State, 2);
-      Constructing_Piece_Id := Parameter_Piece_Id_Input (P_Lua_State, 3);
-      Piece_Pos := Parameter_Hexagon_Position_Input (P_Lua_State, 4);
-      Construction_Pos := Parameter_Hexagon_Position_Input (P_Lua_State, 6);
-      A_Construction        := Parameter_Construction_Input (P_Lua_State, 8);
-
-      ServerAPI.Perform_Construction
-        (Player_Id,
-         Action_Type,
-         Constructing_Piece_Id,
-         Piece_Pos,
-         Construction_Pos,
-         A_Construction,
-         Ret_Status);
-
-      Lua.Push
-        (P_Lua_State,
-         Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
-
-      if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Perform_Construction - exit");
-      end if;
-
-      return 1;
-   end Perform_Construction;
-
-   function Perform_Demolition
-     (P_Lua_State : in Lua.Lua_State) return Integer
-   is
-      Player_Id   : Player.Type_Player_Id;
-      Action_Type : Action.Type_Action_Type;
-      Demolition_Pos,
-      Piece_Pos : Hexagon.Type_Hexagon_Position :=
-        Hexagon.Type_Hexagon_Position'(True, 1, 1);
-      Demolition_Piece_Id : Piece.Type_Piece_Id := Piece.Undefined_Piece_Id;
-      A_Construction      : Construction.Type_Construction;
-
-      Ret_Status : Status.Type_Status := Status.Ok;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Perform_Demolition - enter");
-      end if;
-
-      Player_Id           := Parameter_Player_Id_Input (P_Lua_State, 1);
-      Action_Type         := Parameter_Action_Type_Input (P_Lua_State, 2);
-      Demolition_Piece_Id := Parameter_Piece_Id_Input (P_Lua_State, 3);
-      Piece_Pos           := Parameter_Hexagon_Position_Input (P_Lua_State, 4);
-      Demolition_Pos      := Parameter_Hexagon_Position_Input (P_Lua_State, 6);
-      A_Construction      := Parameter_Construction_Input (P_Lua_State, 8);
-
-      ServerAPI.Perform_Demolition
-        (Player_Id,
-         Action_Type,
-         Demolition_Piece_Id,
-         Piece_Pos,
-         Demolition_Pos,
-         A_Construction,
-         Ret_Status);
-
-      Lua.Push
-        (P_Lua_State,
-         Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
-
-      if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Perform_Demolition - exit");
-      end if;
-
-      return 1;
-   end Perform_Demolition;
-
    function Find_Piece_In_List
      (P_Lua_State : in Lua.Lua_State) return Integer
    is
@@ -1511,31 +1354,6 @@ package body Server.Lua_Interface is
       return 1;
 
    end Get_Map_Terrain;
-
-   function Get_Map_Construction_List
-     (P_Lua_State : Lua.Lua_State) return Integer
-   is
-      A_Pos : Hexagon.Type_Hexagon_Position;
-
-      A_Construction_List : Construction.Construction_List.Set;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Get_Map_Construction_List - enter");
-      end if;
-
-      A_Pos := Parameter_Hexagon_Position_Input (P_Lua_State, 1);
-
-      A_Construction_List := ServerAPI.Get_Map_Construction_List (A_Pos);
-
-      Parameter_Construction_List_Output (P_Lua_State, A_Construction_List);
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Get_Map_Construction_List - enter");
-      end if;
-      return 1;
-   end Get_Map_Construction_List;
 
    function Get_Map_Pieces_List (P_Lua_State : Lua.Lua_State) return Integer is
       A_Pos : Hexagon.Type_Hexagon_Position;

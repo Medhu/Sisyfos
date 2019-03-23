@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ with Status;
 with Observation;
 with Ada.Containers.Vectors;
 with Landscape;
-with Ada.Strings;
 with Ada.Strings.Unbounded;
 with Action;
 with Ada.Unchecked_Deallocation;
@@ -78,9 +77,6 @@ package Piece.Server is
         .Set;
       Observed_Patches_Effects : Observation.Observation_Of_Patches_Effects
         .Observations_Of_Patches_Effects
-        .Set;
-      Observed_Constructions : Observation.Observation_Of_Construction
-        .Observations_Of_Construction
         .Set;
    end record;
 

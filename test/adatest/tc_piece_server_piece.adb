@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2017  Frank J Jorgensen
+--      Copyright (C) 2013-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -96,7 +96,6 @@ package body TC_Piece_Server_Piece is
          Test_Piece.Landscapes_Type_Info_List,
          Test_Piece.Pieces_Type_Info_List,
          Test_Piece.Houses_Type_Info_List,
-         Test_Piece.Construction_Type_Info_List,
          Test_Piece.Effect_Type_Info_List,
          Test_Piece.Test_Creating_Game'Access,
          Test_Piece.Test_Saving_Game'Access,

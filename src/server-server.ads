@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -30,8 +30,6 @@ with Status;
 with Observation;
 with Effect;
 with Unchecked_Deallocation;
-with Construction;
-with Construction.Server;
 with Effect.Server;
 with Landscape.Server;
 with Action;
@@ -75,8 +73,6 @@ package Server.Server is
       P_Landscape_Info    : in Landscape.Server.Type_Landscape_Type_Info_List;
       P_Piece_Info : in Piece.Server.Fighting_Piece.Type_Piece_Type_Info_List;
       P_House_Info : in Piece.Server.House_Piece.Type_House_Type_Info_List;
-      P_Construction_Info : in Construction.Server
-        .Type_Construction_Type_Info_List;
       P_Effect_Info : in Effect.Server.Type_Effect_Type_Info_List;
    --
       P_Game_Creating,
@@ -232,22 +228,6 @@ package Server.Server is
          P_Piece_Id    : in Piece.Type_Piece_Id;
          P_Effect      : in Effect.Type_Effect;
          P_Area        : in Hexagon.Area.Type_Action_Capabilities_A);
-
-      -- The player constructs something on patch on the map (e.g a wall)
-      entry Entry_Perform_Construction
-        (P_Player_Id        : in Player.Type_Player_Id;
-         P_Action_Type      : in Action.Type_Action_Type;
-         P_Piece_Id         : in Piece.Type_Piece_Id;
-         P_Construction_Pos : in Hexagon.Type_Hexagon_Position;
-         P_Construction     : in Construction.Type_Construction);
-
-      -- The player demolish something on patch on the map (e.g a wall)
-      entry Entry_Perform_Demolition
-        (P_Player_Id      : in Player.Type_Player_Id;
-         P_Action_Type    : in Action.Type_Action_Type;
-         P_Piece_Id       : in Piece.Type_Piece_Id;
-         P_Demolition_Pos : in Hexagon.Type_Hexagon_Position;
-         P_Construction   : in Construction.Type_Construction);
 
       -- The client will call this frequently to get some system data (mostly)
       entry Entry_Get_Updates_Summary

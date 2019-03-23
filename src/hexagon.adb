@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -101,5 +101,11 @@ package body Hexagon is
          Text_IO.Put_Line ("Hexagon.Read_Hexagon_Position - exit");
       end if;
    end Read_Hexagon_Position;
+
+   function To_String (P_Position : in Type_Hexagon_Position) return String
+   is
+   begin
+      return "(" & P_Position.A'Img & ", " & P_Position.B'Img & ")";
+   end To_String;
 
 end Hexagon;

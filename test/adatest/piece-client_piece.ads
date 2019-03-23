@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ with Observation;
 with Hexagon.Client_Map;
 with Effect;
 with Ada.Containers.Vectors;
-with Construction;
 with Action;
 with Hexagon.Area;
 
@@ -125,20 +124,6 @@ package Piece.Client_Piece is
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in     Type_Piece;
       P_Effect      : in     Effect.Type_Effect);
-
-   procedure Perform_Construction
-     (P_Player_Id          : in     Player.Type_Player_Id;
-      P_Action_Type        : in     Action.Type_Action_Type;
-      P_Construction_Piece : in     Type_Piece;
-      P_Construction_Patch : in     Landscape.Type_Patch;
-      P_Construction       : in     Construction.Type_Construction);
-
-   procedure Perform_Demolition
-     (P_Player_Id          : in     Player.Type_Player_Id;
-      P_Action_Type        : in     Action.Type_Action_Type;
-      P_Demolition_Piece   : in     Type_Piece;
-      P_Demolition_Patch   : in     Landscape.Type_Patch;
-      P_Construction       : in     Construction.Type_Construction);
 
    function Find_Effect
      (P_Piece_Id    : in Piece.Type_Piece_Id;

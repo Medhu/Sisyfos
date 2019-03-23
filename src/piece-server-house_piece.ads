@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 --
 
 with Landscape;
-with Construction;
 with Landscape.Server;
 
 package Piece.Server.House_Piece is
@@ -48,69 +47,6 @@ package Piece.Server.House_Piece is
    procedure Upkeep
      (P_Patch : in out Hexagon.Server_Map.Type_Server_Patch;
       P_Piece : in out Piece.Server.House_Piece.Type_House) is abstract;
-
-   --
-   -- Perform_Construction
-   --
-   function Validate_Perform_Construction
-     (P_Player_Id          : in Player.Type_Player_Id;
-      P_Action_Type        : in Action.Type_Action_Type;
-      P_Construction_Piece : in Piece.Server.House_Piece.Type_House;
-      P_Construction_Pos   : in Hexagon.Type_Hexagon_Position;
-      P_Construction       : in Construction.Type_Construction)
-      return Boolean is abstract;
-
-   procedure Before_Perform_Construction
-     (P_Player_Id          : in     Player.Type_Player_Id;
-      P_Action_Type        : in     Action.Type_Action_Type;
-      P_Construction_Piece : in out Piece.Server.House_Piece.Type_House;
-      P_Construction_Pos   : in     Hexagon.Type_Hexagon_Position;
-      P_Construction       : in     Construction.Type_Construction;
-      P_Result             :    out Status.Type_Result_Status) is abstract;
-
-   procedure End_Perform_Construction
-     (P_Player_Id          : in     Player.Type_Player_Id;
-      P_Action_Type        : in     Action.Type_Action_Type;
-      P_Construction_Piece : in out Piece.Server.House_Piece.Type_House;
-      P_Construction_Pos   : in     Hexagon.Type_Hexagon_Position;
-      P_Construction       : in     Construction.Type_Construction;
-      P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer) is abstract;
-
-   --
-   -- Perform_Demolition
-   --
-   function Validate_Perform_Demolition
-     (P_Player_Id        : in Player.Type_Player_Id;
-      P_Action_Type      : in Action.Type_Action_Type;
-      P_Demolition_Piece : in Piece.Server.House_Piece.Type_House;
-      P_Demolition_Pos   : in Hexagon.Type_Hexagon_Position;
-      P_Construction     : in Construction.Type_Construction)
-      return Boolean is abstract;
-
-   procedure Before_Perform_Demolition
-     (P_Player_Id        : in     Player.Type_Player_Id;
-      P_Action_Type      : in     Action.Type_Action_Type;
-      P_Demolition_Piece : in out Piece.Server.House_Piece.Type_House;
-      P_Demolition_Pos   : in     Hexagon.Type_Hexagon_Position;
-      P_Construction     : in     Construction.Type_Construction;
-      P_Result           :    out Status.Type_Result_Status) is abstract;
-
-   procedure End_Perform_Demolition
-     (P_Player_Id          : in     Player.Type_Player_Id;
-      P_Action_Type        : in     Action.Type_Action_Type;
-      P_Demolition_Piece   : in out Piece.Server.House_Piece.Type_House;
-      P_Demolition_Pos     : in     Hexagon.Type_Hexagon_Position;
-      P_Construction       : in     Construction.Type_Construction;
-      P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer) is abstract;
-
-   type Type_Construction_Validation_Mode is
-     (Construction_Mode, Demolition_Mode);
-
-   function Validate_Exisiting_Construction
-     (P_Patch        : in Landscape.Type_Patch;
-      P_Construction : in Construction.Type_Construction) return Boolean;
 
    function Can_Construct_On_Land
      (P_Type_Of_Piece : in Type_Piece_Type;

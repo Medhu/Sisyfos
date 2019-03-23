@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@ with Status;
 with GNAT.Sockets;
 with Game_RPC;
 with Server.ServerRAPI;
-with Construction;
 with Action;
 with Ada.Task_Identification, Ada.Exceptions;
 
@@ -66,7 +65,6 @@ package body Server.Generic_ServerRCI is
       A_Player_Name        : Utilities.RemoteString.Type_String;
 
       An_Effect            : Effect.Type_Effect;
-      A_Construction       : Construction.Type_Construction;
 
       A_Countdown         : Positive;
       A_Game_State        : Status.Type_Game_Status;
@@ -278,38 +276,6 @@ package body Server.Generic_ServerRCI is
                An_Action_Type,
                A_Piece_Id,
                An_Effect);
-
-         elsif RPC_Command = Game_RPC.Perform_Construction_Start then
-            Perform_Construction_In
-              (Channel,
-               A_Player_Id,
-               An_Action_Type,
-               A_Piece_Id,
-               A_Pos,
-               A_Construction);
-
-            Server.ServerRAPI.Perform_Construction
-              (A_Player_Id,
-               An_Action_Type,
-               A_Piece_Id,
-               A_Pos,
-               A_Construction);
-
-         elsif RPC_Command = Game_RPC.Perform_Demolition_Start then
-            Perform_Demolition_In
-              (Channel,
-               A_Player_Id,
-               An_Action_Type,
-               A_Piece_Id,
-               A_Pos,
-               A_Construction);
-
-            Server.ServerRAPI.Perform_Demolition
-              (A_Player_Id,
-               An_Action_Type,
-               A_Piece_Id,
-               A_Pos,
-               A_Construction);
 
          elsif RPC_Command = Game_RPC.Grant_Piece_Effect_Start then
             Grant_Piece_Effect_In
@@ -796,7 +762,7 @@ package body Server.Generic_ServerRCI is
      (P_Channel     : in     GNAT.Sockets.Stream_Access;
       P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
-      P_Path        :    out Hexagon.Path.Vector;
+      P_Path        :    out Hexagon.Server_Navigation.Path_Pkg.Vector;
       P_Player_Id   :    out Player.Type_Player_Id)
    is
    begin
@@ -807,7 +773,7 @@ package body Server.Generic_ServerRCI is
 
       P_Action_Type := Action.Type_Action_Type'Input (P_Channel);
       P_Piece_Id    := Piece.Type_Piece_Id'Input (P_Channel);
-      P_Path        := Hexagon.Path.Vector'Input (P_Channel);
+      P_Path        := Hexagon.Server_Navigation.Path_Pkg.Vector'Input (P_Channel);
       P_Player_Id   := Player.Type_Player_Id'Input (P_Channel);
 
       if Verbose then
@@ -872,62 +838,6 @@ package body Server.Generic_ServerRCI is
       end if;
 
    end Perform_Piece_Effect_In;
-
-   procedure Perform_Construction_In
-     (P_Channel          : in     GNAT.Sockets.Stream_Access;
-      P_Player_Id        :    out Player.Type_Player_Id;
-      P_Action_Type      :    out Action.Type_Action_Type;
-      P_Piece_Id         :    out Piece.Type_Piece_Id;
-      P_Construction_Pos :    out Hexagon.Type_Hexagon_Position;
-      P_Construction     :    out Construction.Type_Construction)
-   is
-
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Generic_Server.ServerRCI.Perform_Construction_In - enter");
-      end if;
-
-      P_Player_Id        := Player.Type_Player_Id'Input (P_Channel);
-      P_Action_Type      := Action.Type_Action_Type'Input (P_Channel);
-      P_Piece_Id         := Piece.Type_Piece_Id'Input (P_Channel);
-      P_Construction_Pos := Hexagon.Type_Hexagon_Position'Input (P_Channel);
-      P_Construction     := Construction.Type_Construction'Input (P_Channel);
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Generic_Server.ServerRCI.Perform_Construction_In - exit");
-      end if;
-
-   end Perform_Construction_In;
-
-   procedure Perform_Demolition_In
-     (P_Channel          : in     GNAT.Sockets.Stream_Access;
-      P_Player_Id        :    out Player.Type_Player_Id;
-      P_Action_Type      :    out Action.Type_Action_Type;
-      P_Piece_Id         :    out Piece.Type_Piece_Id;
-      P_Construction_Pos :    out Hexagon.Type_Hexagon_Position;
-      P_Construction     :    out Construction.Type_Construction)
-   is
-
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Generic_Server.ServerRCI.Perform_Demolition_In - enter");
-      end if;
-
-      P_Player_Id        := Player.Type_Player_Id'Input (P_Channel);
-      P_Action_Type      := Action.Type_Action_Type'Input (P_Channel);
-      P_Piece_Id         := Piece.Type_Piece_Id'Input (P_Channel);
-      P_Construction_Pos := Hexagon.Type_Hexagon_Position'Input (P_Channel);
-      P_Construction     := Construction.Type_Construction'Input (P_Channel);
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Generic_Server.ServerRCI.Perform_Demolition_In - exit");
-      end if;
-
-   end Perform_Demolition_In;
 
    procedure Grant_Piece_Effect_In
      (P_Channel     : in     GNAT.Sockets.Stream_Access;

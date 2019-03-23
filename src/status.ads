@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -53,12 +53,6 @@ package Status is
    --Perform Piece Effect
       Not_Before_Perform_Piece_Effect,
 
-   --Perform_Construction
-      Not_Before_Perform_Construction,
-
-   --Perform_Demolition
-      Not_Before_Perform_Demolition,
-
    --Grant_Piece_Effect
       Not_Before_Grant_Piece_Effect,
 
@@ -73,10 +67,7 @@ package Status is
 
       Patch_Effect_Not_Here,
 
-      Piece_Effect_Not_Here,
-
-      Construction_Exists,
-      Construction_Doesnt_Exist);
+      Piece_Effect_Not_Here);
 
    type Type_Adm_Status is
      (Adm_Ok,

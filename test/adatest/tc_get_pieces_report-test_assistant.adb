@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2017  Frank J Jorgensen
+--      Copyright (C) 2013-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -46,8 +46,6 @@ package body Tc_Get_Pieces_Report.Test_Assistant is
       Observation.Observation_Of_Patches_Effects.Observations_Of_Patches_Effects.Clear
         (P_Pieces_Report.Observed_Patches_Effects);
 
-      Observation.Observation_Of_Construction.Observations_Of_Construction.Clear
-        (P_Pieces_Report.Observed_Constructions);
    end Clear_Pieces_Report;
 
    procedure Update_From_Server
@@ -60,9 +58,6 @@ package body Tc_Get_Pieces_Report.Test_Assistant is
       Player_Observed_Patches_Effects_List : Observation.Observation_Of_Patches_Effects
         .Changes_To_Patches_Effects
         .Vector;
-      Player_Observed_Constructions_List : Observation.Observation_Of_Construction
-        .Changes_To_Construction
-          .Vector;
       Players_Pieces_Info : Observation.Observation_Of_Pieces_Info.Changes_To_Pieces_Info.Vector;
       Players_Pieces_Effects : Observation.Observation_Of_Pieces_Effects.Changes_To_Pieces_Effects.Vector;
       Frame_Cursor : Observation.Frames.Piece_Visibility_Frames.Cursor;
@@ -92,8 +87,7 @@ package body Tc_Get_Pieces_Report.Test_Assistant is
            (P_Player_Map,
             Player_Observations_List,
             Player_Observed_Pieces_List,
-            Player_Observed_Patches_Effects_List,
-            Player_Observed_Constructions_List);
+            Player_Observed_Patches_Effects_List);
 
          Hexagon.Client_Map.Save_Scenario
            (Ada.Strings.Unbounded.To_Unbounded_String (Test_Piece.HTML_Path & "f" & Frame'Img & "0000.html"),

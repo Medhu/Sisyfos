@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ with Piece;
 with Hexagon;
 with Ada.Streams; use Ada.Streams;
 with Ada.Containers.Vectors;
-with Construction;
 with Effect;
 
 package Landscape is
@@ -47,7 +46,6 @@ package Landscape is
       case P_Known is
          when True =>
             Pieces_Here        : Pieces_Here_List.Vector;
-            Constructions_Here : Construction.Construction_List.Set;
             Effects_Here       : Effect.Effect_List.Map;
          when False =>
             null;

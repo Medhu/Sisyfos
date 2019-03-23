@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2017  Frank J Jorgensen
+--      Copyright (C) 2013-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ with Status;
 with Test_ServerRCI;
 with Observation;
 with Action;
+with Ada.Containers;
 
 package body TC_Hexagon_Client_Map is
    Verbose : constant Boolean := False;
@@ -79,7 +80,6 @@ package body TC_Hexagon_Client_Map is
          Test_Piece.Landscapes_Type_Info_List,
          Test_Piece.Pieces_Type_Info_List,
          Test_Piece.Houses_Type_Info_List,
-         Test_Piece.Construction_Type_Info_List,
          Test_Piece.Effect_Type_Info_List,
          Test_Piece.Test_Creating_Game'Access,
          Test_Piece.Test_Saving_Game'Access,
@@ -393,7 +393,6 @@ package body TC_Hexagon_Client_Map is
         .Vector;
       Player_Changed_Observed_Pieces : Observation.Observation_Of_Pieces.Changes_To_Pieces.Vector;
       Player_Changed_Observed_Patched_Effects : Observation.Observation_Of_Patches_Effects.Changes_To_Patches_Effects.Vector;
-      Player_Changed_Observed_Construction : Observation.Observation_Of_Construction.Changes_To_Construction.Vector;
    begin
       if Verbose then
          Text_IO.Put_Line ("TC_Hexagon_Client_Map.Test_Set_Reports_On_Map_01 - enter");
@@ -430,8 +429,7 @@ package body TC_Hexagon_Client_Map is
         (Map_Player_1,
          Player_Changed_Observed_Patches,
          Player_Changed_Observed_Pieces,
-         Player_Changed_Observed_Patched_Effects,
-        Player_Changed_Observed_Construction);
+         Player_Changed_Observed_Patched_Effects);
 
       Hexagon.Client_Map.Save_Scenario
         (Ada.Strings.Unbounded.To_Unbounded_String
@@ -483,8 +481,7 @@ package body TC_Hexagon_Client_Map is
         (Map_Player_1,
          Player_Changed_Observed_Patches,
          Player_Changed_Observed_Pieces,
-         Player_Changed_Observed_Patched_Effects,
-         Player_Changed_Observed_Construction);
+         Player_Changed_Observed_Patched_Effects);
 
       Map_Test2 :=
         Landscape.Pieces_Here_List.Length (Map_Player_1.Map (1, 2).Pieces_Here) = 0 and
@@ -552,8 +549,7 @@ package body TC_Hexagon_Client_Map is
         (Map_Player_1,
          Player_Changed_Observed_Patches,
          Player_Changed_Observed_Pieces,
-         Player_Changed_Observed_Patched_Effects,
-         Player_Changed_Observed_Construction);
+         Player_Changed_Observed_Patched_Effects);
 
       Map_Test3 :=
         Landscape.Pieces_Here_List.Length (Map_Player_1.Map (1, 2).Pieces_Here) = 0 and

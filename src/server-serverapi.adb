@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -33,8 +33,6 @@ package body Server.ServerAPI is
       P_Landscape_Info    : in Landscape.Server.Type_Landscape_Type_Info_List;
       P_Piece_Info : in Piece.Server.Fighting_Piece.Type_Piece_Type_Info_List;
       P_House_Info : in Piece.Server.House_Piece.Type_House_Type_Info_List;
-      P_Construction_Info : in Construction.Server
-        .Type_Construction_Type_Info_List;
       P_Effect_Info : in Effect.Server.Type_Effect_Type_Info_List;
 
       P_Game_Creating,
@@ -57,7 +55,6 @@ package body Server.ServerAPI is
          P_Landscape_Info,
          P_Piece_Info,
          P_House_Info,
-         P_Construction_Info,
          P_Effect_Info,
          P_Game_Creating,
          P_Game_Saving,
@@ -515,89 +512,6 @@ package body Server.ServerAPI is
       end if;
    end Revoke_Patch_Effect;
 
-   procedure Perform_Construction
-     (P_Player_Id        : in     Player.Type_Player_Id;
-      P_Action_Type      : in     Action.Type_Action_Type;
-      P_Piece_Id         : in     Piece.Type_Piece_Id;
-      P_Piece_Pos        : in     Hexagon.Type_Hexagon_Position;
-      P_Construction_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Construction     : in     Construction.Type_Construction;
-      P_Status           :    out Status.Type_Status)
-   is
-      Attempt : Integer := 1;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Construction - enter P_Piece_Pos.A=" &
-            P_Piece_Pos.A'Img &
-            " P_Piece_Pos.B=" &
-            P_Piece_Pos.B'Img &
-            " P_Construction_Pos.A,B=" &
-            P_Construction_Pos.A'Img &
-            "," &
-            P_Construction_Pos.B'Img &
-            " P_Construction=" &
-            P_Construction'Img);
-      end if;
-
-      Server.Piece_Action.Perform_Construction
-        (P_Player_Id,
-         P_Action_Type,
-         P_Piece_Id,
-         P_Construction_Pos,
-         P_Construction,
-         P_Status,
-         Attempt);
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Construction - exit P_Status=" &
-            P_Status'Img);
-      end if;
-   end Perform_Construction;
-
-   procedure Perform_Demolition
-     (P_Player_Id      : in     Player.Type_Player_Id;
-      P_Action_Type    : in     Action.Type_Action_Type;
-      P_Piece_Id       : in     Piece.Type_Piece_Id;
-      P_Piece_Pos      : in     Hexagon.Type_Hexagon_Position;
-      P_Demolition_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Construction   : in     Construction.Type_Construction;
-      P_Status         :    out Status.Type_Status)
-
-   is
-      Attempt : Integer := 1;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Demolition - enter P_Piece_Pos.A=" &
-            P_Piece_Pos.A'Img &
-            " P_Piece_Pos.B=" &
-            P_Piece_Pos.B'Img &
-            " P_Demolition_Pos.A,B=" &
-            P_Demolition_Pos.A'Img &
-            "," &
-            P_Demolition_Pos.B'Img &
-            " P_Demolition_Pos=" &
-            P_Construction'Img);
-      end if;
-
-      Server.Piece_Action.Perform_Demolition
-        (P_Player_Id,
-         P_Action_Type,
-         P_Piece_Id,
-         P_Demolition_Pos,
-         P_Construction,
-         P_Status,
-         Attempt);
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Perform_Demolition - exit P_Status=" &
-            P_Status'Img);
-      end if;
-   end Perform_Demolition;
-
    function Find_Piece_In_List
      (P_Piece_Id : in Piece.Type_Piece_Id) return Type_Piece_Position
    is
@@ -757,29 +671,6 @@ package body Server.ServerAPI is
       end if;
       return A_Patch.all.Landscape_Here;
    end Get_Map_Terrain;
-
-   function Get_Map_Construction_List
-     (P_Pos : in Hexagon.Type_Hexagon_Position)
-      return Construction.Construction_List.Set
-   is
-      A_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
-
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Get_Map_Construction_List - enter");
-      end if;
-
-      A_Patch :=
-        Hexagon.Server_Map.Get_Patch_Adress_From_AB (P_Pos.A, P_Pos.B);
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.ServerAPI.Get_Map_Construction_List - exit");
-      end if;
-
-      return A_Patch.all.Constructions_Here;
-   end Get_Map_Construction_List;
 
    function Get_Map_Pieces_List
      (P_Pos : in Hexagon.Type_Hexagon_Position)

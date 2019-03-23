@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -33,9 +33,7 @@ package Server.Server.Cmd is
       Cmd_Grant_Piece_Effect,
       Cmd_Revoke_Piece_Effect,
       Cmd_Grant_Patch_Effect,
-      Cmd_Revoke_Patch_Effect,
-      Cmd_Perform_Construction,
-      Cmd_Perform_Demolition);
+      Cmd_Revoke_Patch_Effect);
 
    type Type_Create_Piece is record
       Player_Id       : Player.Type_Player_Id;
@@ -123,22 +121,6 @@ package Server.Server.Cmd is
       Area : Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A;
    end record;
 
-   type Type_Perform_Construction is record
-      Player_Id             : Player.Type_Player_Id;
-      Action_Type           : Action.Type_Action_Type;
-      Constructing_Piece_Id : Piece.Type_Piece_Id;
-      Construction_Pos      : Hexagon.Type_Hexagon_Position;
-      Construction_To_Do    : Construction.Type_Construction;
-   end record;
-
-   type Type_Perform_Demolition is record
-      Player_Id           : Player.Type_Player_Id;
-      Action_Type         : Action.Type_Action_Type;
-      Demolition_Piece_Id : Piece.Type_Piece_Id;
-      Demolition_Pos      : Hexagon.Type_Hexagon_Position;
-      Demolition_To_Do    : Construction.Type_Construction;
-   end record;
-
    Max_Attempt : constant Positive :=
      Positive'Last; -- Maximum number of attempts to do this command
    type Type_Cmd (P_Cmd_Type : Type_Cmd_Type) is record
@@ -169,12 +151,6 @@ package Server.Server.Cmd is
 
          when Cmd_Perform_Piece_Effect =>
             Perform_Piece_Effect_Details : Type_Perform_Piece_Effect;
-
-         when Cmd_Perform_Construction =>
-            Perform_Construction_Details : Type_Perform_Construction;
-
-         when Cmd_Perform_Demolition =>
-            Perform_Demolition_Details : Type_Perform_Demolition;
 
          when Cmd_Grant_Piece_Effect =>
             Grant_Piece_Effect_Details : Type_Grant_Piece_Effect;
@@ -255,22 +231,6 @@ package Server.Server.Cmd is
       P_Effect      : in     Effect.Type_Effect;
       P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A);
 --
---
-   procedure Perform_Construction
-     (P_Cmd_List              : in out Cmd_List_Pkg.Vector;
-      P_Player_Id             : in     Player.Type_Player_Id;
-      P_Action_Type           : in     Action.Type_Action_Type;
-      P_Constructing_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Construction_Pos      : in     Hexagon.Type_Hexagon_Position;
-      P_Construction          : in     Construction.Type_Construction);
---
-   procedure Perform_Demolition
-     (P_Cmd_List       : in out Cmd_List_Pkg.Vector;
-      P_Player_Id      : in     Player.Type_Player_Id;
-      P_Action_Type    : in     Action.Type_Action_Type;
-      P_Piece_Id       : in     Piece.Type_Piece_Id;
-      P_Demolition_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Construction   : in     Construction.Type_Construction);
 --
    procedure Grant_Piece_Effect
      (P_Cmd_List    : in out Cmd_List_Pkg.Vector;

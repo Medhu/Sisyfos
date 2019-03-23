@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -67,33 +67,5 @@ package body Piece.Server.House_Piece is
           .Construct_Landscape
           (P_Landscape);
    end Can_Construct_On_Land;
-
-   function Validate_Exisiting_Construction
-     (P_Patch        : in Landscape.Type_Patch;
-      P_Construction : in Construction.Type_Construction) return Boolean
-   is
-      Ret : Boolean := False;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Piece.Server.House_Piece.Validate_Exisiting_Construction - enter");
-      end if;
-
-      if Construction.Construction_List.Has_Element
-          (Construction.Construction_List.Find
-             (P_Patch.Constructions_Here,
-              P_Construction))
-      then
-         Ret := True;
-      end if;
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Piece.Server.House_Piece.Validate_Exisiting_Construction - exit, status=" &
-            Ret'Img);
-      end if;
-
-      return Ret;
-   end Validate_Exisiting_Construction;
 
 end Piece.Server.House_Piece;

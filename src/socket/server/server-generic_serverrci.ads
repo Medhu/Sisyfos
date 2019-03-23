@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 --
 with Hexagon;
 with Hexagon.Area;
+with Hexagon.Server_Navigation;
 with Piece;
 with Player;
 with Utilities;
@@ -27,7 +28,6 @@ with Observation;
 with Effect;
 with GNAT.Sockets;
 with Hexagon.Area.Server_Area;
-with Construction;
 with Action;
 
 generic
@@ -142,7 +142,7 @@ package Server.Generic_ServerRCI is
      (P_Channel     : in     GNAT.Sockets.Stream_Access;
       P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
-      P_Path        :    out Hexagon.Path.Vector;
+      P_Path        :    out Hexagon.Server_Navigation.Path_Pkg.Vector;
       P_Player_Id   :    out Player.Type_Player_Id);
 
    procedure Perform_Patch_Effect_In
@@ -159,24 +159,6 @@ package Server.Generic_ServerRCI is
       P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
       P_Effect      :    out Effect.Type_Effect);
-
-   procedure Perform_Construction_In
-     (P_Channel          : in     GNAT.Sockets.Stream_Access;
-      P_Player_Id        :    out Player.Type_Player_Id;
-      P_Action_Type      :    out Action.Type_Action_Type;
-      P_Piece_Id         :    out Piece.Type_Piece_Id;
-      P_Construction_Pos :    out Hexagon.Type_Hexagon_Position;
-      P_Construction     :    out Construction.Type_Construction
-      );
-
-   procedure Perform_Demolition_In
-     (P_Channel          : in     GNAT.Sockets.Stream_Access;
-      P_Player_Id        :    out Player.Type_Player_Id;
-      P_Action_Type      :    out Action.Type_Action_Type;
-      P_Piece_Id         :    out Piece.Type_Piece_Id;
-      P_Construction_Pos :    out Hexagon.Type_Hexagon_Position;
-      P_Construction     :    out Construction.Type_Construction
-      );
 
    procedure Grant_Piece_Effect_In
      (P_Channel     : in     GNAT.Sockets.Stream_Access;

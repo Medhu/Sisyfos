@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
 
 with Text_IO;
 with Ada.Streams;
-with Landscape.Server;
 with Ada.Streams.Stream_IO; use Ada.Streams.Stream_IO;
 with Text_IO;
 with Ada.Strings.Unbounded;
@@ -89,7 +88,7 @@ package body Hexagon.Server_Map is
       end if;
    end Numerate;
 
-   procedure Init is
+   procedure Init (P_Map : in out Hexagon.Server_Map.Type_Server_Map) is
    begin
       if Verbose then
          Text_IO.Put_Line ("Hexagon_Server_Map.Init - enter");
@@ -97,68 +96,68 @@ package body Hexagon.Server_Map is
 
       -- Set up map
       --
-      for ArrayX in A_Map'First (1) .. A_Map'Last (1) loop -- Horisontal
-         for ArrayY in A_Map'First (2) .. A_Map'Last (2) loop -- Vertical
-            A_Map (ArrayX, ArrayY) := new Type_Server_Patch'(Hexagon.Server_Map.Empty);
+      for ArrayX in P_Map'First (1) .. P_Map'Last (1) loop -- Horisontal
+         for ArrayY in P_Map'First (2) .. P_Map'Last (2) loop -- Vertical
+            P_Map (ArrayX, ArrayY) := new Type_Server_Patch'(Hexagon.Server_Map.Empty);
 
-            A_Map (ArrayX, ArrayY).Pieces_Here := Landscape.Pieces_Here_List.Empty_Vector;
+            P_Map (ArrayX, ArrayY).Pieces_Here := Landscape.Pieces_Here_List.Empty_Vector;
 
          end loop;
       end loop;
 
-      for ArrayX in A_Map'First (1) .. A_Map'Last (1) loop -- Horisontal
-         for ArrayY in A_Map'First (2) .. A_Map'Last (2) loop -- Vertical
+      for ArrayX in P_Map'First (1) .. P_Map'Last (1) loop -- Horisontal
+         for ArrayY in P_Map'First (2) .. P_Map'Last (2) loop -- Vertical
             --
             begin
-               A_Map (ArrayX, ArrayY).Neighbours (1) := (A_Map (ArrayX + 1, ArrayY + 0));
+               P_Map (ArrayX, ArrayY).Neighbours (1) := (P_Map (ArrayX + 1, ArrayY + 0));
             exception
                when others =>
-                  A_Map (ArrayX, ArrayY).Neighbours (1) := null;
+                  P_Map (ArrayX, ArrayY).Neighbours (1) := null;
             end;
 
             begin
-               A_Map (ArrayX, ArrayY).Neighbours (2) := (A_Map (ArrayX + 1, ArrayY - 1));
+               P_Map (ArrayX, ArrayY).Neighbours (2) := (P_Map (ArrayX + 1, ArrayY - 1));
             exception
                when others =>
-                  A_Map (ArrayX, ArrayY).Neighbours (2) := null;
+                  P_Map (ArrayX, ArrayY).Neighbours (2) := null;
             end;
 
             begin
-               A_Map (ArrayX, ArrayY).Neighbours (3) := (A_Map (ArrayX + 0, ArrayY - 1));
+               P_Map (ArrayX, ArrayY).Neighbours (3) := (P_Map (ArrayX + 0, ArrayY - 1));
             exception
                when others =>
-                  A_Map (ArrayX, ArrayY).Neighbours (3) := null;
+                  P_Map (ArrayX, ArrayY).Neighbours (3) := null;
             end;
 
             begin
-               A_Map (ArrayX, ArrayY).Neighbours (4) := (A_Map (ArrayX - 1, ArrayY + 0));
+               P_Map (ArrayX, ArrayY).Neighbours (4) := (P_Map (ArrayX - 1, ArrayY + 0));
             exception
                when others =>
-                  A_Map (ArrayX, ArrayY).Neighbours (4) := null;
+                  P_Map (ArrayX, ArrayY).Neighbours (4) := null;
             end;
 
             begin
-               A_Map (ArrayX, ArrayY).Neighbours (5) := (A_Map (ArrayX - 1, ArrayY + 1));
+               P_Map (ArrayX, ArrayY).Neighbours (5) := (P_Map (ArrayX - 1, ArrayY + 1));
             exception
                when others =>
-                  A_Map (ArrayX, ArrayY).Neighbours (5) := null;
+                  P_Map (ArrayX, ArrayY).Neighbours (5) := null;
             end;
 
             begin
-               A_Map (ArrayX, ArrayY).Neighbours (6) := (A_Map (ArrayX + 0, ArrayY + 1));
+               P_Map (ArrayX, ArrayY).Neighbours (6) := (P_Map (ArrayX + 0, ArrayY + 1));
             exception
                when others =>
-                  A_Map (ArrayX, ArrayY).Neighbours (6) := null;
+                  P_Map (ArrayX, ArrayY).Neighbours (6) := null;
             end;
 
             --
-            A_Map (ArrayX, ArrayY).all.Pos :=
+            P_Map (ArrayX, ArrayY).all.Pos :=
               Type_Hexagon_Position'
                 (True, Type_Hexagon_Numbers (ArrayX), Type_Hexagon_Numbers (ArrayY));
          end loop;
       end loop;
 
-      Numerate (A_Map (1, 1).all, 1, 1);
+      Numerate (P_Map (1, 1).all, 1, 1);
 
       if Verbose then
          Text_IO.Put_Line ("Hexagon.Server_Map.Init - exit");
@@ -194,28 +193,6 @@ package body Hexagon.Server_Map is
       return Next;
 
    end Get_Patch_Adress_From_AB;
-
-   function Trav_Axis
-     (P_Patch : in Hexagon.Server_Map.Type_Server_Patch;
-      P_Axis  : in Integer) return Hexagon.Server_Map.Type_Server_Patch_Adress
-   is
-      Axis_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress := null;
-      Found      : Boolean;
-
-      use Hexagon.Server_Map;
-   begin
-      Found      := False;
-      Axis_Patch := P_Patch.Neighbours (P_Axis);
-      while Axis_Patch /= null and not Found loop
-         if Landscape.Server.Is_Patch_Empty (Landscape.Type_Patch(Axis_Patch.all)) then
-            Axis_Patch := Axis_Patch.all.Neighbours (P_Axis);
-         else
-            Found := True;
-         end if;
-      end loop;
-
-      return Axis_Patch; -- returns null when nothing has been found
-   end Trav_Axis;
 
    procedure Reset_Visit is
    begin
@@ -296,7 +273,8 @@ package body Hexagon.Server_Map is
       end if;
    end Get_Map;
 
-   procedure Load_Map (P_Filename : in Ada.Strings.Unbounded.Unbounded_String) is
+   procedure Load_Map (P_Filename : in Ada.Strings.Unbounded.Unbounded_String;
+                      P_Map : in out Hexagon.Server_Map.Type_Server_Map) is
       Read_File   : Ada.Streams.Stream_IO.File_Type;
       Inn_Stream  : Stream_Access;
       A_Landscape : Landscape.Type_Landscape;
@@ -311,12 +289,12 @@ package body Hexagon.Server_Map is
 
       Inn_Stream := Ada.Streams.Stream_IO.Stream (Read_File);
 
-      for Trav_X in A_Map'First (1) .. A_Map'Last (1) loop
-         for Trav_Y in A_Map'First (2) .. A_Map'Last (2) loop
+      for Trav_X in P_Map'First (1) .. P_Map'Last (1) loop
+         for Trav_Y in P_Map'First (2) .. P_Map'Last (2) loop
 
             Landscape.Type_Landscape'Read (Ada.Streams.Stream_IO.Stream (Read_File), A_Landscape);
 
-            A_Map (Trav_X, Trav_Y).Landscape_Here := A_Landscape;
+            P_Map (Trav_X, Trav_Y).Landscape_Here := A_Landscape;
 
          end loop;
       end loop;
@@ -328,7 +306,8 @@ package body Hexagon.Server_Map is
       end if;
    end Load_Map;
 
-   procedure Save_Map (P_Filename : in Ada.Strings.Unbounded.Unbounded_String) is
+   procedure Save_Map (P_Filename : in Ada.Strings.Unbounded.Unbounded_String;
+                      P_Map : in Hexagon.Server_Map.Type_Server_Map) is
       Write_File : Ada.Streams.Stream_IO.File_Type;
       Out_Stream : Stream_Access;
 
@@ -363,7 +342,6 @@ package body Hexagon.Server_Map is
       Write_File        : Ada.Streams.Stream_IO.File_Type;
       Out_Stream        : Stream_Access;
       Trav_Piece        : Landscape.Pieces_Here_List.Cursor;
-      Trav_Construction : Construction.Construction_List.Cursor;
 
    begin
       if Verbose then
@@ -398,17 +376,6 @@ package body Hexagon.Server_Map is
                  (Ada.Streams.Stream_IO.Stream (Write_File),
                   " Id=" & Landscape.Pieces_Here_List.Element (Trav_Piece)'Img & "-");
                Trav_Piece := Landscape.Pieces_Here_List.Next (Trav_Piece);
-            end loop;
-
-            String'Write (Ada.Streams.Stream_IO.Stream (Write_File), " ");
-
-            Trav_Construction :=
-              Construction.Construction_List.First (A_Map (Trav_X, Trav_Y).all.Constructions_Here);
-            while Construction.Construction_List.Has_Element (Trav_Construction) loop
-               String'Write
-                 (Ada.Streams.Stream_IO.Stream (Write_File),
-                  "" & Construction.Construction_List.Element (Trav_Construction)'Img & "-");
-               Trav_Construction := Construction.Construction_List.Next (Trav_Construction);
             end loop;
 
             String'Write (Ada.Streams.Stream_IO.Stream (Write_File), "    </td>");

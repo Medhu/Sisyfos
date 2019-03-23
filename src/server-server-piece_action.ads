@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -89,24 +89,6 @@ package Server.Server.Piece_Action is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece_Id           : in     Piece.Type_Piece_Id;
       P_Effect             : in     Effect.Type_Effect;
-      P_Status             :    out Status.Type_Status;
-      P_Attempts_Remaining : in out Integer);
-
-   procedure Perform_Construction
-     (P_Player_Id          : in     Player.Type_Player_Id;
-      P_Action_Type        : in     Action.Type_Action_Type;
-      P_Piece_Id           : in     Piece.Type_Piece_Id;
-      P_Construction_Pos   : in     Hexagon.Type_Hexagon_Position;
-      P_Construction       : in     Construction.Type_Construction;
-      P_Status             :    out Status.Type_Status;
-      P_Attempts_Remaining : in out Integer);
-
-   procedure Perform_Demolition
-     (P_Player_Id          : in     Player.Type_Player_Id;
-      P_Action_Type        : in     Action.Type_Action_Type;
-      P_Piece_Id           : in     Piece.Type_Piece_Id;
-      P_Demolition_Pos     : in     Hexagon.Type_Hexagon_Position;
-      P_Construction       : in     Construction.Type_Construction;
       P_Status             :    out Status.Type_Status;
       P_Attempts_Remaining : in out Integer);
 

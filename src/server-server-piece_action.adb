@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 with Hexagon.Server_Map;
 with Text_IO;
-with Hexagon.Utility;
+with Hexagon.Server_Navigation;
 
 package body Server.Server.Piece_Action is
 
@@ -394,67 +394,6 @@ package body Server.Server.Piece_Action is
                      -- This may cause commands never to complete
                      raise Attempts_Remaining_Not_Updated
                        with "Server.Piece_Action.Revoke_Patch_Effect not changing 'Attempts_Remaining'.";
-                  end if;
-
-               end;
-
-               Server.Observe_Game (1);
-            end if;
-         elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Perform_Construction then
-            if A_Cmd.all.Attempts_Remaining > 0 then
-               A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
-
-               declare
-                  Attempts_Remaining_Before_Call : Integer :=
-                    A_Cmd.all.Attempts_Remaining;
-               begin
-
-                  Server.Piece_Action.Perform_Construction
-                    (A_Cmd.all.Perform_Construction_Details.Player_Id,
-                     A_Cmd.all.Perform_Construction_Details.Action_Type,
-                     A_Cmd.all.Perform_Construction_Details
-                       .Constructing_Piece_Id,
-                     A_Cmd.all.Perform_Construction_Details.Construction_Pos,
-                     A_Cmd.all.Perform_Construction_Details.Construction_To_Do,
-                     Ret_Status,
-                     A_Cmd.all.Attempts_Remaining);
-
-                  if Attempts_Remaining_Before_Call =
-                    A_Cmd.all.Attempts_Remaining
-                  then
-                     -- This may cause commands never to complete
-                     raise Attempts_Remaining_Not_Updated
-                       with "Server.Piece_Action.Perform_Construction not changing 'Attempts_Remaining'.";
-                  end if;
-
-               end;
-
-               Server.Observe_Game (1);
-            end if;
-         elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Perform_Demolition then
-            if A_Cmd.all.Attempts_Remaining > 0 then
-               A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
-
-               declare
-                  Attempts_Remaining_Before_Call : Integer :=
-                    A_Cmd.all.Attempts_Remaining;
-               begin
-
-                  Server.Piece_Action.Perform_Demolition
-                    (A_Cmd.all.Perform_Demolition_Details.Player_Id,
-                     A_Cmd.all.Perform_Demolition_Details.Action_Type,
-                     A_Cmd.all.Perform_Demolition_Details.Demolition_Piece_Id,
-                     A_Cmd.all.Perform_Demolition_Details.Demolition_Pos,
-                     A_Cmd.all.Perform_Demolition_Details.Demolition_To_Do,
-                     Ret_Status,
-                     A_Cmd.all.Attempts_Remaining);
-
-                  if Attempts_Remaining_Before_Call =
-                    A_Cmd.all.Attempts_Remaining
-                  then
-                     -- This may cause commands never to complete
-                     raise Attempts_Remaining_Not_Updated
-                       with "Server.Piece_Action.Perform_Demolition not changing 'Attempts_Remaining'.";
                   end if;
 
                end;
@@ -1229,8 +1168,8 @@ package body Server.Server.Piece_Action is
 
       A_To_Pos, A_From_Pos : Hexagon.Type_Hexagon_Position;
 
-      Move_Path        : Hexagon.Path.Vector;
-      Next_Path_Cursor : Hexagon.Path.Cursor;
+      Move_Path        : Hexagon.Server_Navigation.Path_Pkg.Vector;
+      Next_Path_Cursor : Hexagon.Server_Navigation.Path_Pkg.Cursor;
       Result_Status    : Status.Type_Result_Status;
 
       use Piece.Server;
@@ -1283,9 +1222,12 @@ package body Server.Server.Piece_Action is
               A_From_Pos.B);
 
          if P_Status = Status.Ok then
-            Hexagon.Utility.Find_Path
-              (P_Player_Id,
-               A_Moving_Piece_Position.Actual_Piece.all.Type_Of_Piece,
+            Hexagon.Server_Navigation.Find_Path
+              (Hexagon.Server_Navigation.Get_Navigation
+                 (Hexagon.Server_Navigation.A_Navigation_List, 1).all,
+               P_Player_Id,
+               P_Action_Type,
+               Piece.Server.Fighting_Piece.Type_Piece(A_Moving_Piece_Position.Actual_Piece.all),
                A_From_Pos,
                P_End_Pos,
                P_Status,
@@ -1295,10 +1237,10 @@ package body Server.Server.Piece_Action is
 
          if P_Status = Status.Ok then
             -- next patch in the current path
-            Next_Path_Cursor := Hexagon.Path.First (Move_Path);
-            Next_Path_Cursor := Hexagon.Path.Next (Next_Path_Cursor);
+            Next_Path_Cursor := Hexagon.Server_Navigation.Path_Pkg.First (Move_Path);
+            Next_Path_Cursor := Hexagon.Server_Navigation.Path_Pkg.Next (Next_Path_Cursor);
 
-            A_To_Pos         := Hexagon.Path.Element (Next_Path_Cursor);
+            A_To_Pos         := Hexagon.Server_Navigation.Path_Pkg.Element (Next_Path_Cursor).all.Pos;
             A_To_Patch       :=
               Hexagon.Server_Map.Get_Patch_Adress_From_AB
                 (A_To_Pos.A,
@@ -1333,7 +1275,7 @@ package body Server.Server.Piece_Action is
                P_Status := Status.Completed_Ok;
             end if;
 
-            Hexagon.Path.Clear (Move_Path);
+            Hexagon.Server_Navigation.Path_Pkg.Clear (Move_Path);
          end if;
 
          Piece.Server.Fighting_Piece.End_Perform_Move
@@ -2073,312 +2015,5 @@ package body Server.Server.Piece_Action is
             P_Attempts_Remaining'Img);
          raise;
    end Revoke_Patch_Effect;
-
-   procedure Perform_Construction
-     (P_Player_Id          : in     Player.Type_Player_Id;
-      P_Action_Type        : in     Action.Type_Action_Type;
-      P_Piece_Id           : in     Piece.Type_Piece_Id;
-      P_Construction_Pos   : in     Hexagon.Type_Hexagon_Position;
-      P_Construction       : in     Construction.Type_Construction;
-      P_Status             :    out Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
-   is
-      A_Construction_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
-      A_Piece_Position     : Piece.Server.Type_Piece_Position;
-
-      Result_Status : Status.Type_Result_Status;
-
-      use Piece.Server;
-      use Status;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.Server.Piece_Action.Perform_Construction - enter P_Piece_Id=" &
-            P_Piece_Id'Img &
-            " P_Construction=" &
-            P_Construction'Img);
-      end if;
-
-      begin
-         A_Piece_Position := Piece.Server.Find_Piece_In_List (P_Piece_Id);
-      exception
-         when Piece.Server.Piece_Not_Found_Piece_Position =>
-            A_Piece_Position.Actual_Piece := null;
-            A_Piece_Position.Actual_Pos   :=
-              Hexagon.Type_Hexagon_Position'(P_Valid => False);
-      end;
-
-      P_Status := Status.Ok;
-
-      if A_Piece_Position.Actual_Piece = null then
-         P_Attempts_Remaining := 0;
-
-         Server.Player_Activity_Report_Append
-           (1,
-            P_Player_Id,
-            Utilities.RemoteString.To_Unbounded_String
-              ("Perform Construction Piece Id:" &
-               P_Piece_Id'Img &
-               " not valid. Command will be cancelled."));
-      elsif not A_Piece_Position.Actual_Pos.P_Valid then
-         P_Attempts_Remaining := 0;
-
-         Server.Player_Activity_Report_Append
-           (1,
-            P_Player_Id,
-            Utilities.RemoteString.To_Unbounded_String
-              ("Perform Construction Piece Position not valid. Command will be cancelled."));
-      elsif not P_Construction_Pos.P_Valid then
-         P_Attempts_Remaining := 0;
-
-         Server.Player_Activity_Report_Append
-           (1,
-            P_Player_Id,
-            Utilities.RemoteString.To_Unbounded_String
-              ("Perform Construction Construction Position not valid. Command will be cancelled."));
-      else
-         A_Construction_Patch :=
-           Hexagon.Server_Map.Get_Patch_Adress_From_AB
-             (P_Construction_Pos.A,
-              P_Construction_Pos.B);
-
-         if not Piece.Server.Patch_Belongs_To_Player
-             (Landscape.Type_Patch (A_Construction_Patch.all),
-              P_Player_Id)
-         then
-            P_Status := Status.Target_Patch_Occupied;
-
-         elsif Piece.Server.House_Piece.Validate_Exisiting_Construction
-             (Landscape.Type_Patch (A_Construction_Patch.all),
-              P_Construction)
-         then
-            P_Status := Status.Construction_Exists;
-
-         end if;
-
-         if P_Status = Status.Ok then
-            Piece.Server.House_Piece.Before_Perform_Construction
-              (P_Player_Id,
-               P_Action_Type,
-               Piece.Server.House_Piece.Type_House'Class
-                 (A_Piece_Position.Actual_Piece.all),
-               P_Construction_Pos,
-               P_Construction,
-               Result_Status);
-
-            if Result_Status /= Status.Proceed then
-               P_Status := Status.Not_Before_Perform_Construction;
-            end if;
-         end if;
-
-         if P_Status = Status.Ok then
-
-            Construction.Construction_List.Include
-              (A_Construction_Patch.all.Constructions_Here,
-               P_Construction);
-
-         end if;
-
-         Piece.Server.House_Piece.End_Perform_Construction
-           (P_Player_Id,
-            P_Action_Type,
-            Piece.Server.House_Piece.Type_House'Class
-              (A_Piece_Position.Actual_Piece.all),
-            P_Construction_Pos,
-            P_Construction,
-            P_Status,
-            P_Attempts_Remaining);
-
-      end if;
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.Server.Piece_Action.Perform_Construction - exit P_Status=" &
-            P_Status'Img);
-      end if;
-   exception
-      when others =>
-         Text_IO.Put_Line
-           (Text_IO.Current_Error,
-            "Server.Server.Piece_Action.Perform_Construction - Exception:");
-         Text_IO.Put
-           (Text_IO.Current_Error,
-            "Player_Id:" &
-            P_Player_Id'Img &
-            " P_Action_Type:" &
-            P_Action_Type'Img &
-            " P_Construction_Piece:" &
-            P_Piece_Id'Img);
-         if P_Construction_Pos.P_Valid then
-            Text_IO.Put
-              (Text_IO.Current_Error,
-               " P_Construction_Pos:" &
-               P_Construction_Pos.A'Img &
-               ", " &
-               P_Construction_Pos.B'Img);
-         else
-            Text_IO.Put (Text_IO.Current_Error, " P_Construction_Pos:Invalid");
-         end if;
-         Text_IO.Put_Line
-           (Text_IO.Current_Error,
-            " P_Construction:" &
-            P_Construction'Img &
-            " P_Attempts_Remaining:" &
-            P_Attempts_Remaining'Img);
-         raise;
-   end Perform_Construction;
-
-   procedure Perform_Demolition
-     (P_Player_Id          : in     Player.Type_Player_Id;
-      P_Action_Type        : in     Action.Type_Action_Type;
-      P_Piece_Id           : in     Piece.Type_Piece_Id;
-      P_Demolition_Pos     : in     Hexagon.Type_Hexagon_Position;
-      P_Construction       : in     Construction.Type_Construction;
-      P_Status             :    out Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
-
-   is
-      A_Piece_Position   : Piece.Server.Type_Piece_Position;
-      A_Demolition_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
-
-      Result_Status : Status.Type_Result_Status;
-
-      use Piece.Server;
-      use Status;
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.Server.Piece_Action.Perform_Demolition - enter P_Piece_Id=" &
-            P_Piece_Id'Img &
-            " P_Demolition=" &
-            P_Construction'Img);
-      end if;
-
-      P_Status := Status.Ok;
-
-      begin
-         A_Piece_Position := Piece.Server.Find_Piece_In_List (P_Piece_Id);
-      exception
-         when Piece.Server.Piece_Not_Found_Piece_Position =>
-            A_Piece_Position.Actual_Piece := null;
-            A_Piece_Position.Actual_Pos   :=
-              Hexagon.Type_Hexagon_Position'(P_Valid => False);
-      end;
-
-      if A_Piece_Position.Actual_Piece = null then
-         P_Attempts_Remaining := 0;
-
-         Server.Player_Activity_Report_Append
-           (1,
-            P_Player_Id,
-            Utilities.RemoteString.To_Unbounded_String
-              ("Perform Demolition Piece Id:" &
-               P_Piece_Id'Img &
-               " not valid. Command will be cancelled."));
-      elsif not A_Piece_Position.Actual_Pos.P_Valid then
-         P_Attempts_Remaining := 0;
-
-         Server.Player_Activity_Report_Append
-           (1,
-            P_Player_Id,
-            Utilities.RemoteString.To_Unbounded_String
-              ("Perform Demolition Piece Position not valid. Command will be cancelled."));
-      elsif not P_Demolition_Pos.P_Valid then
-         P_Attempts_Remaining := 0;
-
-         Server.Player_Activity_Report_Append
-           (1,
-            P_Player_Id,
-            Utilities.RemoteString.To_Unbounded_String
-              ("Perform Demolition Construction Position not valid. Command will be cancelled."));
-      else
-         A_Demolition_Patch :=
-           Hexagon.Server_Map.Get_Patch_Adress_From_AB
-             (P_Demolition_Pos.A,
-              P_Demolition_Pos.B);
-
-         if not Piece.Server.Patch_Belongs_To_Player
-             (Landscape.Type_Patch (A_Demolition_Patch.all),
-              P_Player_Id)
-         then
-            P_Status := Status.Target_Patch_Occupied;
-
-         elsif not Piece.Server.House_Piece.Validate_Exisiting_Construction
-             (Landscape.Type_Patch (A_Demolition_Patch.all),
-              P_Construction)
-         then
-            P_Status := Status.Construction_Doesnt_Exist;
-         end if;
-
-         if P_Status = Status.Ok then
-            Piece.Server.House_Piece.Before_Perform_Demolition
-              (P_Player_Id,
-               P_Action_Type,
-               Piece.Server.House_Piece.Type_House'Class
-                 (A_Piece_Position.Actual_Piece.all),
-               P_Demolition_Pos,
-               P_Construction,
-               Result_Status);
-
-            if Result_Status /= Status.Proceed then
-               P_Status := Status.Not_Before_Perform_Demolition;
-            end if;
-         end if;
-
-         if P_Status = Status.Ok then
-
-            Construction.Construction_List.Exclude
-              (A_Demolition_Patch.all.Constructions_Here,
-               P_Construction);
-         end if;
-
-         Piece.Server.House_Piece.End_Perform_Demolition
-           (P_Player_Id,
-            P_Action_Type,
-            Piece.Server.House_Piece.Type_House'Class
-              (A_Piece_Position.Actual_Piece.all),
-            P_Demolition_Pos,
-            P_Construction,
-            P_Status,
-            P_Attempts_Remaining);
-
-      end if;
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.Server.Piece_Action.Perform_Demolition - exit P_Status=" &
-            P_Status'Img);
-      end if;
-   exception
-      when others =>
-         Text_IO.Put_Line
-           (Text_IO.Current_Error,
-            "Server.Server.Piece_Action.Perform_Demolition - Exception:");
-         Text_IO.Put
-           (Text_IO.Current_Error,
-            "Player_Id:" &
-            P_Player_Id'Img &
-            " P_Action_Type:" &
-            P_Action_Type'Img &
-            " P_Piece:" &
-            P_Piece_Id'Img);
-         if P_Demolition_Pos.P_Valid then
-            Text_IO.Put
-              (Text_IO.Current_Error,
-               " P_Demolition_Pos:" &
-               P_Demolition_Pos.A'Img &
-               ", " &
-               P_Demolition_Pos.B'Img);
-         else
-            Text_IO.Put (Text_IO.Current_Error, " P_Demolition_Pos:Invalid");
-         end if;
-         Text_IO.Put_Line
-           (Text_IO.Current_Error,
-            " P_Construction:" &
-            P_Construction'Img &
-            " P_Attempts_Remaining:" &
-            P_Attempts_Remaining'Img);
-         raise;
-   end Perform_Demolition;
 
 end Server.Server.Piece_Action;

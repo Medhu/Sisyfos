@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -370,60 +370,6 @@ package body Client.ClientRPC is
          Text_IO.Put_Line ("Client.ClientRPC.Perform_Piece_Effect - exit");
       end if;
    end Perform_Piece_Effect;
-
-   procedure Perform_Construction
-     (P_Player_Id             : in     Player.Type_Player_Id;
-      P_Action_Type           : in     Action.Type_Action_Type;
-      P_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Construction_Pos      : in     Hexagon.Type_Hexagon_Position;
-      P_Construction          : in     Construction.Type_Construction)
-   is
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Client.ClientRPC.Perform_Construction - enter");
-      end if;
-
-      Game_RPC.Type_RPC'Output (Channel, Game_RPC.Perform_Construction_Start);
-
-      Player.Type_Player_Id'Output (Channel, P_Player_Id);
-      Action.Type_Action_Type'Output (Channel, P_Action_Type);
-      Piece.Type_Piece_Id'Output (Channel, P_Piece_Id);
-      Hexagon.Type_Hexagon_Position'Output (Channel, P_Construction_Pos);
-      Construction.Type_Construction'Output (Channel, P_Construction);
-
-      Game_RPC.Type_RPC'Output (Channel, Game_RPC.Perform_Construction_End);
-
-      if Verbose then
-         Text_IO.Put_Line ("Client.ClientRPC.Perform_Construction - exit");
-      end if;
-   end Perform_Construction;
-
-   procedure Perform_Demolition
-     (P_Player_Id             : in     Player.Type_Player_Id;
-      P_Action_Type           : in     Action.Type_Action_Type;
-      P_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Demolition_Pos      : in     Hexagon.Type_Hexagon_Position;
-      P_Construction          : in     Construction.Type_Construction)
-   is
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Client.ClientRPC.Perform_Demolition - enter");
-      end if;
-
-      Game_RPC.Type_RPC'Output (Channel, Game_RPC.Perform_Demolition_Start);
-
-      Player.Type_Player_Id'Output (Channel, P_Player_Id);
-      Action.Type_Action_Type'Output (Channel, P_Action_Type);
-      Piece.Type_Piece_Id'Output (Channel, P_Piece_Id);
-      Hexagon.Type_Hexagon_Position'Output (Channel, P_Demolition_Pos);
-      Construction.Type_Construction'Output (Channel, P_Construction);
-
-      Game_RPC.Type_RPC'Output (Channel, Game_RPC.Perform_Demolition_End);
-
-      if Verbose then
-         Text_IO.Put_Line ("Client.ClientRPC.Perform_Demolition - exit");
-      end if;
-   end Perform_Demolition;
 
    procedure Grant_Piece_Effect
      (P_Player_Id   : in     Player.Type_Player_Id;

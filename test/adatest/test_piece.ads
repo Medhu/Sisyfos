@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2017  Frank J Jorgensen
+--      Copyright (C) 2013-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -26,10 +26,8 @@ with Hexagon.Area.Server_Area;
 with Hexagon.Server_Map;
 with Utilities;
 with Status;
-with Construction;
 with Effect;
 with Landscape.Server;
-with Construction.Server;
 with Effect.Server;
 with Piece.Client_Piece;
 with Action;
@@ -596,60 +594,6 @@ package Test_Piece is
       P_Attempts_Remaining : in out Integer);
 
    --
-   -- Perform_Construction
-   --
-   function Validate_Perform_Construction
-     (P_Player_Id          : in Player.Type_Player_Id;
-      P_Action_Type        : in Action.Type_Action_Type;
-      P_Construction_Piece : in Test_Piece.Type_My_Test_House;
-      P_Construction_Pos   : in Hexagon.Type_Hexagon_Position;
-      P_Construction       : in Construction.Type_Construction) return Boolean;
-
-   procedure Before_Perform_Construction
-     (P_Player_Id          : in     Player.Type_Player_Id;
-      P_Action_Type        : in     Action.Type_Action_Type;
-      P_Construction_Piece : in out Test_Piece.Type_My_Test_House;
-      P_Construction_Pos   : in     Hexagon.Type_Hexagon_Position;
-      P_Construction       : in     Construction.Type_Construction;
-      P_Result             :    out Status.Type_Result_Status);
-
-   procedure End_Perform_Construction
-     (P_Player_Id          : in     Player.Type_Player_Id;
-      P_Action_Type        : in     Action.Type_Action_Type;
-      P_Construction_Piece : in out Test_Piece.Type_My_Test_House;
-      P_Construction_Pos   : in     Hexagon.Type_Hexagon_Position;
-      P_Construction       : in     Construction.Type_Construction;
-      P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer);
-
-   --
-   -- Perform_Demolition
-   --
-   function Validate_Perform_Demolition
-     (P_Player_Id        : in Player.Type_Player_Id;
-      P_Action_Type      : in Action.Type_Action_Type;
-      P_Demolition_Piece : in Test_Piece.Type_My_Test_House;
-      P_Demolition_Pos   : in Hexagon.Type_Hexagon_Position;
-      P_Construction     : in Construction.Type_Construction) return Boolean;
-
-   procedure Before_Perform_Demolition
-     (P_Player_Id        : in     Player.Type_Player_Id;
-      P_Action_Type      : in     Action.Type_Action_Type;
-      P_Demolition_Piece : in out Test_Piece.Type_My_Test_House;
-      P_Demolition_Pos   : in     Hexagon.Type_Hexagon_Position;
-      P_Construction     : in     Construction.Type_Construction;
-      P_Result           :    out Status.Type_Result_Status);
-
-   procedure End_Perform_Demolition
-     (P_Player_Id          : in     Player.Type_Player_Id;
-      P_Action_Type        : in     Action.Type_Action_Type;
-      P_Demolition_Piece   : in out Test_Piece.Type_My_Test_House;
-      P_Demolition_Pos     : in     Hexagon.Type_Hexagon_Position;
-      P_Construction       : in     Construction.Type_Construction;
-      P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer);
-
-   --
    function Observation_Area
      (P_Piece : in Type_My_Test_Piece)
       return Hexagon.Area.Server_Area.Type_Action_Capabilities_Access;
@@ -666,6 +610,13 @@ package Test_Piece is
    procedure Upkeep
      (P_Patch : in out Hexagon.Server_Map.Type_Server_Patch;
       P_House : in out Type_My_Test_House);
+
+   function Movement_Cost
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece       : in out Test_Piece.Type_My_Test_Piece;
+      P_From_Patch  : in out Landscape.Type_Patch;
+      P_To_Patch    : in out Landscape.Type_Patch) return Integer;
 
    Sentry_Piece      : constant Piece.Type_Piece_Type := 1;
    Knight_Piece      : constant Piece.Type_Piece_Type := 2;
@@ -737,13 +688,6 @@ package Test_Piece is
       Effect_Path =>
         Effect.Server.Type_Effect_Type_Info'
           (Type_Name => Utilities.RemoteString.To_Unbounded_String ("Path")));
-
-   Construction_Wall1 : constant Construction.Type_Construction := 1;
-   Construction_Wall2 : constant Construction.Type_Construction := 2;
-   Construction_Wall3 : constant Construction.Type_Construction := 3;
-   Construction_Wall4 : constant Construction.Type_Construction := 4;
-   Construction_Wall5 : constant Construction.Type_Construction := 5;
-   Construction_Wall6 : constant Construction.Type_Construction := 6;
 
    procedure Test_Creating_Game
      (P_File_Name     : in Utilities.RemoteString.Type_String;
@@ -832,29 +776,4 @@ package Test_Piece is
            Category            => Piece.House_Piece,
            Construct_Landscape => House_Construct_Landscape_Array));
 
-   Construction_Type_Info_List : Construction.Server.Type_Construction_Type_Info_List :=
-     (Construction.Server.Type_Construction_Type_Info'
-        (Type_Name                 => Utilities.RemoteString.To_Unbounded_String ("Wall1"),
-         Blocking_Neighbour_Number =>
-           Construction.Server.Type_Way_List'(True, False, False, False, False, False)),
-      Construction.Server.Type_Construction_Type_Info'
-        (Type_Name                 => Utilities.RemoteString.To_Unbounded_String ("Wall2"),
-         Blocking_Neighbour_Number =>
-           Construction.Server.Type_Way_List'(False, True, False, False, False, False)),
-      Construction.Server.Type_Construction_Type_Info'
-        (Type_Name                 => Utilities.RemoteString.To_Unbounded_String ("Wall3"),
-         Blocking_Neighbour_Number =>
-           Construction.Server.Type_Way_List'(False, False, True, False, False, False)),
-      Construction.Server.Type_Construction_Type_Info'
-        (Type_Name                 => Utilities.RemoteString.To_Unbounded_String ("Wall4"),
-         Blocking_Neighbour_Number =>
-           Construction.Server.Type_Way_List'(False, False, False, True, False, False)),
-      Construction.Server.Type_Construction_Type_Info'
-        (Type_Name                 => Utilities.RemoteString.To_Unbounded_String ("Wall5"),
-         Blocking_Neighbour_Number =>
-           Construction.Server.Type_Way_List'(False, False, False, False, True, False)),
-      Construction.Server.Type_Construction_Type_Info'
-        (Type_Name                 => Utilities.RemoteString.To_Unbounded_String ("Wall6"),
-         Blocking_Neighbour_Number =>
-           Construction.Server.Type_Way_List'(False, False, False, False, False, True)));
 end Test_Piece;

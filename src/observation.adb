@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -709,138 +709,6 @@ package body Observation is
 
    end Observation_Of_Patches_Effects;
 
-   package body Observation_Of_Construction is
-
-      function Left_Less_Construction (Left, Right : in Type_Patch_Construction) return Boolean is
-         use Hexagon;
-      begin
-         return Integer (Left.Pos.A) * 1000000 +
-           Integer (Left.Pos.B) * 10000 +
-           Positive (Left.Construction_Info) * 100 <
-           Integer (Right.Pos.A) * 1000000 +
-             Integer (Right.Pos.B) * 10000 +
-             Positive (Right.Construction_Info) * 100;
-      end Left_Less_Construction;
-
-      function Equal_Construction (Left, Right : in Type_Patch_Construction) return Boolean is
-      begin
-         return Left = Right;
-      end Equal_Construction;
-
-      procedure Print_Patches_Construction
-        (P_Player_Patches : in Observations_Of_Construction.Set)
-      is
-         Current_Patch_Cursor : Observations_Of_Construction.Cursor;
-         Current_Pos          : Hexagon.Type_Hexagon_Position;
-      begin
-         Text_IO.Put_Line
-           ("Find_Piece length:" & Observations_Of_Construction.Length (P_Player_Patches)'Img);
-         Current_Patch_Cursor := Observations_Of_Construction.First (P_Player_Patches);
-
-         while Observations_Of_Construction.Has_Element (Current_Patch_Cursor) loop
-            Current_Pos := Observations_Of_Construction.Element (Current_Patch_Cursor).Pos;
-            Text_IO.Put_Line
-              (">Find_Patch Id:" &
-               Current_Pos.A'Img &
-               " " &
-               Current_Pos.B'Img &
-               " Information=" &
-               Observations_Of_Construction.Element (Current_Patch_Cursor).Construction_Info'Img);
-
-            Observations_Of_Construction.Next (Current_Patch_Cursor);
-         end loop;
-      end Print_Patches_Construction;
-
-      procedure Find_Delta_Construction
-        (P_Current, P_Previous : in     Observations_Of_Construction.Set;
-         P_Construction        :    out Changes_To_Construction.Vector)
-      is
-
-         In_Current_Only, In_Previous_Only : Observations_Of_Construction.Set;
-         Add                               : Observations_Of_Construction.Cursor;
-
-         procedure Find_Delta_Left_Not_In_Right
-           (P_Left, P_Right : in     Observations_Of_Construction.Set;
-            P_Delta         :    out Observations_Of_Construction.Set)
-         is
-            Left  : Observations_Of_Construction.Cursor;
-            Right : Observations_Of_Construction.Cursor;
-            Found : Boolean;
-
-            use Hexagon;
-            use Construction;
-         begin
-            Left := Observations_Of_Construction.First (P_Left);
-            while Observations_Of_Construction.Has_Element (Left) loop
-
-               Right := Observations_Of_Construction.First (P_Right);
-               Found := False;
-               while Observations_Of_Construction.Has_Element (Right) and not Found loop
-                  if Observations_Of_Construction.Element (Left).Pos =
-                    Observations_Of_Construction.Element (Right).Pos and
-                    Observations_Of_Construction.Element (Left).Construction_Info =
-                      Observations_Of_Construction.Element (Right).Construction_Info
-                  then
-                     Found := True;
-                  end if;
-                  Right := Observations_Of_Construction.Next (Right);
-               end loop;
-
-               if not Found then
-                  Observations_Of_Construction.Insert
-                    (P_Delta,
-                     Observations_Of_Construction.Element (Left));
-               end if;
-
-               Left := Observations_Of_Construction.Next (Left);
-            end loop;
-         end Find_Delta_Left_Not_In_Right;
-
-      begin
-         if Verbose then
-            Text_IO.Put_Line
-              ("Observation.Observation_Of_Construction.Find_Delta_Construction -  enter");
-         end if;
-
-         Changes_To_Construction.Clear (P_Construction);
-         Observations_Of_Construction.Clear (In_Previous_Only);
-         Observations_Of_Construction.Clear (In_Current_Only);
-
-         Find_Delta_Left_Not_In_Right (P_Previous, P_Current, In_Previous_Only);
-         Find_Delta_Left_Not_In_Right (P_Current, P_Previous, In_Current_Only);
-
-         Add := Observations_Of_Construction.First (In_Current_Only);
-         while Observations_Of_Construction.Has_Element (Add) loop
-            Changes_To_Construction.Append
-              (P_Construction,
-               Type_Patch_Construction'
-                 (Observations_Of_Construction.Element (Add).Pos,
-                  Observations_Of_Construction.Element (Add).Construction_Info,
-                  True));
-
-            Add := Observations_Of_Construction.Next (Add);
-         end loop;
-
-         Add := Observations_Of_Construction.First (In_Previous_Only);
-         while Observations_Of_Construction.Has_Element (Add) loop
-            Changes_To_Construction.Append
-              (P_Construction,
-               Type_Patch_Construction'
-                 (Observations_Of_Construction.Element (Add).Pos,
-                  Observations_Of_Construction.Element (Add).Construction_Info,
-                  False));
-
-            Add := Observations_Of_Construction.Next (Add);
-         end loop;
-
-         if Verbose then
-            Text_IO.Put_Line
-              ("Observation.Observation_Of_Construction.Find_Delta_Construction -  exit");
-         end if;
-      end Find_Delta_Construction;
-
-   end Observation_Of_Construction;
-
    package body Activity is
       function Equal (Left, Right : in Type_Activity_Report) return Boolean is
       begin
@@ -885,11 +753,6 @@ package body Observation is
                   Observation_Of_Patches_Effects.Changes_To_Patches_Effects.Length
                     (An_Element.Patches_Effects_Info)'
                     Img);
-               Text_IO.Put
-                 (" An_Element.Constructions_Info=" &
-                  Observation_Of_Construction.Changes_To_Construction.Length
-                    (An_Element.Constructions_Info)'
-                    Img);
                Text_IO.Put_Line
                  (" An_Element.Activites_Info=" &
                   Activity.Activity_Report.Length (An_Element.Activities_Info)'Img);
@@ -902,8 +765,6 @@ package body Observation is
               (An_Element.Pieces_Effects_Info);
             Observation_Of_Patches_Effects.Changes_To_Patches_Effects.Clear
               (An_Element.Patches_Effects_Info);
-            Observation_Of_Construction.Changes_To_Construction.Clear
-              (An_Element.Constructions_Info);
             Activity.Activity_Report.Clear (An_Element.Activities_Info);
 
             if Verbose then
@@ -927,11 +788,6 @@ package body Observation is
                  (" An_Element.Patches_Effects_Info=" &
                   Observation_Of_Patches_Effects.Changes_To_Patches_Effects.Length
                     (An_Element.Patches_Effects_Info)'
-                    Img);
-               Text_IO.Put
-                 (" An_Element.Constructions_Info=" &
-                  Observation_Of_Construction.Changes_To_Construction.Length
-                    (An_Element.Constructions_Info)'
                     Img);
                Text_IO.Put_Line
                  (" An_Element.Activities_Info=" &

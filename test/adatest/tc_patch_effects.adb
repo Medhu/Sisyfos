@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2017  Frank J Jorgensen
+--      Copyright (C) 2013-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -119,7 +119,6 @@ package body Tc_Patch_Effects is
          Test_Piece.Landscapes_Type_Info_List,
          Test_Piece.Pieces_Type_Info_List,
          Test_Piece.Houses_Type_Info_List,
-         Test_Piece.Construction_Type_Info_List,
          Test_Piece.Effect_Type_Info_List,
          Test_Piece.Test_Creating_Game'Access,
          Test_Piece.Test_Saving_Game'Access,
@@ -225,8 +224,7 @@ package body Tc_Patch_Effects is
            (Map_Player_1,
             Observation.Frames.Piece_Visibility_Frames.Element (Frame_Cursor).Observed_Patches,
             Observation.Frames.Piece_Visibility_Frames.Element (Frame_Cursor).Observed_Pieces,
-            Observation.Frames.Piece_Visibility_Frames.Element (Frame_Cursor).Patches_Effects_Info,
-            Observation.Frames.Piece_Visibility_Frames.Element (Frame_Cursor).Constructions_Info);
+            Observation.Frames.Piece_Visibility_Frames.Element (Frame_Cursor).Patches_Effects_Info);
 
          Text_IO.Put_Line
            ("Length Patches Effects=" &
@@ -319,8 +317,7 @@ package body Tc_Patch_Effects is
            (Map_Player_1,
             Observation.Frames.Piece_Visibility_Frames.Element (Frame_Cursor).Observed_Patches,
             Observation.Frames.Piece_Visibility_Frames.Element (Frame_Cursor).Observed_Pieces,
-            Observation.Frames.Piece_Visibility_Frames.Element (Frame_Cursor).Patches_Effects_Info,
-            Observation.Frames.Piece_Visibility_Frames.Element (Frame_Cursor).Constructions_Info);
+            Observation.Frames.Piece_Visibility_Frames.Element (Frame_Cursor).Patches_Effects_Info);
 
          Frame_Cursor := Observation.Frames.Piece_Visibility_Frames.Next (Frame_Cursor);
       end loop;

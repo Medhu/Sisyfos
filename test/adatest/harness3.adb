@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2017  Frank J Jorgensen
+--      Copyright (C) 2013-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 with AUnit.Run;
 with AUnit.Reporter.Text;
-with Ts_Hexagon_Utility;
+with Ts_Hexagon_Navigation;
 with Ts_Landscape;
 
 -------------
@@ -28,7 +28,7 @@ with Ts_Landscape;
 
 procedure Harness3 is
 
-   procedure Run_Hexagon_Utility is new AUnit.Run.Test_Runner (Ts_Hexagon_Utility.Suite);
+   procedure Run_Hexagon_Utility is new AUnit.Run.Test_Runner (Ts_Hexagon_Navigation.Suite);
    Reporter6 : AUnit.Reporter.Text.Text_Reporter;
    --
    procedure Run_Landscape is new AUnit.Run.Test_Runner (Ts_Landscape.Suite);

@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ with Server.Server.Piece_Action;
 with Server.Server.Cmd;
 with Server.Server.Auto;
 with Server.Server.Archive;
+with Ada.Containers;
 
 package body Server.Server is
 
@@ -37,7 +38,6 @@ package body Server.Server is
       P_Landscape_Info    : in Landscape.Server.Type_Landscape_Type_Info_List;
       P_Piece_Info        : in Piece.Server.Fighting_Piece.Type_Piece_Type_Info_List;
       P_House_Info        : in Piece.Server.House_Piece.Type_House_Type_Info_List;
-      P_Construction_Info : in Construction.Server.Type_Construction_Type_Info_List;
       P_Effect_Info       : in Effect.Server.Type_Effect_Type_Info_List;
 
       P_Game_Creating, P_Game_Saving, P_Game_Loading : in Type_Game_Archive_Procedure;
@@ -52,7 +52,7 @@ package body Server.Server is
          Text_IO.Put_Line ("Server.Server.Init - enter");
       end if;
 
-      Text_IO.Put_Line ("Sisyfos Server - v0.5.1 Copyright (C) 2015-2017  Frank J Jorgensen");
+      Text_IO.Put_Line ("Sisyfos Server - v0.6.0 Copyright (C) 2015-2019  Frank J Jorgensen");
       Text_IO.Put_Line
         ("This program comes with ABSOLUTELY NO WARRANTY; for details see attached gpl.txt");
       Text_IO.Put_Line ("or <http://www.gnu.org/licenses/>");
@@ -62,11 +62,10 @@ package body Server.Server is
       Text_IO.New_Line;
       Text_IO.New_Line;
 
-      Hexagon.Server_Map.Init;
+      Hexagon.Server_Map.Init (Hexagon.Server_Map.A_Map);
       Landscape.Server.Init (P_Landscape_Info);
       Piece.Server.Fighting_Piece.Init (P_Fighting_Piece_Class, P_Piece_Info);
       Piece.Server.House_Piece.Init (P_House_Piece_Class, P_House_Info);
-      Construction.Server.Init (P_Construction_Info);
       Effect.Server.Init (P_Effect_Info);
 
       Game_Creating := P_Game_Creating;
@@ -198,11 +197,6 @@ package body Server.Server is
                     .Current_Player_Pieces_Observations
                     .Observed_Patches_Effects);
 
-               Observation.Observation_Of_Construction.Observations_Of_Construction.Clear
-                 (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
-                    .Current_Player_Pieces_Observations
-                    .Observed_Constructions);
-
                Piece.Server.Get_Pieces_Report
                  (Player.Type_Player_Id (Trav_Player),
                   Player_List_Internal (Player.Type_Player_Id (Trav_Player))
@@ -222,9 +216,6 @@ package body Server.Server is
                     .Vector;
                   Frame_Patches_Effects : Observation.Observation_Of_Patches_Effects
                     .Changes_To_Patches_Effects
-                    .Vector;
-                  Frame_Constructions : Observation.Observation_Of_Construction
-                    .Changes_To_Construction
                     .Vector;
                   Frame_Activity_Info : Observation.Activity.Activity_Report.Vector;
                   Frame               : Observation.Frames.Type_Visibility_Frames;
@@ -276,15 +267,6 @@ package body Server.Server is
                        .Observed_Patches_Effects,
                      Frame_Patches_Effects);
 
-                  Observation.Observation_Of_Construction.Find_Delta_Construction
-                    (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
-                       .Current_Player_Pieces_Observations
-                       .Observed_Constructions,
-                     Player_List_Internal (Player.Type_Player_Id (Trav_Player))
-                       .Previous_Player_Pieces_Observations
-                       .Observed_Constructions,
-                     Frame_Constructions);
-
                   Frame_Activity_Info :=
                     Observation.Activity.Activity_Report.Copy
                       (Player_List_Internal (Player.Type_Player_Id (Trav_Player)).Activity_Reports);
@@ -306,9 +288,6 @@ package body Server.Server is
                     Observation.Observation_Of_Pieces_Effects.Changes_To_Pieces_Effects.Length
                         (Frame_Pieces_Effects) /=
                       0 or
-                    Observation.Observation_Of_Construction.Changes_To_Construction.Length
-                        (Frame_Constructions) /=
-                      0 or
                     Observation.Activity.Activity_Report.Length (Frame_Activity_Info) /= 0
                   then
 
@@ -317,7 +296,6 @@ package body Server.Server is
                      Frame.Pieces_Info          := Frame_Pieces_Info;
                      Frame.Pieces_Effects_Info  := Frame_Pieces_Effects;
                      Frame.Patches_Effects_Info := Frame_Patches_Effects;
-                     Frame.Constructions_Info   := Frame_Constructions;
                      Frame.Activities_Info      := Frame_Activity_Info;
 
                      Observation.Frames.Piece_Visibility_Frames.Append
@@ -357,14 +335,6 @@ package body Server.Server is
                          (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                             .Current_Player_Pieces_Observations
                             .Observed_Patches_Effects);
-
-                     Player_List_Internal (Player.Type_Player_Id (Trav_Player))
-                       .Previous_Player_Pieces_Observations
-                       .Observed_Constructions :=
-                       Observation.Observation_Of_Construction.Observations_Of_Construction.Copy
-                         (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
-                            .Current_Player_Pieces_Observations
-                            .Observed_Constructions);
 
                      Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                        .Previous_Player_Pieces_Observations
@@ -1486,149 +1456,6 @@ package body Server.Server is
                   Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Revoke_Patch_Effect - exit");
                end if;
             end Entry_Revoke_Patch_Effect;
-         or
-            accept Entry_Perform_Construction
-              (P_Player_Id        : in Player.Type_Player_Id;
-               P_Action_Type      : in Action.Type_Action_Type;
-               P_Piece_Id         : in Piece.Type_Piece_Id;
-               P_Construction_Pos : in Hexagon.Type_Hexagon_Position;
-               P_Construction     : in Construction.Type_Construction) do
-
-               if Verbose then
-                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Construction - enter");
-               end if;
-
-               declare
-                  A_Piece_Server : Piece.Server.Type_Piece_Access_Class;
-               begin
-
-                  A_Piece_Server := Piece.Server.Find_Piece_In_List (P_Piece_Id).Actual_Piece;
-
-                  if A_Piece_Server.all.Category /= Piece.House_Piece then
-                     Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
-                        Utilities.RemoteString.To_Unbounded_String
-                          ("You attempted to construct with a piece that can't construct"));
-
-                  elsif not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
-                     Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
-                        Utilities.RemoteString.To_Unbounded_String
-                          ("You attempted to construct with a piece that is not yours"));
-                  elsif not P_Construction_Pos.P_Valid then
-                     Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
-                        Utilities.RemoteString.To_Unbounded_String
-                          ("You attempted to construct on a position that is not valid"));
-                  else
-
-                     if Piece.Server.House_Piece.Validate_Perform_Construction
-                         (P_Player_Id,
-                          P_Action_Type,
-                          Piece.Server.House_Piece.Type_House'Class (A_Piece_Server.all),
-                          P_Construction_Pos,
-                          P_Construction)
-                     then
-
-                        Server.Cmd.Perform_Construction
-                          (Cmd_List,
-                           P_Player_Id,
-                           P_Action_Type,
-                           A_Piece_Server.all.Id,
-                           P_Construction_Pos,
-                           P_Construction);
-                     end if;
-                  end if;
-               exception
-                  when Piece.Server.Piece_Not_Found_Piece_Position =>
-                     Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
-                        Utilities.RemoteString.To_Unbounded_String
-                          ("Perform Construction Piece Id:" &
-                           P_Piece_Id'Img &
-                           " not valid. Command will be cancelled."));
-               end;
-
-               if Verbose then
-                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Construction - exit");
-               end if;
-
-            end Entry_Perform_Construction;
-         or
-            accept Entry_Perform_Demolition
-              (P_Player_Id      : in Player.Type_Player_Id;
-               P_Action_Type    : in Action.Type_Action_Type;
-               P_Piece_Id       : in Piece.Type_Piece_Id;
-               P_Demolition_Pos : in Hexagon.Type_Hexagon_Position;
-               P_Construction   : in Construction.Type_Construction) do
-
-               if Verbose then
-                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Demolition - enter");
-               end if;
-
-               declare
-                  A_Piece_Server : Piece.Server.Type_Piece_Access_Class;
-               begin
-
-                  A_Piece_Server := Piece.Server.Find_Piece_In_List (P_Piece_Id).Actual_Piece;
-
-                  if A_Piece_Server.Category /= Piece.House_Piece then
-                     Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
-                        Utilities.RemoteString.To_Unbounded_String
-                          ("You attempted to construct with a piece that can't construct"));
-
-                  elsif not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
-                     Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
-                        Utilities.RemoteString.To_Unbounded_String
-                          ("You attempted to demolish with a piece that is not yours"));
-                  elsif not P_Demolition_Pos.P_Valid then
-                     Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
-                        Utilities.RemoteString.To_Unbounded_String
-                          ("You attempted to demolish on a position that is not valid"));
-                  else
-
-                     if Piece.Server.House_Piece.Validate_Perform_Demolition
-                         (P_Player_Id,
-                          P_Action_Type,
-                          Piece.Server.House_Piece.Type_House'Class (A_Piece_Server.all),
-                          P_Demolition_Pos,
-                          P_Construction)
-                     then
-                        Server.Cmd.Perform_Demolition
-                          (Cmd_List,
-                           P_Player_Id,
-                           P_Action_Type,
-                           A_Piece_Server.all.Id,
-                           P_Demolition_Pos,
-                           P_Construction);
-                     end if;
-                  end if;
-               exception
-                  when Piece.Server.Piece_Not_Found_Piece_Position =>
-                     Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
-                        Utilities.RemoteString.To_Unbounded_String
-                          ("Perform Demolition Piece Id:" &
-                           P_Piece_Id'Img &
-                           " not valid. Command will be cancelled."));
-               end;
-
-               if Verbose then
-                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Demolition - exit");
-               end if;
-
-            end Entry_Perform_Demolition;
          or
             accept Entry_Get_Updates_Summary
               (P_Player_Id       : in     Player.Type_Player_Id;

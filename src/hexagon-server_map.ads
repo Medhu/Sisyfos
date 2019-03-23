@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 
 with Landscape;
 with Ada.Strings.Unbounded;
-with Construction;
 with Effect;
 
 package Hexagon.Server_Map is
@@ -63,20 +62,17 @@ package Hexagon.Server_Map is
 
    procedure Put (P_Patch : in Type_Server_Patch);
 
-   procedure Init;
+   procedure Init (P_Map : in out Hexagon.Server_Map.Type_Server_Map);
 
-   procedure Save_Map (P_Filename : in Ada.Strings.Unbounded.Unbounded_String);
-   procedure Load_Map (P_Filename : in Ada.Strings.Unbounded.Unbounded_String);
+   procedure Save_Map (P_Filename : in Ada.Strings.Unbounded.Unbounded_String;
+                      P_Map : in Hexagon.Server_Map.Type_Server_Map);
+   procedure Load_Map (P_Filename : in Ada.Strings.Unbounded.Unbounded_String;
+                      P_Map : in out Hexagon.Server_Map.Type_Server_Map);
    procedure Save_Scenario (P_Filename : in Ada.Strings.Unbounded.Unbounded_String);
 
    procedure Put_Map;
 
    function Are_Neighbours (P_From, P_To : in Type_Server_Patch) return Boolean;
-
-   function Trav_Axis
-     (P_Patch : in Hexagon.Server_Map.Type_Server_Patch;
-      P_Axis  : in Integer)
-      return    Hexagon.Server_Map.Type_Server_Patch_Adress;
 
    Empty : constant Type_Server_Patch :=
      Type_Server_Patch'
@@ -84,7 +80,6 @@ package Hexagon.Server_Map is
       Type_Hexagon_Position'(P_Valid => False),
       Landscape.Undefined_Landscape,
       Landscape.Pieces_Here_List.Empty_Vector,
-      Construction.Construction_List.Empty_Set,
       Effect.Effect_List.Empty_Map,
       False,
       Neighbours =>

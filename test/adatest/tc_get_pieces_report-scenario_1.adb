@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2017  Frank J Jorgensen
+--      Copyright (C) 2013-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -84,7 +84,6 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
          Test_Piece.Landscapes_Type_Info_List,
          Test_Piece.Pieces_Type_Info_List,
          Test_Piece.Houses_Type_Info_List,
-         Test_Piece.Construction_Type_Info_List,
          Test_Piece.Effect_Type_Info_List,
          Test_Piece.Test_Creating_Game'Access,
          Test_Piece.Test_Saving_Game'Access,
@@ -139,7 +138,8 @@ package body Tc_Get_Pieces_Report.Scenario_1 is
       Hexagon.Client_Map.Get_Map (1, Map_Player_1);
       Hexagon.Client_Map.Get_Map (2, Map_Player_2);
 
-      Hexagon.Server_Map.Save_Map (Ada.Strings.Unbounded.To_Unbounded_String ("s0010000.dat"));
+      Hexagon.Server_Map.Save_Map (Ada.Strings.Unbounded.To_Unbounded_String ("s0010000.dat"),
+                                  Hexagon.Server_Map.A_Map);
       Hexagon.Client_Map.Save_Map
         (Ada.Strings.Unbounded.To_Unbounded_String ("c0010000.dat"),
          Map_Player_1);

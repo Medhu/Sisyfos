@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -394,58 +394,6 @@ package body Server.Generic_ServerRCI is
            ("Server.Generic_ServerRCI.Revoke_Patch_Effect- exit");
       end if;
    end Revoke_Patch_Effect;
-
-   procedure Perform_Construction
-     (P_Player_Id        : in Player.Type_Player_Id;
-      P_Action_Type      : in Action.Type_Action_Type;
-      P_Piece_Id         : in Piece.Type_Piece_Id;
-      P_Construction_Pos : in Hexagon.Type_Hexagon_Position;
-      P_Construction     : in Construction.Type_Construction)
-   is
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.Generic_ServerRCI.Perform_Construction - enter");
-      end if;
-
-      Server.ServerRAPI.Perform_Construction
-        (P_Player_Id,
-         P_Action_Type,
-         P_Piece_Id,
-         P_Construction_Pos,
-         P_Construction);
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.Generic_ServerRCI.Perform_Construction - exit");
-      end if;
-   end Perform_Construction;
-
-   procedure Perform_Demolition
-     (P_Player_Id      : in Player.Type_Player_Id;
-      P_Action_Type    : in Action.Type_Action_Type;
-      P_Piece_Id       : in Piece.Type_Piece_Id;
-      P_Demolition_Pos : in Hexagon.Type_Hexagon_Position;
-      P_Construction   : in Construction.Type_Construction)
-   is
-   begin
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.Generic_ServerRCI.Perform_Demolition - enter");
-      end if;
-
-      Server.ServerRAPI.Perform_Demolition
-        (P_Player_Id,
-         P_Action_Type,
-         P_Piece_Id,
-         P_Demolition_Pos,
-         P_Construction);
-
-      if Verbose then
-         Text_IO.Put_Line
-           ("Server.Generic_ServerRCI.Perform_Demolition - exit");
-      end if;
-   end Perform_Demolition;
 
    procedure Get_Map (P_Server_Map : out Landscape.Type_Map) is
       use Server;

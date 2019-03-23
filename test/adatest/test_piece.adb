@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2017  Frank J Jorgensen
+--      Copyright (C) 2013-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -1309,123 +1309,6 @@ package body Test_Piece is
 
    end End_Perform_Move;
 
-   --
-   -- Perform_Construction
-   --
-   function Validate_Perform_Construction
-     (P_Player_Id          : in Player.Type_Player_Id;
-      P_Action_Type        : in Action.Type_Action_Type;
-      P_Construction_Piece : in Test_Piece.Type_My_Test_House;
-      P_Construction_Pos   : in Hexagon.Type_Hexagon_Position;
-      P_Construction       : in Construction.Type_Construction) return Boolean
-   is
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Test_Piece.Validate_Perform_Construction (House) - enter - exit");
-      end if;
-
-      return True;
-   end Validate_Perform_Construction;
-
-   procedure Before_Perform_Construction
-     (P_Player_Id          : in     Player.Type_Player_Id;
-      P_Action_Type        : in     Action.Type_Action_Type;
-      P_Construction_Piece : in out Test_Piece.Type_My_Test_House;
-      P_Construction_Pos   : in     Hexagon.Type_Hexagon_Position;
-      P_Construction       : in     Construction.Type_Construction;
-      P_Result             :    out Status.Type_Result_Status)
-   is
-      use Action;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Test_Piece.Before_Perform_Construction (House) - enter - exit");
-      end if;
-
-      if P_Action_Type = 1102 then
-         P_Result := Status.Fail;
-      else
-         P_Result := Status.Proceed;
-      end if;
-   end Before_Perform_Construction;
-
-   procedure End_Perform_Construction
-     (P_Player_Id          : in     Player.Type_Player_Id;
-      P_Action_Type        : in     Action.Type_Action_Type;
-      P_Construction_Piece : in out Test_Piece.Type_My_Test_House;
-      P_Construction_Pos   : in     Hexagon.Type_Hexagon_Position;
-      P_Construction       : in     Construction.Type_Construction;
-      P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
-   is
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Test_Piece.End_Perform_Construction (House) - enter - exit");
-      end if;
-      Test_List.all (Integer (P_Action_Type)).Done   := True;
-      Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
-
-      P_Attempts_Remaining := 0;
-   end End_Perform_Construction;
-
-   --
-   -- Perform_Demolition
-   --
-   function Validate_Perform_Demolition
-     (P_Player_Id        : in Player.Type_Player_Id;
-      P_Action_Type      : in Action.Type_Action_Type;
-      P_Demolition_Piece : in Test_Piece.Type_My_Test_House;
-      P_Demolition_Pos   : in Hexagon.Type_Hexagon_Position;
-      P_Construction     : in Construction.Type_Construction) return Boolean
-   is
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Test_Piece.Validate_Perform_Demolition (House) - enter - exit");
-      end if;
-
-      return True;
-   end Validate_Perform_Demolition;
-
-   procedure Before_Perform_Demolition
-     (P_Player_Id        : in     Player.Type_Player_Id;
-      P_Action_Type      : in     Action.Type_Action_Type;
-      P_Demolition_Piece : in out Test_Piece.Type_My_Test_House;
-      P_Demolition_Pos   : in     Hexagon.Type_Hexagon_Position;
-      P_Construction     : in     Construction.Type_Construction;
-      P_Result           :    out Status.Type_Result_Status)
-   is
-      use Action;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Test_Piece.Before_Perform_Demolition (House) - enter - exit");
-      end if;
-
-      if P_Action_Type = 1109 then
-         P_Result := Status.Fail;
-      else
-         P_Result := Status.Proceed;
-      end if;
-   end Before_Perform_Demolition;
-
-   procedure End_Perform_Demolition
-     (P_Player_Id          : in     Player.Type_Player_Id;
-      P_Action_Type        : in     Action.Type_Action_Type;
-      P_Demolition_Piece   : in out Test_Piece.Type_My_Test_House;
-      P_Demolition_Pos     : in     Hexagon.Type_Hexagon_Position;
-      P_Construction       : in     Construction.Type_Construction;
-      P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
-   is
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Test_Piece.End_Perform_Demolition (House) - enter - exit");
-      end if;
-
-      Test_List.all (Integer (P_Action_Type)).Done   := True;
-      Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
-
-      P_Attempts_Remaining := 0;
-   end End_Perform_Demolition;
-
    function Observation_Area
      (P_Piece : in Type_My_Test_Piece)
       return Hexagon.Area.Server_Area.Type_Action_Capabilities_Access
@@ -1544,6 +1427,17 @@ package body Test_Piece is
    begin
       null;
    end After_Put_Piece;
+
+   function Movement_Cost
+     (P_Player_Id   : in     Player.Type_Player_Id;
+      P_Action_Type : in     Action.Type_Action_Type;
+      P_Piece       : in out Test_Piece.Type_My_Test_Piece;
+      P_From_Patch  : in out Landscape.Type_Patch;
+      P_To_Patch    : in out Landscape.Type_Patch) return Integer
+   is
+   begin
+      return 1;
+   end Movement_Cost;
 
    procedure Upkeep
      (P_Patch : in out Hexagon.Server_Map.Type_Server_Patch;

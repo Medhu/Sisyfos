@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2017  Frank J Jorgensen
+--      Copyright (C) 2015-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ with Piece;
 with Player;
 with Utilities;
 with Effect;
-with Construction;
 
 package Observation is
    pragma Remote_Types;
@@ -172,34 +171,6 @@ package Observation is
 
    end Observation_Of_Patches_Effects;
 
-   package Observation_Of_Construction is
-      type Type_Patch_Construction is record
-         Pos               : Hexagon.Type_Hexagon_Position;
-         Construction_Info : Construction.Type_Construction;
-         Valid             : Boolean;
-      end record;
-
-      function Left_Less_Construction (Left, Right : in Type_Patch_Construction) return Boolean;
-
-      function Equal_Construction (Left, Right : in Type_Patch_Construction) return Boolean;
-
-      package Observations_Of_Construction is new Ada.Containers.Ordered_Sets
-        (Type_Patch_Construction,
-         Left_Less_Construction,
-         Equal_Construction);
-
-      package Changes_To_Construction is new Ada.Containers.Vectors
-        (Positive,
-         Type_Patch_Construction);
-
-      procedure Find_Delta_Construction
-        (P_Current, P_Previous : in     Observations_Of_Construction.Set;
-         P_Construction        :    out Changes_To_Construction.Vector);
-
-      procedure Print_Patches_Construction (P_Player_Patches : in Observations_Of_Construction.Set);
-
-   end Observation_Of_Construction;
-
    package Activity is
       Internal_Details : constant Positive := 1;
 
@@ -221,7 +192,6 @@ package Observation is
          Pieces_Info          : Observation_Of_Pieces_Info.Changes_To_Pieces_Info.Vector;
          Pieces_Effects_Info  : Observation_Of_Pieces_Effects.Changes_To_Pieces_Effects.Vector;
          Patches_Effects_Info : Observation_Of_Patches_Effects.Changes_To_Patches_Effects.Vector;
-         Constructions_Info   : Observation_Of_Construction.Changes_To_Construction.Vector;
          Activities_Info      : Activity.Activity_Report.Vector;
       end record;
 

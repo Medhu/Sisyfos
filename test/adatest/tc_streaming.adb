@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2017  Frank J Jorgensen
+--      Copyright (C) 2013-2019  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ with Observation;
 with Test_Piece;
 with Effect;
 with Server.Server;
+with Ada.Containers;
 
 package body Tc_Streaming is
 
