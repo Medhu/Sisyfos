@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2019  Frank J Jorgensen
+--      Copyright (C) 2013-2021  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -1503,7 +1503,7 @@ package body TC_Piece_Client_Piece is
         (Player_Id_1,
          Action.Type_Action_Type (1044),
          A_Piece_Performing_Effect,
-         Effect.Type_Effect'(Test_Piece.Effect_Treasure, 0),
+         Test_Piece.Effect_Treasure,
          An_Area);
 
       Test_Piece.Wait_For_Server (1044);
@@ -1570,7 +1570,7 @@ package body TC_Piece_Client_Piece is
         (Player_Id_1,
          Action.Type_Action_Type (1045),
          A_Piece_Performing_Effect,
-         Effect.Type_Effect'(Test_Piece.Effect_Treasure, 0),
+         Test_Piece.Effect_Treasure,
          An_Area);
 
       Test_Piece.Wait_For_Server (1045);
@@ -1648,7 +1648,7 @@ package body TC_Piece_Client_Piece is
         (Player_Id_1,
          Action.Type_Action_Type (1048),
          A_Piece_Performing_Effect,
-         Effect.Type_Effect'(Test_Piece.Effect_Treasure, 0));
+         Test_Piece.Effect_Treasure);
 
       Test_Piece.Wait_For_Server (1048);
 
@@ -1718,7 +1718,7 @@ package body TC_Piece_Client_Piece is
         (Player_Id_1,
          Action.Type_Action_Type (1050),
          A_Piece_Performing_Effect,
-         Effect.Type_Effect'(Test_Piece.Effect_Treasure, 0));
+         Test_Piece.Effect_Treasure);
 
       Test_Piece.Wait_For_Server (1050);
 
@@ -1795,7 +1795,7 @@ package body TC_Piece_Client_Piece is
         (Player_Id_1,
          Action.Type_Action_Type (1053),
          A_Piece_Performing_Effect,
-         Effect.Type_Effect'(Test_Piece.Effect_Treasure, 0),
+         Test_Piece.Effect_Treasure,
          An_Area);
 
       Test_Piece.Wait_For_Server (1053);
@@ -1864,7 +1864,7 @@ package body TC_Piece_Client_Piece is
         (Player_Id_1,
          Action.Type_Action_Type (1056),
          A_Piece_Performing_Effect,
-         Effect.Type_Effect'(Test_Piece.Effect_Treasure, 0));
+         Test_Piece.Effect_Treasure);
 
       Test_Piece.Wait_For_Server (1056);
 

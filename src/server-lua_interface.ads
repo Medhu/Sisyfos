@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2019  Frank J Jorgensen
+--      Copyright (C) 2015-2021  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -23,12 +23,8 @@ package Server.Lua_Interface is
 
    procedure Init (P_Lua_State : in Lua.Lua_State);
 
-   function Observe_Game_Minimum_Details
-     (P_Lua_State : in Lua.Lua_State) return Integer;
-   pragma Export
-     (C,
-      Observe_Game_Minimum_Details,
-      "Observe_Game_Minimum_Details");
+   function Observe_Game_Minimum_Details (P_Lua_State : in Lua.Lua_State) return Integer;
+   pragma Export (C, Observe_Game_Minimum_Details, "Observe_Game_Minimum_Details");
 
    function Observe_Game (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Observe_Game, "Observe_Game");
@@ -45,65 +41,44 @@ package Server.Lua_Interface is
    function Perform_Attack (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Perform_Attack, "Perform_Attack");
 
-   function Perform_Ranged_Attack
-     (P_Lua_State : in Lua.Lua_State) return Integer;
+   function Perform_Ranged_Attack (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Perform_Ranged_Attack, "Perform_Ranged_Attack");
 
    function Perform_Move (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Perform_Move, "Perform_Move");
 
-   function Perform_Patch_Effect
-     (P_Lua_State : in Lua.Lua_State) return Integer;
+   function Perform_Patch_Effect (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Perform_Patch_Effect, "Perform_Patch_Effect");
 
-   function Perform_Piece_Effect
-     (P_Lua_State : in Lua.Lua_State) return Integer;
+   function Perform_Piece_Effect (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Perform_Piece_Effect, "Perform_Piece_Effect");
 
    function Grant_Piece_Effect (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Grant_Piece_Effect, "Grant_Piece_Effect");
 
-   function Revoke_Piece_Effect
-     (P_Lua_State : in Lua.Lua_State) return Integer;
+   function Revoke_Piece_Effect (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Revoke_Piece_Effect, "Revoke_Piece_Effect");
 
    function Grant_Patch_Effect (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Grant_Patch_Effect, "Grant_Patch_Effect");
 
-   function Revoke_Patch_Effect
-     (P_Lua_State : in Lua.Lua_State) return Integer;
+   function Revoke_Patch_Effect (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Revoke_Patch_Effect, "Revoke_Patch_Effect");
 
    function Find_Piece_In_List (P_Lua_State : in Lua.Lua_State) return Integer;
    pragma Export (C, Find_Piece_In_List, "Find_Piece_In_List");
 
-   function Opponents_Activity_Report_Append
-     (P_Lua_State : Lua.Lua_State) return Integer;
-   pragma Export
-     (C,
-      Opponents_Activity_Report_Append,
-      "Opponents_Activity_Report_Append");
+   function Opponents_Activity_Report_Append (P_Lua_State : Lua.Lua_State) return Integer;
+   pragma Export (C, Opponents_Activity_Report_Append, "Opponents_Activity_Report_Append");
 
-   function Player_Activity_Report_Append
-     (P_Lua_State : Lua.Lua_State) return Integer;
-   pragma Export
-     (C,
-      Player_Activity_Report_Append,
-      "Player_Activity_Report_Append");
+   function Player_Activity_Report_Append (P_Lua_State : Lua.Lua_State) return Integer;
+   pragma Export (C, Player_Activity_Report_Append, "Player_Activity_Report_Append");
 
-   function Opponents_System_Report_Append
-     (P_Lua_State : Lua.Lua_State) return Integer;
-   pragma Export
-     (C,
-      Opponents_System_Report_Append,
-      "Opponents_System_Report_Append");
+   function Opponents_System_Report_Append (P_Lua_State : Lua.Lua_State) return Integer;
+   pragma Export (C, Opponents_System_Report_Append, "Opponents_System_Report_Append");
 
-   function Player_System_Report_Append
-     (P_Lua_State : Lua.Lua_State) return Integer;
-   pragma Export
-     (C,
-      Player_System_Report_Append,
-      "Player_System_Report_Append");
+   function Player_System_Report_Append (P_Lua_State : Lua.Lua_State) return Integer;
+   pragma Export (C, Player_System_Report_Append, "Player_System_Report_Append");
 
    function Get_Player_Name (P_Lua_State : Lua.Lua_State) return Integer;
    pragma Export (C, Get_Player_Name, "Get_Player_Name");

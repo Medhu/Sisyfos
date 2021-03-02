@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2019  Frank J Jorgensen
+--      Copyright (C) 2015-2021  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -150,7 +150,7 @@ package Server.Generic_ServerRCI is
       P_Player_Id   :    out Player.Type_Player_Id;
       P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
-      P_Effect      :    out Effect.Type_Effect;
+      P_Effect_Name :    out Effect.Type_Effect_Name;
       P_Area : out Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A);
 
    procedure Perform_Piece_Effect_In
@@ -158,7 +158,7 @@ package Server.Generic_ServerRCI is
       P_Player_Id   :    out Player.Type_Player_Id;
       P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
-      P_Effect      :    out Effect.Type_Effect);
+      P_Effect_Name :    out Effect.Type_Effect_Name);
 
    procedure Grant_Piece_Effect_In
      (P_Channel     : in     GNAT.Sockets.Stream_Access;
@@ -172,7 +172,7 @@ package Server.Generic_ServerRCI is
       P_Player_Id   :    out Player.Type_Player_Id;
       P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
-      P_Effect      :    out Effect.Type_Effect);
+      P_Effect_Name :    out Effect.Type_Effect_Name);
 
    procedure Grant_Patch_Effect_In
      (P_Channel     : in     GNAT.Sockets.Stream_Access;
@@ -187,7 +187,7 @@ package Server.Generic_ServerRCI is
       P_Player_Id   :    out Player.Type_Player_Id;
       P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
-      P_Effect      :    out Effect.Type_Effect;
+      P_Effect_Name :    out Effect.Type_Effect_Name;
       P_Area : out Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A);
 
    procedure Get_Map_In (P_Channel : in GNAT.Sockets.Stream_Access);

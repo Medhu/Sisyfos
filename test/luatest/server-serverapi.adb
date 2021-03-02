@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2019  Frank J Jorgensen
+--      Copyright (C) 2015-2021  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -446,7 +446,7 @@ package body Server.ServerAPI is
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Piece_Id    : in Piece.Type_Piece_Id;
-      P_Effect      : in Effect.Type_Effect;
+      P_Effect_Name : in Effect.Type_Effect_Name;
       P_Area        : in Hexagon.Area.Type_Action_Capabilities_A;
 
       P_Status : out Status.Type_Status)
@@ -471,13 +471,11 @@ package body Server.ServerAPI is
            ("P_Action_Type=" & P_Action_Type'Img & " we expected 920");
       elsif P_Piece_Id /= 33 then
          Text_IO.Put_Line ("P_Piece_Id=" & P_Piece_Id'Img & " we expected 33");
-      elsif P_Effect.Effect_Name /= 4 or P_Effect.Aux /= 5 then
+      elsif P_Effect_Name /= 123 then
          Text_IO.Put_Line
-           ("P_Effect.Effect_Name=" &
-            P_Effect.Effect_Name'Img &
-            " we expected 4, P_Effect.Aux=" &
-            P_Effect.Aux'Img &
-            " we expected 5");
+           ("P_Effect_Name=" &
+            P_Effect_Name'Img &
+            " we expected 123");
       elsif P_Area (1).A /= 1 or
         P_Area (1).B /= 2 or
         P_Area (2).A /= 3 or
@@ -506,8 +504,7 @@ package body Server.ServerAPI is
       P_Action_Type : in Action.Type_Action_Type;
       P_Piece_Id    : in Piece.Type_Piece_Id;
       P_Pos         : in Hexagon.Type_Hexagon_Position;
-      P_Effect      : in Effect.Type_Effect;
-
+      P_Effect_Name : in Effect.Type_Effect_Name;
       P_Status : out Status.Type_Status)
    is
 
@@ -537,13 +534,11 @@ package body Server.ServerAPI is
             " P_Pos.B=" &
             P_Pos.B'Img &
             " we expected 89, 98");
-      elsif P_Effect.Effect_Name /= 5 or P_Effect.Aux /= 4 then
+      elsif P_Effect_Name /= 321 then
          Text_IO.Put_Line
-           ("P_Effect.Effect_Name=" &
-            P_Effect.Effect_Name'Img &
-            " we expected 5, P_Effect.Aux=" &
-            P_Effect.Aux'Img &
-            " we expected 4");
+           ("P_Effect_Name=" &
+            P_Effect_Name'Img &
+            " we expected 321");
       elsif P_Player_Id /= 87 then
          Text_IO.Put_Line
            ("P_Player_Id=" & P_Player_Id'Img & " we expected 87");
@@ -740,7 +735,7 @@ package body Server.ServerAPI is
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Piece_Id    : in Piece.Type_Piece_Id;
-      P_Effect      : in Effect.Type_Effect;
+      P_Effect_Name : in Effect.Type_Effect_Name;
 
       P_Status : out Status.Type_Status)
    is
@@ -757,10 +752,8 @@ package body Server.ServerAPI is
             P_Player_Id'Img &
             " Piece_Id=" &
             P_Piece_Id'Img &
-            " P_Effect=" &
-            P_Effect.Effect_Name'Img &
-            " " &
-            P_Effect.Aux'Img);
+            " P_Effect_Name=" &
+            P_Effect_Name'Img);
       end if;
 
       P_Status := Status.Ok;
@@ -776,14 +769,11 @@ package body Server.ServerAPI is
       elsif P_Piece_Id /= 4 then
          Text_IO.Put_Line
            ("P_Piece_Id=" & P_Piece_Id'Img & " we expected '4'");
-      elsif P_Effect.Effect_Name /= 5 then
+      elsif P_Effect_Name /= 5 then
          Text_IO.Put_Line
-           ("P_Effect.Effect_Name=" &
-            P_Effect.Effect_Name'Img &
+           ("P_Effect_Name=" &
+            P_Effect_Name'Img &
             " we expected '5'");
-      elsif P_Effect.Aux /= 6 then
-         Text_IO.Put_Line
-           ("P_Effect.Aux=" & P_Effect.Aux'Img & " we expected '6'");
       else
          Text_IO.Put_Line
            ("Server.ServerAPI.Revoke_Piece_Effect (LUA) -                        OK");
@@ -888,7 +878,7 @@ package body Server.ServerAPI is
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece_Id    : in     Piece.Type_Piece_Id;
       P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect      : in     Effect.Type_Effect;
+      P_Effect_Name : in     Effect.Type_Effect_Name;
       P_Status      :    out Status.Type_Status)
    is
       use Hexagon;
@@ -906,10 +896,8 @@ package body Server.ServerAPI is
             P_Player_Id'Img &
             " Piece_Id=" &
             P_Piece_Id'Img &
-            " P_Effect=" &
-            P_Effect.Effect_Name'Img &
-            " " &
-            P_Effect.Aux'Img);
+            " P_Effect_Name=" &
+            P_Effect_Name'Img);
       end if;
 
       P_Status := Status.Ok;
@@ -925,14 +913,11 @@ package body Server.ServerAPI is
       elsif P_Piece_Id /= 23 then
          Text_IO.Put_Line
            ("P_Piece_Id=" & P_Piece_Id'Img & " we expected '23'");
-      elsif P_Effect.Effect_Name /= 26 then
+      elsif P_Effect_Name /= 24 then
          Text_IO.Put_Line
-           ("P_Effect.Effect_Name=" &
-            P_Effect.Effect_Name'Img &
+           ("P_Effect_Name=" &
+            P_Effect_Name'Img &
             " we expected '26'");
-      elsif P_Effect.Aux /= 27 then
-         Text_IO.Put_Line
-           ("P_Effect.Aux=" & P_Effect.Aux'Img & " we expected '27'");
       elsif not P_Area (1).P_Valid or
         P_Area (1).A /= 21 or
         P_Area (1).B /= 4 or
@@ -959,6 +944,38 @@ package body Server.ServerAPI is
          Text_IO.Put_Line ("Server.ServerAPI.Revoke_Patch_Effect- exit");
       end if;
    end Revoke_Patch_Effect;
+
+   function Is_Effect_On_Piece (P_Player_Id : in Player.Type_Player_Id;
+      P_Piece_Id                            : in Piece.Type_Piece_Id;
+                                P_Effect_Name                         : in Effect.Type_Effect_Name) return Boolean
+   is
+   begin
+      if Verbose then
+         Text_IO.Put_Line ("Server.ServerAPI.Is_Effect_On_Piece- enter");
+      end if;
+      if Verbose then
+         Text_IO.Put_Line ("Server.ServerAPI.Is_Effect_On_Piece- exit");
+      end if;
+
+      return False;
+   end Is_Effect_On_Piece;
+
+   function Get_Effect_Aux_On_Piece (P_Player_Id : in Player.Type_Player_Id;
+      P_Piece_Id                                 : in Piece.Type_Piece_Id;
+                                     P_Effect_Name                              : in Effect.Type_Effect_Name) return Natural
+   is
+   begin
+      if Verbose then
+         Text_IO.Put_Line ("Server.ServerAPI.Get_Effect_Aux_On_Piece- enter");
+      end if;
+
+      if Verbose then
+         Text_IO.Put_Line ("Server.ServerAPI.Get_Effect_Aux_On_Piece- exit");
+      end if;
+
+      return 0;
+   end Get_Effect_Aux_On_Piece;
+
 
    function End_Turn (P_Player_Id : in Player.Type_Player_Id) return Boolean is
       Ret : Boolean;

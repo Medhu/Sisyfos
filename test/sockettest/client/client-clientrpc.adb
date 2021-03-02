@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2019  Frank J Jorgensen
+--      Copyright (C) 2015-2021  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -315,7 +315,7 @@ package body Client.ClientRPC is
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece_Id    : in     Piece.Type_Piece_Id;
-      P_Effect      : in     Effect.Type_Effect;
+      P_Effect_Name : in     Effect.Type_Effect_Name;
       P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A)
    is
    begin
@@ -332,7 +332,7 @@ package body Client.ClientRPC is
       Player.Type_Player_Id'Output (Channel, P_Player_Id);
       Action.Type_Action_Type'Output (Channel, P_Action_Type);
       Piece.Type_Piece_Id'Output (Channel, P_Piece_Id);
-      Effect.Type_Effect'Output (Channel, P_Effect);
+      Effect.Type_Effect_Name'Output (Channel, P_Effect_Name);
       Hexagon.Area.Type_Action_Capabilities_A'Output (Channel, P_Area);
 
       Game_RPC.Type_RPC'Output (Channel, Game_RPC.Perform_Patch_Effect_End);
@@ -346,7 +346,7 @@ package body Client.ClientRPC is
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece_Id    : in     Piece.Type_Piece_Id;
-      P_Effect      : in     Effect.Type_Effect)
+      P_Effect_Name : in     Effect.Type_Effect_Name)
    is
    begin
       if Verbose then
@@ -362,7 +362,7 @@ package body Client.ClientRPC is
       Player.Type_Player_Id'Output (Channel, P_Player_Id);
       Action.Type_Action_Type'Output (Channel, P_Action_Type);
       Piece.Type_Piece_Id'Output (Channel, P_Piece_Id);
-      Effect.Type_Effect'Output (Channel, P_Effect);
+      Effect.Type_Effect_Name'Output (Channel, P_Effect_Name);
 
       Game_RPC.Type_RPC'Output (Channel, Game_RPC.Perform_Piece_Effect_End);
 
@@ -400,7 +400,7 @@ package body Client.ClientRPC is
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece_Id    : in     Piece.Type_Piece_Id;
-      P_Effect      : in     Effect.Type_Effect)
+      P_Effect_Name : in     Effect.Type_Effect_Name)
    is
    begin
       if Verbose then
@@ -412,7 +412,7 @@ package body Client.ClientRPC is
       Player.Type_Player_Id'Output (Channel, P_Player_Id);
       Action.Type_Action_Type'Output (Channel, P_Action_Type);
       Piece.Type_Piece_Id'Output (Channel, P_Piece_Id);
-      Effect.Type_Effect'Output (Channel, P_Effect);
+      Effect.Type_Effect_Name'Output (Channel, P_Effect_Name);
 
       Game_RPC.Type_RPC'Output (Channel, Game_RPC.Revoke_Piece_Effect_End);
 
@@ -452,7 +452,7 @@ package body Client.ClientRPC is
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece_Id    : in     Piece.Type_Piece_Id;
-      P_Effect      : in     Effect.Type_Effect;
+      P_Effect_Name : in     Effect.Type_Effect_Name;
       P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A)
    is
    begin
@@ -465,7 +465,7 @@ package body Client.ClientRPC is
       Player.Type_Player_Id'Output (Channel, P_Player_Id);
       Action.Type_Action_Type'Output (Channel, P_Action_Type);
       Piece.Type_Piece_Id'Output (Channel, P_Piece_Id);
-      Effect.Type_Effect'Output (Channel, P_Effect);
+      Effect.Type_Effect_Name'Output (Channel, P_Effect_Name);
       Hexagon.Area.Type_Action_Capabilities_A'Output (Channel, P_Area);
 
       Game_RPC.Type_RPC'Output (Channel, Game_RPC.Revoke_Patch_Effect_End);

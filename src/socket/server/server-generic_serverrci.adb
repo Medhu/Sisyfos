@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2019  Frank J Jorgensen
+--      Copyright (C) 2015-2021  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -65,6 +65,7 @@ package body Server.Generic_ServerRCI is
       A_Player_Name        : Utilities.RemoteString.Type_String;
 
       An_Effect            : Effect.Type_Effect;
+      An_Effect_Name       : Effect.Type_Effect_Name;
 
       A_Countdown         : Positive;
       A_Game_State        : Status.Type_Game_Status;
@@ -253,14 +254,14 @@ package body Server.Generic_ServerRCI is
                A_Player_Id,
                An_Action_Type,
                A_Piece_Id,
-               An_Effect,
+               An_Effect_Name,
                An_Area_A);
 
             Server.ServerRAPI.Perform_Patch_Effect
               (A_Player_Id,
                An_Action_Type,
                A_Piece_Id,
-               An_Effect,
+               An_Effect_Name,
                An_Area_A.all);
 
          elsif RPC_Command = Game_RPC.Perform_Piece_Effect_Start then
@@ -269,13 +270,13 @@ package body Server.Generic_ServerRCI is
                A_Player_Id,
                An_Action_Type,
                A_Piece_Id,
-               An_Effect);
+               An_Effect_Name);
 
             Server.ServerRAPI.Perform_Piece_Effect
               (A_Player_Id,
                An_Action_Type,
                A_Piece_Id,
-               An_Effect);
+               An_Effect_Name);
 
          elsif RPC_Command = Game_RPC.Grant_Piece_Effect_Start then
             Grant_Piece_Effect_In
@@ -297,13 +298,13 @@ package body Server.Generic_ServerRCI is
                A_Player_Id,
                An_Action_Type,
                A_Piece_Id,
-               An_Effect);
+               An_Effect_Name);
 
             Server.ServerRAPI.Revoke_Piece_Effect
               (A_Player_Id,
                An_Action_Type,
                A_Piece_Id,
-               An_Effect);
+               An_Effect_Name);
 
          elsif RPC_Command = Game_RPC.Grant_Patch_Effect_Start then
             Grant_Patch_Effect_In
@@ -328,14 +329,14 @@ package body Server.Generic_ServerRCI is
                A_Player_Id,
                An_Action_Type,
                A_Piece_Id,
-               An_Effect,
+               An_Effect_Name,
                An_Area_A);
 
             Server.ServerRAPI.Revoke_Patch_Effect
               (A_Player_Id,
                An_Action_Type,
                A_Piece_Id,
-               An_Effect,
+               An_Effect_Name,
                An_Area_A.all);
          -- TODO Free memory
 
@@ -788,7 +789,7 @@ package body Server.Generic_ServerRCI is
       P_Player_Id   :    out Player.Type_Player_Id;
       P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
-      P_Effect      :    out Effect.Type_Effect;
+      P_Effect_Name :    out Effect.Type_Effect_Name;
       P_Area : out Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A)
    is
 
@@ -801,7 +802,7 @@ package body Server.Generic_ServerRCI is
       P_Player_Id   := Player.Type_Player_Id'Input (P_Channel);
       P_Action_Type := Action.Type_Action_Type'Input (P_Channel);
       P_Piece_Id    := Piece.Type_Piece_Id'Input (P_Channel);
-      P_Effect      := Effect.Type_Effect'Input (P_Channel);
+      P_Effect_Name := Effect.Type_Effect_Name'Input (P_Channel);
       P_Area        :=
         new Hexagon.Area.Type_Action_Capabilities_A'
           (Hexagon.Area.Type_Action_Capabilities_A'Input (P_Channel));
@@ -818,7 +819,7 @@ package body Server.Generic_ServerRCI is
       P_Player_Id   :    out Player.Type_Player_Id;
       P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
-      P_Effect      :    out Effect.Type_Effect)
+      P_Effect_Name :    out Effect.Type_Effect_Name)
    is
 
    begin
@@ -830,7 +831,7 @@ package body Server.Generic_ServerRCI is
       P_Player_Id   := Player.Type_Player_Id'Input (P_Channel);
       P_Action_Type := Action.Type_Action_Type'Input (P_Channel);
       P_Piece_Id    := Piece.Type_Piece_Id'Input (P_Channel);
-      P_Effect      := Effect.Type_Effect'Input (P_Channel);
+      P_Effect_Name := Effect.Type_Effect_Name'Input (P_Channel);
 
       if Verbose then
          Text_IO.Put_Line
@@ -869,7 +870,7 @@ package body Server.Generic_ServerRCI is
       P_Player_Id   :    out Player.Type_Player_Id;
       P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
-      P_Effect      :    out Effect.Type_Effect)
+      P_Effect_Name :    out Effect.Type_Effect_Name)
    is
    begin
       if Verbose then
@@ -880,7 +881,7 @@ package body Server.Generic_ServerRCI is
       P_Player_Id   := Player.Type_Player_Id'Input (P_Channel);
       P_Action_Type := Action.Type_Action_Type'Input (P_Channel);
       P_Piece_Id    := Piece.Type_Piece_Id'Input (P_Channel);
-      P_Effect      := Effect.Type_Effect'Input (P_Channel);
+      P_Effect_Name := Effect.Type_Effect_Name'Input (P_Channel);
 
       if Verbose then
          Text_IO.Put_Line
@@ -921,7 +922,7 @@ package body Server.Generic_ServerRCI is
       P_Player_Id   :    out Player.Type_Player_Id;
       P_Action_Type :    out Action.Type_Action_Type;
       P_Piece_Id    :    out Piece.Type_Piece_Id;
-      P_Effect      :    out Effect.Type_Effect;
+      P_Effect_Name :    out Effect.Type_Effect_Name;
       P_Area : out Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A)
    is
    begin
@@ -933,7 +934,7 @@ package body Server.Generic_ServerRCI is
       P_Player_Id   := Player.Type_Player_Id'Input (P_Channel);
       P_Action_Type := Action.Type_Action_Type'Input (P_Channel);
       P_Piece_Id    := Piece.Type_Piece_Id'Input (P_Channel);
-      P_Effect      := Effect.Type_Effect'Input (P_Channel);
+      P_Effect_Name := Effect.Type_Effect_Name'Input (P_Channel);
       P_Area        :=
         new Hexagon.Area.Type_Action_Capabilities_A'
           (Hexagon.Area.Type_Action_Capabilities_A'Input (P_Channel));

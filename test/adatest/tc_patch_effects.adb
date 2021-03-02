@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2019  Frank J Jorgensen
+--      Copyright (C) 2013-2021  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -461,7 +461,7 @@ package body Tc_Patch_Effects is
         (Player.Type_Player_Id(1),
          Action.Type_Action_Type(1201),
          A_Piece,
-         Effect.Type_Effect'(Test_Piece.Effect_Weather, 0),
+         Test_Piece.Effect_Weather,
          An_Area);
 
       Test_Piece.Wait_For_Server(1201);

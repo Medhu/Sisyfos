@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2019  Frank J Jorgensen
+--      Copyright (C) 2015-2021  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -32,18 +32,16 @@ package body Server.Server is
 
    Verbose : constant Boolean := False;
 
-   procedure Init
-     (P_Fighting_Piece_Class, P_House_Piece_Class : in Piece.Server.Type_Piece'Class;
+   procedure Init (P_Fighting_Piece_Class, P_House_Piece_Class : in Piece.Server.Type_Piece'Class;
    --
-      P_Landscape_Info    : in Landscape.Server.Type_Landscape_Type_Info_List;
-      P_Piece_Info        : in Piece.Server.Fighting_Piece.Type_Piece_Type_Info_List;
-      P_House_Info        : in Piece.Server.House_Piece.Type_House_Type_Info_List;
-      P_Effect_Info       : in Effect.Server.Type_Effect_Type_Info_List;
+      P_Landscape_Info : in Landscape.Server.Type_Landscape_Type_Info_List;
+      P_Piece_Info     : in Piece.Server.Fighting_Piece.Type_Piece_Type_Info_List;
+      P_House_Info     : in Piece.Server.House_Piece.Type_House_Type_Info_List;
+      P_Effect_Info    : in Effect.Server.Type_Effect_Type_Info_List;
 
       P_Game_Creating, P_Game_Saving, P_Game_Loading : in Type_Game_Archive_Procedure;
       P_Game_Joining, P_Game_Leaving                 : in Type_Game_Joining_Leaving_Procedure;
-      P_Game_Start                                   : in Type_Game_Start_Procedure;
-      P_Game_Upkeep                                  : in Type_Game_Upkeep_Procedure;
+      P_Game_Start : in Type_Game_Start_Procedure; P_Game_Upkeep : in Type_Game_Upkeep_Procedure;
       P_Game_End                                     : in Type_Game_End_Procedure)
    is
 
@@ -106,11 +104,9 @@ package body Server.Server is
    procedure Update_Server_Info_Maps (P_Server_Info : in out Utilities.RemoteString_List.Vector) is
    begin
       Utilities.Delete_Starting_With
-        (P_Server_Info,
-         Utilities.RemoteString.To_Unbounded_String ("Map:"));
+        (P_Server_Info, Utilities.RemoteString.To_Unbounded_String ("Map:"));
       Utilities.Delete_Starting_With
-        (P_Server_Info,
-         Utilities.RemoteString.To_Unbounded_String ("Saved:"));
+        (P_Server_Info, Utilities.RemoteString.To_Unbounded_String ("Saved:"));
 
       -- Populate Server Info with maps and saved games currently
       -- exisiting in the servers file system.
@@ -161,9 +157,7 @@ package body Server.Server is
    begin
       if Verbose then
          Text_IO.Put_Line
-           ("Server.Server.Observe_Game - enter P_Detail=" &
-            P_Detail'Img &
-            " Minimum_Details=" &
+           ("Server.Server.Observe_Game - enter P_Detail=" & P_Detail'Img & " Minimum_Details=" &
             Minimum_Details'Img);
       end if;
 
@@ -288,8 +282,7 @@ package body Server.Server is
                     Observation.Observation_Of_Pieces_Effects.Changes_To_Pieces_Effects.Length
                         (Frame_Pieces_Effects) /=
                       0 or
-                    Observation.Activity.Activity_Report.Length (Frame_Activity_Info) /= 0
-                  then
+                    Observation.Activity.Activity_Report.Length (Frame_Activity_Info) /= 0 then
 
                      Frame.Observed_Patches     := Frame_Observation;
                      Frame.Observed_Pieces      := Frame_Observed_Pieces;
@@ -356,10 +349,9 @@ package body Server.Server is
       end if;
    end Observe_Game;
 
-   procedure Opponents_Activity_Report_Append
-     (P_Detail               : Positive;
-      P_Player_Id            : Player.Type_Player_Id;
-      P_Activity_Description : Utilities.RemoteString.Type_String)
+   procedure Opponents_Activity_Report_Append (P_Detail : Positive;
+      P_Player_Id                                       : Player.Type_Player_Id;
+      P_Activity_Description                            : Utilities.RemoteString.Type_String)
    is
       use Player;
    begin
@@ -370,8 +362,7 @@ package body Server.Server is
       for Trav_Opponent_Players in Player_List_Internal'First .. Player_List_Internal'Last loop
 
          if Player_List_Internal (Trav_Opponent_Players).In_Scenario and
-           Trav_Opponent_Players /= P_Player_Id
-         then
+           Trav_Opponent_Players /= P_Player_Id then
             if P_Detail >= Minimum_Details then
                Observation.Activity.Activity_Report.Append
                  (Player_List_Internal (Trav_Opponent_Players).Activity_Reports,
@@ -387,10 +378,9 @@ package body Server.Server is
       end if;
    end Opponents_Activity_Report_Append;
 
-   procedure Opponents_System_Report_Append
-     (P_Detail               : Positive;
-      P_Player_Id            : Player.Type_Player_Id;
-      P_Activity_Description : Utilities.RemoteString.Type_String)
+   procedure Opponents_System_Report_Append (P_Detail : Positive;
+      P_Player_Id                                     : Player.Type_Player_Id;
+      P_Activity_Description                          : Utilities.RemoteString.Type_String)
    is
       use Player;
    begin
@@ -401,8 +391,7 @@ package body Server.Server is
       for Trav_Opponent_Players in Player_List_Internal'First .. Player_List_Internal'Last loop
 
          if Player_List_Internal (Trav_Opponent_Players).In_Scenario and
-           Trav_Opponent_Players /= P_Player_Id
-         then
+           Trav_Opponent_Players /= P_Player_Id then
 
             if P_Detail >= Minimum_Details then
                Observation.Activity.Activity_Report.Append
@@ -419,17 +408,15 @@ package body Server.Server is
       end if;
    end Opponents_System_Report_Append;
 
-   procedure Player_Activity_Report_Append
-     (P_Detail               : Positive;
-      P_Player_Id            : Player.Type_Player_Id;
-      P_Activity_Description : Utilities.RemoteString.Type_String)
+   procedure Player_Activity_Report_Append (P_Detail : Positive;
+      P_Player_Id                                    : Player.Type_Player_Id;
+      P_Activity_Description                         : Utilities.RemoteString.Type_String)
    is
    begin
       if Verbose then
          Text_IO.Put_Line
            ("Server.Server.Player_Activity_Report_Append - enter: '" &
-            Utilities.RemoteString.To_String (P_Activity_Description) &
-            "'");
+            Utilities.RemoteString.To_String (P_Activity_Description) & "'");
       end if;
 
       if P_Detail >= Minimum_Details then
@@ -443,10 +430,8 @@ package body Server.Server is
       end if;
    end Player_Activity_Report_Append;
 
-   procedure Player_System_Report_Append
-     (P_Detail               : Positive;
-      P_Player_Id            : Player.Type_Player_Id;
-      P_Activity_Description : Utilities.RemoteString.Type_String)
+   procedure Player_System_Report_Append (P_Detail : Positive; P_Player_Id : Player.Type_Player_Id;
+      P_Activity_Description                       : Utilities.RemoteString.Type_String)
    is
    begin
       if Verbose then
@@ -523,9 +508,8 @@ package body Server.Server is
                Hexagon.Server_Map.Get_Map (P_Server_Map);
             end Entry_Get_Map;
          or
-            accept Entry_Get_Server_Info
-              (P_Server_Info : out Utilities.RemoteString_List.Vector;
-               P_Status      : out Status.Type_Adm_Status) do
+            accept Entry_Get_Server_Info (P_Server_Info : out Utilities.RemoteString_List.Vector;
+               P_Status                                 : out Status.Type_Adm_Status) do
 
                if Utilities.RemoteString_List.Length (Server_Info) = 0 then
                   P_Status := Status.Not_Ready;
@@ -536,9 +520,8 @@ package body Server.Server is
             end Entry_Get_Server_Info;
 
          or
-            accept Entry_Set_Server_Info
-              (P_Server_Info : in     Utilities.RemoteString_List.Vector;
-               P_Status      :    out Status.Type_Adm_Status) do
+            accept Entry_Set_Server_Info (P_Server_Info : in     Utilities.RemoteString_List.Vector;
+               P_Status                                 :    out Status.Type_Adm_Status) do
 
                if Utilities.RemoteString_List.Length (Server_Info) = 0 then
                   P_Status := Status.Not_Ready;
@@ -552,10 +535,9 @@ package body Server.Server is
             end Entry_Set_Server_Info;
 
          or
-            accept Entry_Create_Game
-              (P_Create_File_Name : in     Utilities.RemoteString.Type_String;
-               P_Player_Name_List : in     Utilities.RemoteString_List.Vector;
-               P_Status           :    out Status.Type_Adm_Status) do
+            accept Entry_Create_Game (P_Create_File_Name : in Utilities.RemoteString.Type_String;
+               P_Player_Name_List                        : in Utilities.RemoteString_List.Vector;
+               P_Status                                  :    out Status.Type_Adm_Status) do
 
                if Run = Status.Starting then
                   declare
@@ -591,9 +573,8 @@ package body Server.Server is
 
             end Entry_Create_Game;
          or
-            accept Entry_Save_Game
-              (P_Save_File_Name : in     Utilities.RemoteString.Type_String;
-               P_Status         :    out Status.Type_Adm_Status) do
+            accept Entry_Save_Game (P_Save_File_Name : in     Utilities.RemoteString.Type_String;
+               P_Status                              :    out Status.Type_Adm_Status) do
                --               if Admin_Run = Status.Playing_Game then
                if Run = Status.Ongoing then
                   Save_File_Name := P_Save_File_Name;
@@ -606,9 +587,8 @@ package body Server.Server is
 
             end Entry_Save_Game;
          or
-            accept Entry_Load_Game
-              (P_Load_File_Name : in     Utilities.RemoteString.Type_String;
-               P_Status         :    out Status.Type_Adm_Status) do
+            accept Entry_Load_Game (P_Load_File_Name : in     Utilities.RemoteString.Type_String;
+               P_Status                              :    out Status.Type_Adm_Status) do
 
                if Run = Status.Starting then
                   Run            := Status.Loading_Game;
@@ -620,10 +600,9 @@ package body Server.Server is
 
             end Entry_Load_Game;
          or
-            accept Entry_Join_Game
-              (P_Player_Id   :    out Player.Type_Player_Id;
-               P_Player_Name : in     Utilities.RemoteString.Type_String;
-               P_Status      :    out Status.Type_Adm_Status) do
+            accept Entry_Join_Game (P_Player_Id :    out Player.Type_Player_Id;
+               P_Player_Name                    : in     Utilities.RemoteString.Type_String;
+               P_Status                         :    out Status.Type_Adm_Status) do
 
                if Run = Status.Ongoing then
                   P_Player_Id := 0;
@@ -635,8 +614,7 @@ package body Server.Server is
                            P_Status                           := Status.Adm_Ok;
 
                            Server.Opponents_System_Report_Append
-                             (1,
-                              P_Player_Id,
+                             (1, P_Player_Id,
                               Utilities.RemoteString.To_String (P_Player_Name) &
                               Utilities.RemoteString.To_Unbounded_String (" has joined the game"));
                         else
@@ -655,10 +633,9 @@ package body Server.Server is
 
             end Entry_Join_Game;
          or
-            accept Entry_Leave_Game
-              (P_Player_Id   : in     Player.Type_Player_Id;
-               P_Player_Name : in     Utilities.RemoteString.Type_String;
-               P_Status      :    out Status.Type_Adm_Status) do
+            accept Entry_Leave_Game (P_Player_Id : in     Player.Type_Player_Id;
+               P_Player_Name                     : in     Utilities.RemoteString.Type_String;
+               P_Status                          :    out Status.Type_Adm_Status) do
 
                if Run = Status.Ongoing then
                   if Player_List_Internal (P_Player_Id).Active then
@@ -666,8 +643,7 @@ package body Server.Server is
                      P_Status                                  := Status.Adm_Ok;
 
                      Server.Opponents_System_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_String (P_Player_Name) &
                         Utilities.RemoteString.To_Unbounded_String (" has left the game"));
 
@@ -682,10 +658,9 @@ package body Server.Server is
             end Entry_Leave_Game;
 
          or
-            accept Entry_Get_Player_Name
-              (P_Player_Id   : in     Player.Type_Player_Id;
-               P_Player_Name :    out Utilities.RemoteString.Type_String;
-               P_Status      :    out Status.Type_Adm_Status) do
+            accept Entry_Get_Player_Name (P_Player_Id : in     Player.Type_Player_Id;
+               P_Player_Name                          :    out Utilities.RemoteString.Type_String;
+               P_Status                               :    out Status.Type_Adm_Status) do
 
                if Run = Status.Ongoing then
                   P_Player_Name := Player_List_Internal (P_Player_Id).Player_Name;
@@ -699,8 +674,7 @@ package body Server.Server is
             -- Game related entries
             --
          or
-            accept Entry_Get_Activity_Reports
-              (P_Player_Id            : in     Player.Type_Player_Id;
+            accept Entry_Get_Activity_Reports (P_Player_Id : in     Player.Type_Player_Id;
                P_Activity_Report_List :    out Observation.Activity.Activity_Report.Vector) do
                P_Activity_Report_List := Player_List_Internal (P_Player_Id).Activity_Reports;
                Observation.Activity.Activity_Report.Clear
@@ -709,8 +683,7 @@ package body Server.Server is
          or
             -- To be used by a client that requests the reports created by his
             -- pieces
-            accept Entry_Get_Pieces_Report
-              (P_Player_Id         : in     Player.Type_Player_Id;
+            accept Entry_Get_Pieces_Report (P_Player_Id : in     Player.Type_Player_Id;
                P_Visibility_Frames :    out Observation.Frames.Piece_Visibility_Frames.Vector) do
 
                P_Visibility_Frames := Player_List_Internal (P_Player_Id).Visibility_Frames;
@@ -728,8 +701,7 @@ package body Server.Server is
          or
             accept Entry_Create_Piece
               (P_Player_Id   : in Player.Type_Player_Id; -- The player that placed this order
-               P_Action_Type : in Action.Type_Action_Type;
-               P_Pos         : in Hexagon.Type_Hexagon_Position;
+               P_Action_Type : in Action.Type_Action_Type; P_Pos : in Hexagon.Type_Hexagon_Position;
                P_Piece       : in Piece.Type_Piece) do
 
                if Verbose then
@@ -743,18 +715,12 @@ package body Server.Server is
                   Server.Piece_Action.New_Piece (P_Piece, A_Piece_Server);
 
                   if Piece.Server.Validate_Create_Piece
-                      (P_Player_Id,
-                       P_Action_Type,
-                       P_Pos,
+                      (P_Player_Id, P_Action_Type, P_Pos,
                        Piece.Server.Type_Piece'Class (A_Piece_Server.all))
                   then
 
                      Server.Cmd.Create_Piece
-                       (Cmd_List,
-                        P_Player_Id,
-                        P_Action_Type,
-                        P_Pos,
-                        A_Piece_Server);
+                       (Cmd_List, P_Player_Id, P_Action_Type, P_Pos, A_Piece_Server);
                   end if;
 
                end;
@@ -765,11 +731,9 @@ package body Server.Server is
 
             end Entry_Create_Piece;
          or
-            accept Entry_Put_Piece
-              (P_Player_Id   : in Player.Type_Player_Id;
-               P_Action_Type : in Action.Type_Action_Type;
-               P_Pos         : in Hexagon.Type_Hexagon_Position;
-               P_Piece_Id    : in Piece.Type_Piece_Id) do
+            accept Entry_Put_Piece (P_Player_Id : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type; P_Pos : in Hexagon.Type_Hexagon_Position;
+               P_Piece_Id                       : in Piece.Type_Piece_Id) do
 
                if Verbose then
                   Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Put_Piece - enter");
@@ -783,30 +747,22 @@ package body Server.Server is
 
                   if not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to put a piece that is not yours"));
                   else
                      if Piece.Server.Validate_Put_Piece
-                         (P_Player_Id,
-                          P_Action_Type,
-                          P_Pos,
+                         (P_Player_Id, P_Action_Type, P_Pos,
                           Piece.Server.Type_Piece'Class (A_Piece_Server.all))
                      then
                         Server.Cmd.Put_Piece
-                          (Cmd_List,
-                           P_Player_Id,
-                           P_Action_Type,
-                           P_Pos,
-                           A_Piece_Server.all.Id);
+                          (Cmd_List, P_Player_Id, P_Action_Type, P_Pos, A_Piece_Server.all.Id);
                      end if;
                   end if;
                exception
                   when Piece.Server.Piece_Not_Found_Piece_Position =>
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("Put Piece Piece Id:" & P_Piece_Id'Img & " Command will be cancelled."));
                end;
@@ -817,10 +773,8 @@ package body Server.Server is
 
             end Entry_Put_Piece;
          or
-            accept Entry_Remove_Piece
-              (P_Player_Id   : in Player.Type_Player_Id;
-               P_Action_Type : in Action.Type_Action_Type;
-               P_Piece_Id    : in Piece.Type_Piece_Id) do
+            accept Entry_Remove_Piece (P_Player_Id : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id) do
 
                if Verbose then
                   Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Remove_Piece - enter");
@@ -834,31 +788,24 @@ package body Server.Server is
 
                   if not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to remove a piece that is not yours"));
                   else
                      if Piece.Server.Validate_Remove_Piece
-                         (P_Player_Id,
-                          P_Action_Type,
+                         (P_Player_Id, P_Action_Type,
                           Piece.Server.Type_Piece'Class (A_Piece_Server.all))
                      then
                         Server.Cmd.Remove_Piece
-                          (Cmd_List,
-                           P_Player_Id,
-                           P_Action_Type,
-                           A_Piece_Server.all.Id);
+                          (Cmd_List, P_Player_Id, P_Action_Type, A_Piece_Server.all.Id);
                      end if;
                   end if;
                exception
                   when Piece.Server.Piece_Not_Found_Piece_Position =>
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
-                          ("Remove Piece Piece Id:" &
-                           P_Piece_Id'Img &
+                          ("Remove Piece Piece Id:" & P_Piece_Id'Img &
                            " Command will be cancelled."));
                end;
 
@@ -868,14 +815,14 @@ package body Server.Server is
 
             end Entry_Remove_Piece;
          or
-            accept Entry_Perform_Attack
-              (P_Player_Id                               : in Player.Type_Player_Id;
+            accept Entry_Perform_Attack (P_Player_Id     : in Player.Type_Player_Id;
                P_Action_Type                             : in Action.Type_Action_Type;
                P_Attacking_Piece_Id, P_Attacked_Piece_Id : in Piece.Type_Piece_Id) do
 
                if Verbose then
-                  Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Attack - enter P_Attacking_Piece_Id="
-                                   & P_Attacking_Piece_Id'Img & " P_Attacked_Piece_Id=" & P_Attacked_Piece_Id'Img);
+                  Text_IO.Put_Line
+                    ("Server.Server.Game_Engine.Entry_Perform_Attack - enter P_Attacking_Piece_Id=" &
+                     P_Attacking_Piece_Id'Img & " P_Attacked_Piece_Id=" & P_Attacked_Piece_Id'Img);
                end if;
 
                declare
@@ -890,67 +837,52 @@ package body Server.Server is
 
                   if An_Attacking_Piece_Server.all.Category /= Piece.Fighting_Piece then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to attack with a piece that can't attack"));
 
                   elsif An_Attacked_Piece_Server.all.Category /= Piece.Fighting_Piece then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to attack a piece that can't be attacked"));
 
                   elsif not Piece.Server.Is_Players_Piece
-                      (Piece.Server.Type_Piece (An_Attacking_Piece_Server.all),
-                       P_Player_Id)
-                  then
+                      (Piece.Server.Type_Piece (An_Attacking_Piece_Server.all), P_Player_Id) then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to attack with a piece that is not yours"));
 
-                  -- check if player attacks himself
+                     -- check if player attacks himself
                   elsif Piece.Server.Is_Players_Piece
-                      (Piece.Server.Type_Piece (An_Attacked_Piece_Server.all),
-                       P_Player_Id)
-                  then
+                      (Piece.Server.Type_Piece (An_Attacked_Piece_Server.all), P_Player_Id) then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to attack a piece that is yours"));
 
                   else
 
                      if Piece.Server.Fighting_Piece.Validate_Perform_Attack
-                         (P_Player_Id,
-                          P_Action_Type,
+                         (P_Player_Id, P_Action_Type,
                           Piece.Server.Fighting_Piece.Type_Piece'Class
                             (An_Attacking_Piece_Server.all),
                           Piece.Server.Fighting_Piece.Type_Piece'Class
                             (An_Attacked_Piece_Server.all))
                      then
                         Server.Cmd.Perform_Attack
-                          (Cmd_List,
-                           P_Player_Id,
-                           P_Action_Type,
-                           An_Attacking_Piece_Server.all.Id,
+                          (Cmd_List, P_Player_Id, P_Action_Type, An_Attacking_Piece_Server.all.Id,
                            An_Attacked_Piece_Server.all.Id);
                      end if;
                   end if;
                exception
                   when Piece.Server.Piece_Not_Found_Piece_Position =>
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
-                          ("Perform Attack either Attacking Piece Id:" &
-                           P_Attacking_Piece_Id'Img &
-                           " or Attacked Piece Id:" &
-                           P_Attacked_Piece_Id'Img &
+                          ("Perform Attack either Attacking Piece Id:" & P_Attacking_Piece_Id'Img &
+                           " or Attacked Piece Id:" & P_Attacked_Piece_Id'Img &
                            " not valid. Command will be cancelled."));
                end;
 
@@ -960,10 +892,9 @@ package body Server.Server is
 
             end Entry_Perform_Attack;
          or
-            accept Entry_Perform_Ranged_Attack
-              (P_Player_Id                               : in Player.Type_Player_Id;
-               P_Action_Type                             : in Action.Type_Action_Type;
-               P_Attacking_Piece_Id, P_Attacked_Piece_Id : in Piece.Type_Piece_Id) do
+            accept Entry_Perform_Ranged_Attack (P_Player_Id : in Player.Type_Player_Id;
+               P_Action_Type                                : in Action.Type_Action_Type;
+               P_Attacking_Piece_Id, P_Attacked_Piece_Id    : in Piece.Type_Piece_Id) do
 
                if Verbose then
                   Text_IO.Put_Line
@@ -982,67 +913,52 @@ package body Server.Server is
 
                   if An_Attacking_Piece_Server.all.Category /= Piece.Fighting_Piece then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to attack with a piece that can't attack"));
 
                   elsif An_Attacked_Piece_Server.all.Category /= Piece.Fighting_Piece then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to attack a piece that can't be attacked"));
 
                   elsif not Piece.Server.Is_Players_Piece
-                      (Piece.Server.Type_Piece (An_Attacking_Piece_Server.all),
-                       P_Player_Id)
-                  then
+                      (Piece.Server.Type_Piece (An_Attacking_Piece_Server.all), P_Player_Id) then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to attack with a piece that is not yours"));
 
-                  -- check if player attacks himself
+                     -- check if player attacks himself
                   elsif Piece.Server.Is_Players_Piece
-                      (Piece.Server.Type_Piece (An_Attacked_Piece_Server.all),
-                       P_Player_Id)
-                  then
+                      (Piece.Server.Type_Piece (An_Attacked_Piece_Server.all), P_Player_Id) then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to attack a piece that is yours"));
 
                   else
                      if Piece.Server.Fighting_Piece.Validate_Perform_Ranged_Attack
-                         (P_Player_Id,
-                          P_Action_Type,
+                         (P_Player_Id, P_Action_Type,
                           Piece.Server.Fighting_Piece.Type_Piece'Class
                             (An_Attacking_Piece_Server.all),
                           Piece.Server.Fighting_Piece.Type_Piece'Class
                             (An_Attacked_Piece_Server.all))
                      then
                         Server.Cmd.Perform_Ranged_Attack
-                          (Cmd_List,
-                           P_Player_Id,
-                           P_Action_Type,
-                           An_Attacking_Piece_Server.all.Id,
+                          (Cmd_List, P_Player_Id, P_Action_Type, An_Attacking_Piece_Server.all.Id,
                            An_Attacked_Piece_Server.all.Id);
                      end if;
                   end if;
                exception
                   when Piece.Server.Piece_Not_Found_Piece_Position =>
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("Perform Ranged Attack either Attacking Piece Id:" &
-                           P_Attacking_Piece_Id'Img &
-                           " or Attacked Piece Id:" &
-                           P_Attacked_Piece_Id'Img &
-                           " not valid. Command will be cancelled."));
+                           P_Attacking_Piece_Id'Img & " or Attacked Piece Id:" &
+                           P_Attacked_Piece_Id'Img & " not valid. Command will be cancelled."));
                end;
 
                if Verbose then
@@ -1050,11 +966,9 @@ package body Server.Server is
                end if;
             end Entry_Perform_Ranged_Attack;
          or
-            accept Entry_Perform_Move
-              (P_Player_Id   : in Player.Type_Player_Id;
-               P_Action_Type : in Action.Type_Action_Type;
-               P_Piece_Id    : in Piece.Type_Piece_Id;
-               P_To_Pos      : in Hexagon.Type_Hexagon_Position) do
+            accept Entry_Perform_Move (P_Player_Id : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
+               P_To_Pos                            : in Hexagon.Type_Hexagon_Position) do
 
                if Verbose then
                   Text_IO.Put_Line ("Server.Server.Game_Engine.Enter_Perform_Move - enter");
@@ -1069,44 +983,34 @@ package body Server.Server is
 
                   if A_Moving_Piece_Server.all.Category /= Piece.Fighting_Piece then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to move with a piece that can't move"));
 
                   elsif not Piece.Server.Is_Players_Piece
-                      (Piece.Server.Type_Piece (A_Moving_Piece_Server.all),
-                       P_Player_Id)
-                  then
+                      (Piece.Server.Type_Piece (A_Moving_Piece_Server.all), P_Player_Id) then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to move a piece that is not yours"));
 
                   else
                      if Piece.Server.Fighting_Piece.Validate_Perform_Move
-                         (P_Player_Id,
-                          P_Action_Type,
+                         (P_Player_Id, P_Action_Type,
                           Piece.Server.Fighting_Piece.Type_Piece'Class (A_Moving_Piece_Server.all),
                           P_To_Pos)
                      then
                         Server.Cmd.Perform_Move
-                          (Cmd_List,
-                           P_Player_Id,
-                           P_Action_Type,
-                           A_Moving_Piece_Server.all.Id,
+                          (Cmd_List, P_Player_Id, P_Action_Type, A_Moving_Piece_Server.all.Id,
                            P_To_Pos);
                      end if;
                   end if;
                exception
                   when Piece.Server.Piece_Not_Found_Piece_Position =>
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
-                          ("Perform Move Piece Id:" &
-                           P_Piece_Id'Img &
+                          ("Perform Move Piece Id:" & P_Piece_Id'Img &
                            " not valid. Command will be cancelled."));
                end;
 
@@ -1116,12 +1020,10 @@ package body Server.Server is
 
             end Entry_Perform_Move;
          or
-            accept Entry_Perform_Patch_Effect
-              (P_Player_Id   : in Player.Type_Player_Id;
-               P_Action_Type : in Action.Type_Action_Type;
-               P_Piece_Id    : in Piece.Type_Piece_Id;
-               P_Effect      : in Effect.Type_Effect;
-               P_Area        : in Hexagon.Area.Type_Action_Capabilities_A) do
+            accept Entry_Perform_Patch_Effect (P_Player_Id : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
+               P_Effect_Name                                    : in Effect.Type_Effect_Name;
+               P_Area : in Hexagon.Area.Type_Action_Capabilities_A) do
 
                if Verbose then
                   Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Patch_Effect - enter");
@@ -1134,40 +1036,28 @@ package body Server.Server is
                   A_Piece_Server := Piece.Server.Find_Piece_In_List (P_Piece_Id).Actual_Piece;
 
                   if not Piece.Server.Is_Players_Piece
-                      (Piece.Server.Type_Piece (A_Piece_Server.all),
-                       P_Player_Id)
-                  then
+                      (Piece.Server.Type_Piece (A_Piece_Server.all), P_Player_Id) then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to perform a patch effect with a piece that is not yours"));
 
                   else
                      if Piece.Server.Validate_Perform_Patch_Effect
-                         (P_Player_Id,
-                          P_Action_Type,
-                          Piece.Server.Type_Piece'Class (A_Piece_Server.all),
-                          P_Effect,
-                          P_Area)
+                         (P_Player_Id, P_Action_Type,
+                          Piece.Server.Type_Piece'Class (A_Piece_Server.all), P_Effect_Name, P_Area)
                      then
                         Server.Cmd.Perform_Patch_Effect
-                          (Cmd_List,
-                           P_Player_Id,
-                           P_Action_Type,
-                           A_Piece_Server.all.Id,
-                           P_Effect,
+                          (Cmd_List, P_Player_Id, P_Action_Type, A_Piece_Server.all.Id, P_Effect_Name,
                            P_Area);
                      end if;
                   end if;
                exception
                   when Piece.Server.Piece_Not_Found_Piece_Position =>
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
-                          ("Perform Patch Effect Piece Id:" &
-                           P_Piece_Id'Img &
+                          ("Perform Patch Effect Piece Id:" & P_Piece_Id'Img &
                            " not valid. Command will be cancelled."));
                end;
 
@@ -1177,11 +1067,9 @@ package body Server.Server is
 
             end Entry_Perform_Patch_Effect;
          or
-            accept Entry_Perform_Piece_Effect
-              (P_Player_Id   : in Player.Type_Player_Id;
-               P_Action_Type : in Action.Type_Action_Type;
-               P_Piece_Id    : in Piece.Type_Piece_Id;
-               P_Effect      : in Effect.Type_Effect) do
+            accept Entry_Perform_Piece_Effect (P_Player_Id : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
+               P_Effect_Name                                    : in Effect.Type_Effect_Name) do
 
                if Verbose then
                   Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Perform_Piece_Effect - enter");
@@ -1194,39 +1082,28 @@ package body Server.Server is
                   A_Piece_Server := Piece.Server.Find_Piece_In_List (P_Piece_Id).Actual_Piece;
 
                   if not Piece.Server.Is_Players_Piece
-                      (Piece.Server.Type_Piece (A_Piece_Server.all),
-                       P_Player_Id)
-                  then
+                      (Piece.Server.Type_Piece (A_Piece_Server.all), P_Player_Id) then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to perform a piece effect with a piece that is not yours"));
 
                   else
 
                      if Piece.Server.Validate_Perform_Piece_Effect
-                         (P_Player_Id,
-                          P_Action_Type,
-                          Piece.Server.Type_Piece'Class (A_Piece_Server.all),
-                          P_Effect)
+                         (P_Player_Id, P_Action_Type,
+                          Piece.Server.Type_Piece'Class (A_Piece_Server.all), P_Effect_Name)
                      then
                         Server.Cmd.Perform_Piece_Effect
-                          (Cmd_List,
-                           P_Player_Id,
-                           P_Action_Type,
-                           A_Piece_Server.all.Id,
-                           P_Effect);
+                          (Cmd_List, P_Player_Id, P_Action_Type, A_Piece_Server.all.Id, P_Effect_Name);
                      end if;
                   end if;
                exception
                   when Piece.Server.Piece_Not_Found_Piece_Position =>
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
-                          ("Perform Piece Effect Piece Id:" &
-                           P_Piece_Id'Img &
+                          ("Perform Piece Effect Piece Id:" & P_Piece_Id'Img &
                            " not valid. Command will be cancelled."));
                end;
 
@@ -1236,11 +1113,9 @@ package body Server.Server is
 
             end Entry_Perform_Piece_Effect;
          or
-            accept Entry_Grant_Piece_Effect
-              (P_Player_Id   : in Player.Type_Player_Id;
-               P_Action_Type : in Action.Type_Action_Type;
-               P_Piece_Id    : in Piece.Type_Piece_Id;
-               P_Effect      : in Effect.Type_Effect) do
+            accept Entry_Grant_Piece_Effect (P_Player_Id : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
+               P_Effect                                  : in Effect.Type_Effect) do
                if Verbose then
                   Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Grant_Piece_Effect - enter");
                end if;
@@ -1253,34 +1128,25 @@ package body Server.Server is
 
                   if not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to grant effect to a piece that is not yours"));
 
                   else
                      if Piece.Server.Validate_Grant_Piece_Effect
-                         (P_Player_Id,
-                          P_Action_Type,
-                          Piece.Server.Type_Piece'Class (A_Piece_Server.all),
-                          P_Effect)
+                         (P_Player_Id, P_Action_Type,
+                          Piece.Server.Type_Piece'Class (A_Piece_Server.all), P_Effect)
                      then
                         Server.Cmd.Grant_Piece_Effect
-                          (Cmd_List,
-                           P_Player_Id,
-                           P_Action_Type,
-                           A_Piece_Server.all.Id,
-                           P_Effect);
+                          (Cmd_List, P_Player_Id, P_Action_Type, A_Piece_Server.all.Id, P_Effect);
                      end if;
                   end if;
                exception
                   when Piece.Server.Piece_Not_Found_Piece_Position =>
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
-                          ("Grant Piece Effect Piece Id:" &
-                           P_Piece_Id'Img &
+                          ("Grant Piece Effect Piece Id:" & P_Piece_Id'Img &
                            " not valid. Command will be cancelled."));
                end;
 
@@ -1289,11 +1155,9 @@ package body Server.Server is
                end if;
             end Entry_Grant_Piece_Effect;
          or
-            accept Entry_Revoke_Piece_Effect
-              (P_Player_Id   : in Player.Type_Player_Id;
-               P_Action_Type : in Action.Type_Action_Type;
-               P_Piece_Id    : in Piece.Type_Piece_Id;
-               P_Effect      : in Effect.Type_Effect) do
+            accept Entry_Revoke_Piece_Effect (P_Player_Id : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
+               P_Effect_Name                              : in Effect.Type_Effect_Name) do
 
                if Verbose then
                   Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Revoke_Piece_Effect - enter");
@@ -1307,34 +1171,26 @@ package body Server.Server is
 
                   if not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to revoke effect from a piece that is not yours"));
                   else
                      if Piece.Server.Validate_Revoke_Piece_Effect
-                         (P_Player_Id,
-                          P_Action_Type,
-                          Piece.Server.Type_Piece'Class (A_Piece_Server.all),
-                          P_Effect)
+                         (P_Player_Id, P_Action_Type,
+                          Piece.Server.Type_Piece'Class (A_Piece_Server.all), P_Effect_Name)
                      then
 
                         Server.Cmd.Revoke_Piece_Effect
-                          (Cmd_List,
-                           P_Player_Id,
-                           P_Action_Type,
-                           A_Piece_Server.all.Id,
-                           P_Effect);
+                          (Cmd_List, P_Player_Id, P_Action_Type, A_Piece_Server.all.Id,
+                           P_Effect_Name);
                      end if;
                   end if;
                exception
                   when Piece.Server.Piece_Not_Found_Piece_Position =>
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
-                          ("Revoke Piece Effect Piece Id:" &
-                           P_Piece_Id'Img &
+                          ("Revoke Piece Effect Piece Id:" & P_Piece_Id'Img &
                            " not valid. Command will be cancelled."));
                end;
 
@@ -1343,12 +1199,10 @@ package body Server.Server is
                end if;
             end Entry_Revoke_Piece_Effect;
          or
-            accept Entry_Grant_Patch_Effect
-              (P_Player_Id   : in Player.Type_Player_Id;
-               P_Action_Type : in Action.Type_Action_Type;
-               P_Piece_Id    : in Piece.Type_Piece_Id;
-               P_Effect      : in Effect.Type_Effect;
-               P_Area        : in Hexagon.Area.Type_Action_Capabilities_A) do
+            accept Entry_Grant_Patch_Effect (P_Player_Id : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
+               P_Effect                                  : in Effect.Type_Effect;
+               P_Area : in Hexagon.Area.Type_Action_Capabilities_A) do
                if Verbose then
                   Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Grant_Patch_Effect - enter");
                end if;
@@ -1361,37 +1215,27 @@ package body Server.Server is
 
                   if not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to grant an effect to a patch with a piece that is not yours"));
 
                   else
                      if Piece.Server.Validate_Grant_Patch_Effect
-                         (P_Player_Id,
-                          P_Action_Type,
-                          Piece.Server.Type_Piece'Class (A_Piece_Server.all),
-                          P_Area,
-                          P_Effect)
+                         (P_Player_Id, P_Action_Type,
+                          Piece.Server.Type_Piece'Class (A_Piece_Server.all), P_Area, P_Effect)
                      then
 
                         Server.Cmd.Grant_Patch_Effect
-                          (Cmd_List,
-                           P_Player_Id,
-                           P_Action_Type,
-                           A_Piece_Server.all.Id,
-                           P_Effect,
+                          (Cmd_List, P_Player_Id, P_Action_Type, A_Piece_Server.all.Id, P_Effect,
                            P_Area);
                      end if;
                   end if;
                exception
                   when Piece.Server.Piece_Not_Found_Piece_Position =>
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
-                          ("Grant Patch Effect Piece Id:" &
-                           P_Piece_Id'Img &
+                          ("Grant Patch Effect Piece Id:" & P_Piece_Id'Img &
                            " not valid. Command will be cancelled."));
                end;
 
@@ -1400,12 +1244,10 @@ package body Server.Server is
                end if;
             end Entry_Grant_Patch_Effect;
          or
-            accept Entry_Revoke_Patch_Effect
-              (P_Player_Id   : in Player.Type_Player_Id;
-               P_Action_Type : in Action.Type_Action_Type;
-               P_Piece_Id    : in Piece.Type_Piece_Id;
-               P_Effect      : in Effect.Type_Effect;
-               P_Area        : in Hexagon.Area.Type_Action_Capabilities_A) do
+            accept Entry_Revoke_Patch_Effect (P_Player_Id : in Player.Type_Player_Id;
+               P_Action_Type : in Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
+               P_Effect_Name                              : in Effect.Type_Effect_Name;
+               P_Area : in Hexagon.Area.Type_Action_Capabilities_A) do
 
                if Verbose then
                   Text_IO.Put_Line ("Server.Server.Game_Engine.Entry_Revoke_Patch_Effect - enter");
@@ -1419,36 +1261,26 @@ package body Server.Server is
 
                   if not Piece.Server.Is_Players_Piece (A_Piece_Server.all, P_Player_Id) then
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
                           ("You attempted to revoke an effect from a patch with a piece that is not yours"));
 
                   else
                      if Piece.Server.Validate_Revoke_Patch_Effect
-                         (P_Player_Id,
-                          P_Action_Type,
-                          Piece.Server.Type_Piece'Class (A_Piece_Server.all),
-                          P_Area,
-                          P_Effect)
+                         (P_Player_Id, P_Action_Type,
+                          Piece.Server.Type_Piece'Class (A_Piece_Server.all), P_Area, P_Effect_Name)
                      then
                         Server.Cmd.Revoke_Patch_Effect
-                          (Cmd_List,
-                           P_Player_Id,
-                           P_Action_Type,
-                           A_Piece_Server.all.Id,
-                           P_Effect,
-                           P_Area);
+                          (Cmd_List, P_Player_Id, P_Action_Type, A_Piece_Server.all.Id,
+                           P_Effect_Name, P_Area);
                      end if;
                   end if;
                exception
                   when Piece.Server.Piece_Not_Found_Piece_Position =>
                      Server.Player_Activity_Report_Append
-                       (1,
-                        P_Player_Id,
+                       (1, P_Player_Id,
                         Utilities.RemoteString.To_Unbounded_String
-                          ("Revoke Piece Effect Piece Id:" &
-                           P_Piece_Id'Img &
+                          ("Revoke Piece Effect Piece Id:" & P_Piece_Id'Img &
                            " not valid. Command will be cancelled."));
                end;
 
@@ -1457,10 +1289,8 @@ package body Server.Server is
                end if;
             end Entry_Revoke_Patch_Effect;
          or
-            accept Entry_Get_Updates_Summary
-              (P_Player_Id       : in     Player.Type_Player_Id;
-               P_Countdown       :    out Positive;
-               P_Game_State      :    out Status.Type_Game_Status;
+            accept Entry_Get_Updates_Summary (P_Player_Id : in     Player.Type_Player_Id;
+               P_Countdown :    out Positive; P_Game_State : out Status.Type_Game_Status;
                P_System_Messages :    out Observation.Activity.Activity_Report.Vector) do
 
                P_Countdown  := Countdown;
@@ -1488,16 +1318,15 @@ package body Server.Server is
 
                Player_List_Internal (P_Player_Id).Active := False;
                Opponents_System_Report_Append
-                 (Observation.Activity.Internal_Details,
-                  P_Player_Id,
+                 (Observation.Activity.Internal_Details, P_Player_Id,
                   Utilities.RemoteString.To_Unbounded_String ("Your opponent quit unexpectedly"));
 
                Observe_Game (1);
 
             end Entry_Client_Stopped;
          or
-            accept Entry_Get_Game_Engine_State
-              (P_Game_Engine_State : out Status.Type_Engine_State) do
+            accept Entry_Get_Game_Engine_State (P_Game_Engine_State : out Status.Type_Engine_State)
+            do
                P_Game_Engine_State := Run;
             end Entry_Get_Game_Engine_State;
          or
@@ -1534,11 +1363,9 @@ package body Server.Server is
 
          elsif Run = Status.Starting then
             Utilities.Delete_Starting_With
-              (Server_Info,
-               Utilities.RemoteString.To_Unbounded_String ("Run:"));
+              (Server_Info, Utilities.RemoteString.To_Unbounded_String ("Run:"));
             Utilities.RemoteString_List.Append
-              (Server_Info,
-               Utilities.RemoteString.To_Unbounded_String ("Run:" & Run'Img));
+              (Server_Info, Utilities.RemoteString.To_Unbounded_String ("Run:" & Run'Img));
 
          elsif Run = Status.Creating_Game then
 
@@ -1547,25 +1374,19 @@ package body Server.Server is
                Utilities.RemoteString.To_String (Create_File_Name));
 
             Server.Archive.Creating_Game
-              (Utilities.RemoteString.To_Unbounded_String ("scenarios\"),
-               Create_File_Name,
-               Scenario_Name,
-               Player_List_Internal,
-               Countdown);
+              (Utilities.RemoteString.To_Unbounded_String ("scenarios\"), Create_File_Name,
+               Scenario_Name, Player_List_Internal, Countdown);
 
             begin
                Server.Game_Creating.all (Create_File_Name, Scenario_Name);
             exception
                when others =>
                   Text_IO.Put_Line
-                    (Text_IO.Current_Error,
-                     "Server.Server.Game_Engine: Game_Creating");
+                    (Text_IO.Current_Error, "Server.Server.Game_Engine: Game_Creating");
                   Text_IO.Put_Line
                     (Text_IO.Current_Error,
-                     "Create_File_Name:" &
-                     Utilities.RemoteString.To_String (Create_File_Name) &
-                     " Scenario_Name:" &
-                     Utilities.RemoteString.To_String (Scenario_Name));
+                     "Create_File_Name:" & Utilities.RemoteString.To_String (Create_File_Name) &
+                     " Scenario_Name:" & Utilities.RemoteString.To_String (Scenario_Name));
                   raise;
             end;
 
@@ -1579,22 +1400,18 @@ package body Server.Server is
 
             Run := Status.Ongoing;
             Utilities.Delete_Starting_With
-              (Server_Info,
-               Utilities.RemoteString.To_Unbounded_String ("Run:"));
+              (Server_Info, Utilities.RemoteString.To_Unbounded_String ("Run:"));
             Utilities.RemoteString_List.Append
-              (Server_Info,
-               Utilities.RemoteString.To_Unbounded_String ("Run:" & Run'Img));
+              (Server_Info, Utilities.RemoteString.To_Unbounded_String ("Run:" & Run'Img));
 
          elsif Run = Status.Joining_Game then
 
             Run := Status.Ongoing;
 
             Utilities.Delete_Starting_With
-              (Server_Info,
-               Utilities.RemoteString.To_Unbounded_String ("Run:"));
+              (Server_Info, Utilities.RemoteString.To_Unbounded_String ("Run:"));
             Utilities.RemoteString_List.Append
-              (Server_Info,
-               Utilities.RemoteString.To_Unbounded_String ("Run:" & Run'Img));
+              (Server_Info, Utilities.RemoteString.To_Unbounded_String ("Run:" & Run'Img));
             --
 
             for Player_Index in Player_List_Internal'First .. Player_List_Internal'Last loop
@@ -1602,16 +1419,14 @@ package body Server.Server is
                Utilities.Delete_Starting_With
                  (Server_Info,
                   Utilities.RemoteString.To_Unbounded_String
-                    ("Player " &
-                     Utilities.Number_To_Fixed_String (Natural (Player_Index), 2) &
+                    ("Player " & Utilities.Number_To_Fixed_String (Natural (Player_Index), 2) &
                      ":"));
 
                if Player_List_Internal (Player_Index).Active then
                   Utilities.RemoteString_List.Append
                     (Server_Info,
                      Utilities.RemoteString.To_Unbounded_String
-                       ("Player " &
-                        Utilities.Number_To_Fixed_String (Natural (Player_Index), 2) &
+                       ("Player " & Utilities.Number_To_Fixed_String (Natural (Player_Index), 2) &
                         ":"));
                end if;
             end loop;
@@ -1622,8 +1437,7 @@ package body Server.Server is
             exception
                when others =>
                   Text_IO.Put_Line
-                    (Text_IO.Current_Error,
-                     "Server.Server.Game_Engine: Game_Joining");
+                    (Text_IO.Current_Error, "Server.Server.Game_Engine: Game_Joining");
                   raise;
             end;
 
@@ -1633,27 +1447,23 @@ package body Server.Server is
             Run := Status.Ongoing;
 
             Utilities.Delete_Starting_With
-              (Server_Info,
-               Utilities.RemoteString.To_Unbounded_String ("Run:"));
+              (Server_Info, Utilities.RemoteString.To_Unbounded_String ("Run:"));
             Utilities.RemoteString_List.Append
-              (Server_Info,
-               Utilities.RemoteString.To_Unbounded_String ("Run:" & Run'Img));
+              (Server_Info, Utilities.RemoteString.To_Unbounded_String ("Run:" & Run'Img));
             --
 
             for Player_Index in Player_List_Internal'First .. Player_List_Internal'Last loop
                Utilities.Delete_Starting_With
                  (Server_Info,
                   Utilities.RemoteString.To_Unbounded_String
-                    ("Player " &
-                     Utilities.Number_To_Fixed_String (Natural (Player_Index), 2) &
+                    ("Player " & Utilities.Number_To_Fixed_String (Natural (Player_Index), 2) &
                      ":"));
 
                if Player_List_Internal (Player_Index).Active then
                   Utilities.RemoteString_List.Append
                     (Server_Info,
                      Utilities.RemoteString.To_Unbounded_String
-                       ("Player " &
-                        Utilities.Number_To_Fixed_String (Natural (Player_Index), 2) &
+                       ("Player " & Utilities.Number_To_Fixed_String (Natural (Player_Index), 2) &
                         ":"));
                end if;
 
@@ -1666,8 +1476,7 @@ package body Server.Server is
             exception
                when others =>
                   Text_IO.Put_Line
-                    (Text_IO.Current_Error,
-                     "Server.Server.Game_Engine: Game_Leaving");
+                    (Text_IO.Current_Error, "Server.Server.Game_Engine: Game_Leaving");
                   raise;
             end;
 
@@ -1683,25 +1492,19 @@ package body Server.Server is
 
             -- Saving can be done anytime.
             Server.Archive.Saving_Game
-              (Utilities.RemoteString.To_Unbounded_String ("saved\"),
-               Save_File_Name,
-               Scenario_Name,
-               Player_List_Internal,
-               Countdown);
+              (Utilities.RemoteString.To_Unbounded_String ("saved\"), Save_File_Name, Scenario_Name,
+               Player_List_Internal, Countdown);
 
             begin
                Server.Game_Saving.all (Save_File_Name, Scenario_Name);
             exception
                when others =>
                   Text_IO.Put_Line
-                    (Text_IO.Current_Error,
-                     "Server.Server.Game_Engine: Game_Saving");
+                    (Text_IO.Current_Error, "Server.Server.Game_Engine: Game_Saving");
                   Text_IO.Put_Line
                     (Text_IO.Current_Error,
-                     "Save_File_Name:" &
-                     Utilities.RemoteString.To_String (Save_File_Name) &
-                     " Scenario_Name:" &
-                     Utilities.RemoteString.To_String (Scenario_Name));
+                     "Save_File_Name:" & Utilities.RemoteString.To_String (Save_File_Name) &
+                     " Scenario_Name:" & Utilities.RemoteString.To_String (Scenario_Name));
                   raise;
             end;
 
@@ -1721,32 +1524,25 @@ package body Server.Server is
                Utilities.RemoteString.To_String (Load_File_Name));
 
             Server.Archive.Loading_Game
-              (Utilities.RemoteString.To_Unbounded_String ("saved\"),
-               Load_File_Name,
-               Scenario_Name,
-               Player_List_Internal,
-               Countdown);
+              (Utilities.RemoteString.To_Unbounded_String ("saved\"), Load_File_Name, Scenario_Name,
+               Player_List_Internal, Countdown);
 
             begin
                Server.Game_Loading.all (Load_File_Name, Scenario_Name);
             exception
                when others =>
                   Text_IO.Put_Line
-                    (Text_IO.Current_Error,
-                     "Server.Server.Game_Engine: Game_Loading");
+                    (Text_IO.Current_Error, "Server.Server.Game_Engine: Game_Loading");
                   Text_IO.Put_Line
                     (Text_IO.Current_Error,
-                     "Load_File_Name:" &
-                     Utilities.RemoteString.To_String (Load_File_Name) &
-                     " Scenario_Name:" &
-                     Utilities.RemoteString.To_String (Scenario_Name));
+                     "Load_File_Name:" & Utilities.RemoteString.To_String (Load_File_Name) &
+                     " Scenario_Name:" & Utilities.RemoteString.To_String (Scenario_Name));
                   raise;
             end;
 
             for Trav_Player in Player_List_Internal'First .. Player_List_Internal'Last loop
                if Player_List_Internal (Trav_Player).In_Scenario and
-                 Player_List_Internal (Trav_Player).Is_Observing
-               then
+                 Player_List_Internal (Trav_Player).Is_Observing then
 
                   Utilities.RemoteString_List.Append
                     (Server_Info,
@@ -1760,11 +1556,9 @@ package body Server.Server is
             Run := Status.Ongoing;
 
             Utilities.Delete_Starting_With
-              (Server_Info,
-               Utilities.RemoteString.To_Unbounded_String ("Run:"));
+              (Server_Info, Utilities.RemoteString.To_Unbounded_String ("Run:"));
             Utilities.RemoteString_List.Append
-              (Server_Info,
-               Utilities.RemoteString.To_Unbounded_String ("Run:" & Run'Img));
+              (Server_Info, Utilities.RemoteString.To_Unbounded_String ("Run:" & Run'Img));
 
          elsif Run = Last_Report then
 

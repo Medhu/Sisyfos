@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2019  Frank J Jorgensen
+--      Copyright (C) 2013-2021  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -198,34 +198,34 @@ package Test_Piece is
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in out Test_Piece.Type_My_Test_Piece;
       P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect      : in     Effect.Type_Effect);
+      P_Effect_Name : in     Effect.Type_Effect_Name);
 
    procedure Perform_Patch_Effect
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in out Test_Piece.Type_My_Test_House;
       P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect      : in     Effect.Type_Effect);
+      P_Effect_Name : in     Effect.Type_Effect_Name);
 
    function Validate_Perform_Patch_Effect
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Piece       : in Test_Piece.Type_My_Test_Piece;
-      P_Effect      : in Effect.Type_Effect;
+      P_Effect_Name : in Effect.Type_Effect_Name;
       P_Area        : in Hexagon.Area.Type_Action_Capabilities_A) return Boolean;
 
    function Validate_Perform_Patch_Effect
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Piece       : in Test_Piece.Type_My_Test_House;
-      P_Effect      : in Effect.Type_Effect;
+      P_Effect_Name : in Effect.Type_Effect_Name;
       P_Area        : in Hexagon.Area.Type_Action_Capabilities_A) return Boolean;
 
    procedure Before_Perform_Patch_Effect
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in out Test_Piece.Type_My_Test_Piece;
-      P_Effect      : in     Effect.Type_Effect;
+      P_Effect_Name : in     Effect.Type_Effect_Name;
       P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_Result      :    out Status.Type_Result_Status);
 
@@ -233,7 +233,7 @@ package Test_Piece is
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in out Test_Piece.Type_My_Test_House;
-      P_Effect      : in     Effect.Type_Effect;
+      P_Effect_Name : in     Effect.Type_Effect_Name;
       P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_Result      :    out Status.Type_Result_Status);
 
@@ -241,7 +241,7 @@ package Test_Piece is
      (P_Player_Id          : in     Player.Type_Player_Id;
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
-      P_Effect             : in     Effect.Type_Effect;
+      P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_Area               : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_End_Status         : in     Status.Type_Status;
       P_Attempts_Remaining : in out Integer);
@@ -250,7 +250,7 @@ package Test_Piece is
      (P_Player_Id          : in     Player.Type_Player_Id;
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece              : in out Test_Piece.Type_My_Test_House;
-      P_Effect             : in     Effect.Type_Effect;
+      P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_Area               : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_End_Status         : in     Status.Type_Status;
       P_Attempts_Remaining : in out Integer);
@@ -262,45 +262,45 @@ package Test_Piece is
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Piece       : in Test_Piece.Type_My_Test_Piece;
-      P_Effect      : in Effect.Type_Effect) return Boolean;
+      P_Effect_Name : in Effect.Type_Effect_Name) return Boolean;
 
    function Validate_Perform_Piece_Effect
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Piece       : in Test_Piece.Type_My_Test_House;
-      P_Effect      : in Effect.Type_Effect) return Boolean;
+      P_Effect_Name : in Effect.Type_Effect_Name) return Boolean;
 
    procedure Before_Perform_Piece_Effect
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in out Test_Piece.Type_My_Test_House;
-      P_Effect      : in     Effect.Type_Effect;
+      P_Effect_Name : in     Effect.Type_Effect_Name;
       P_Result      :    out Status.Type_Result_Status);
 
    procedure Before_Perform_Piece_Effect
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in out Test_Piece.Type_My_Test_Piece;
-      P_Effect      : in     Effect.Type_Effect;
+      P_Effect_Name : in     Effect.Type_Effect_Name;
       P_Result      :    out Status.Type_Result_Status);
 
    procedure Perform_Piece_Effect
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in out Test_Piece.Type_My_Test_Piece;
-      P_Effect      : in     Effect.Type_Effect);
+      P_Effect_Name : in     Effect.Type_Effect_Name);
 
    procedure Perform_Piece_Effect
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in out Test_Piece.Type_My_Test_House;
-      P_Effect      : in     Effect.Type_Effect);
+      P_Effect_Name : in     Effect.Type_Effect_Name);
 
    procedure End_Perform_Piece_Effect
      (P_Player_Id          : in     Player.Type_Player_Id;
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
-      P_Effect             : in     Effect.Type_Effect;
+      P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_End_Status         : in     Status.Type_Status;
       P_Attempts_Remaining : in out Integer);
 
@@ -308,7 +308,7 @@ package Test_Piece is
      (P_Player_Id          : in     Player.Type_Player_Id;
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece              : in out Test_Piece.Type_My_Test_House;
-      P_Effect             : in     Effect.Type_Effect;
+      P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_End_Status         : in     Status.Type_Status;
       P_Attempts_Remaining : in out Integer);
 
@@ -364,33 +364,33 @@ package Test_Piece is
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Piece       : in Test_Piece.Type_My_Test_Piece;
-      P_Effect      : in Effect.Type_Effect) return Boolean;
+      P_Effect_Name : in Effect.Type_Effect_Name) return Boolean;
 
    function Validate_Revoke_Piece_Effect
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Piece       : in Test_Piece.Type_My_Test_House;
-      P_Effect      : in Effect.Type_Effect) return Boolean;
+      P_Effect_Name : in Effect.Type_Effect_Name) return Boolean;
 
    procedure Before_Revoke_Piece_Effect
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in out Test_Piece.Type_My_Test_Piece;
-      P_Effect      : in     Effect.Type_Effect;
+      P_Effect_Name : in     Effect.Type_Effect_Name;
       P_Result      :    out Status.Type_Result_Status);
 
    procedure Before_Revoke_Piece_Effect
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in out Test_Piece.Type_My_Test_House;
-      P_Effect      : in     Effect.Type_Effect;
+      P_Effect_Name : in     Effect.Type_Effect_Name;
       P_Result      :    out Status.Type_Result_Status);
 
    procedure End_Revoke_Piece_Effect
      (P_Player_Id          : in     Player.Type_Player_Id;
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
-      P_Effect             : in     Effect.Type_Effect;
+      P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_End_Status         : in     Status.Type_Status;
       P_Attempts_Remaining : in out Integer);
 
@@ -398,7 +398,7 @@ package Test_Piece is
      (P_Player_Id          : in     Player.Type_Player_Id;
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece              : in out Test_Piece.Type_My_Test_House;
-      P_Effect             : in     Effect.Type_Effect;
+      P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_End_Status         : in     Status.Type_Status;
       P_Attempts_Remaining : in out Integer);
 
@@ -461,21 +461,21 @@ package Test_Piece is
       P_Action_Type : in Action.Type_Action_Type;
       P_Piece       : in Test_Piece.Type_My_Test_Piece;
       P_Area        : in Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect      : in Effect.Type_Effect) return Boolean;
+      P_Effect_Name : in Effect.Type_Effect_Name) return Boolean;
 
    function Validate_Revoke_Patch_Effect
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Piece       : in Test_Piece.Type_My_Test_House;
       P_Area        : in Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect      : in Effect.Type_Effect) return Boolean;
+      P_Effect_Name : in Effect.Type_Effect_Name) return Boolean;
 
    procedure Before_Revoke_Patch_Effect
      (P_Player_Id   : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in out Test_Piece.Type_My_Test_Piece;
       P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect      : in     Effect.Type_Effect;
+      P_Effect_Name : in     Effect.Type_Effect_Name;
       P_Result      :    out Status.Type_Result_Status);
 
    procedure Before_Revoke_Patch_Effect
@@ -483,7 +483,7 @@ package Test_Piece is
       P_Action_Type : in     Action.Type_Action_Type;
       P_Piece       : in out Test_Piece.Type_My_Test_House;
       P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect      : in     Effect.Type_Effect;
+      P_Effect_Name : in     Effect.Type_Effect_Name;
       P_Result      :    out Status.Type_Result_Status);
 
    procedure End_Revoke_Patch_Effect
@@ -491,7 +491,7 @@ package Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
       P_Area               : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect             : in     Effect.Type_Effect;
+      P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_End_Status         : in     Status.Type_Status;
       P_Attempts_Remaining : in out Integer);
 
@@ -500,7 +500,7 @@ package Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece              : in out Test_Piece.Type_My_Test_House;
       P_Area               : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect             : in     Effect.Type_Effect;
+      P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_End_Status         : in     Status.Type_Status;
       P_Attempts_Remaining : in out Integer);
 

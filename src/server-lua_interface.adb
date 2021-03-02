@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2019  Frank J Jorgensen
+--      Copyright (C) 2015-2021  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@
 --      You should have received a copy of the GNU General Public License
 --      along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
-
 
 with Lua;
 with Text_IO;
@@ -44,8 +43,7 @@ package body Server.Lua_Interface is
       N         := 1;
       while N <= Max_Index loop
 
-         Text_IO.Put_Line
-           ("Index " & N'Img & " " & Lua.Get_Type (P_Lua_State, N)'Img);
+         Text_IO.Put_Line ("Index " & N'Img & " " & Lua.Get_Type (P_Lua_State, N)'Img);
          N := N + 1;
       end loop;
    end Print_Stack;
@@ -65,9 +63,7 @@ package body Server.Lua_Interface is
 
       for Trav_Status in Status.Type_Status'Range loop
          Lua.Push (P_Lua_State, Trav_Status'Img);
-         Lua.Push
-           (P_Lua_State,
-            Lua.Lua_Integer (Status.Type_Status'Pos (Trav_Status)));
+         Lua.Push (P_Lua_State, Lua.Lua_Integer (Status.Type_Status'Pos (Trav_Status)));
 
          Lua.Set_Table (P_Lua_State, 1);
       end loop;
@@ -79,9 +75,7 @@ package body Server.Lua_Interface is
 
       for Trav_Category in Piece.Type_Category'Range loop
          Lua.Push (P_Lua_State, Trav_Category'Img);
-         Lua.Push
-           (P_Lua_State,
-            Lua.Lua_Integer (Piece.Type_Category'Pos (Trav_Category)));
+         Lua.Push (P_Lua_State, Lua.Lua_Integer (Piece.Type_Category'Pos (Trav_Category)));
 
          Lua.Set_Table (P_Lua_State, 1);
       end loop;
@@ -89,93 +83,41 @@ package body Server.Lua_Interface is
       Lua.Register_Object (P_Lua_State, "Sisyfos.Category");
 
       Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Observe_Game_Minimum_Details",
-         Observe_Game_Minimum_Details'Access);
+        (P_Lua_State, "Sisyfos.Observe_Game_Minimum_Details", Observe_Game_Minimum_Details'Access);
+      Lua.Register_Function (P_Lua_State, "Sisyfos.Observe_Game", Observe_Game'Access);
+      Lua.Register_Function (P_Lua_State, "Sisyfos.Create_Piece", Create_Piece'Access);
+      Lua.Register_Function (P_Lua_State, "Sisyfos.Put_Piece", Put_Piece'Access);
+      Lua.Register_Function (P_Lua_State, "Sisyfos.Remove_Piece", Remove_Piece'Access);
+      Lua.Register_Function (P_Lua_State, "Sisyfos.Perform_Attack", Perform_Attack'Access);
+      Lua.Register_Function (P_Lua_State, "Sisyfos.Perform_Move", Perform_Move'Access);
       Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Observe_Game",
-         Observe_Game'Access);
+        (P_Lua_State, "Sisyfos.Perform_Ranged_Attack", Perform_Ranged_Attack'Access);
+      Lua.Register_Function (P_Lua_State, "Sisyfos.Grant_Piece_Effect", Grant_Piece_Effect'Access);
       Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Create_Piece",
-         Create_Piece'Access);
+        (P_Lua_State, "Sisyfos.Revoke_Piece_Effect", Revoke_Piece_Effect'Access);
+      Lua.Register_Function (P_Lua_State, "Sisyfos.Grant_Patch_Effect", Grant_Patch_Effect'Access);
       Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Put_Piece",
-         Put_Piece'Access);
+        (P_Lua_State, "Sisyfos.Revoke_Patch_Effect", Revoke_Patch_Effect'Access);
       Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Remove_Piece",
-         Remove_Piece'Access);
+        (P_Lua_State, "Sisyfos.Perform_Patch_Effect", Perform_Patch_Effect'Access);
       Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Perform_Attack",
-         Perform_Attack'Access);
+        (P_Lua_State, "Sisyfos.Perform_Piece_Effect", Perform_Piece_Effect'Access);
+      Lua.Register_Function (P_Lua_State, "Sisyfos.Find_Piece_In_List", Find_Piece_In_List'Access);
       Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Perform_Move",
-         Perform_Move'Access);
-      Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Perform_Ranged_Attack",
-         Perform_Ranged_Attack'Access);
-      Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Grant_Piece_Effect",
-         Grant_Piece_Effect'Access);
-      Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Revoke_Piece_Effect",
-         Revoke_Piece_Effect'Access);
-      Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Grant_Patch_Effect",
-         Grant_Patch_Effect'Access);
-      Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Revoke_Patch_Effect",
-         Revoke_Patch_Effect'Access);
-      Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Perform_Patch_Effect",
-         Perform_Patch_Effect'Access);
-      Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Perform_Piece_Effect",
-         Perform_Piece_Effect'Access);
-      Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Find_Piece_In_List",
-         Find_Piece_In_List'Access);
-      Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Opponents_Activity_Report_Append",
+        (P_Lua_State, "Sisyfos.Opponents_Activity_Report_Append",
          Opponents_Activity_Report_Append'Access);
       Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Player_Activity_Report_Append",
+        (P_Lua_State, "Sisyfos.Player_Activity_Report_Append",
          Player_Activity_Report_Append'Access);
       Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Opponents_System_Report_Append",
+        (P_Lua_State, "Sisyfos.Opponents_System_Report_Append",
          Opponents_System_Report_Append'Access);
       Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Player_System_Report_Append",
-         Player_System_Report_Append'Access);
+        (P_Lua_State, "Sisyfos.Player_System_Report_Append", Player_System_Report_Append'Access);
+      Lua.Register_Function (P_Lua_State, "Sisyfos.Get_Player_Name", Get_Player_Name'Access);
+      Lua.Register_Function (P_Lua_State, "Sisyfos.Get_Map_Terrain", Get_Map_Terrain'Access);
       Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Get_Player_Name",
-         Get_Player_Name'Access);
-      Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Get_Map_Terrain",
-         Get_Map_Terrain'Access);
-      Lua.Register_Function
-        (P_Lua_State,
-         "Sisyfos.Get_Map_Pieces_List",
-         Get_Map_Pieces_List'Access);
+        (P_Lua_State, "Sisyfos.Get_Map_Pieces_List", Get_Map_Pieces_List'Access);
 
       Text_IO.Put_Line ("Lua API Initialised");
 
@@ -184,32 +126,27 @@ package body Server.Lua_Interface is
       end if;
    end Init;
 
-   function Parameter_Hexagon_Area_Input
-     (P_Lua_State : in Lua.Lua_State;
-      P_Index     : in Lua.Lua_Index)
-      return Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A
+   function Parameter_Hexagon_Area_Input (P_Lua_State : in Lua.Lua_State;
+      P_Index : in Lua.Lua_Index) return Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A
    is
       Trav_Parameters, Max_Parameters : Integer;
 
       Stack_Top_On_Start : Lua.Lua_Index;
 
-      Area : Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A;
+      Area                         : Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A;
       Lua_Integer_A, Lua_Integer_B : Lua.Lua_Integer;
    begin
       if Verbose then
          Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Hexagon_Area_Input - enter P__Index=" &
-            P_Index'Img &
-            " top " &
-            Lua.Get_Top (P_Lua_State)'Img);
+           ("Server.Lua_Interface.Parameter_Hexagon_Area_Input - enter P__Index=" & P_Index'Img &
+            " top " & Lua.Get_Top (P_Lua_State)'Img);
       end if;
 
       Stack_Top_On_Start := Lua.Get_Top (P_Lua_State);
 
       Max_Parameters := Integer (Lua.Raw_Len (P_Lua_State, P_Index));
 
-      Area :=
-        new Hexagon.Area.Type_Action_Capabilities_A (1 .. Max_Parameters);
+      Area := new Hexagon.Area.Type_Action_Capabilities_A (1 .. Max_Parameters);
 
       Trav_Parameters := 1;
       while Trav_Parameters <= Max_Parameters loop
@@ -230,8 +167,7 @@ package body Server.Lua_Interface is
 
          Area.all (Trav_Parameters) :=
            Hexagon.Type_Hexagon_Position'
-             (True,
-              Hexagon.Type_Hexagon_Numbers (Lua_Integer_A),
+             (True, Hexagon.Type_Hexagon_Numbers (Lua_Integer_A),
               Hexagon.Type_Hexagon_Numbers (Lua_Integer_B));
          Trav_Parameters := Trav_Parameters + 1;
       end loop;
@@ -245,38 +181,33 @@ package body Server.Lua_Interface is
       return Area;
    end Parameter_Hexagon_Area_Input;
 
-   function Parameter_Boolean_Input
-     (P_Lua_State : in Lua.Lua_State;
-      P_Index     :    Lua.Lua_Index) return Boolean
+   function Parameter_Boolean_Input (P_Lua_State : in Lua.Lua_State;
+      P_Index                                    :    Lua.Lua_Index) return Boolean
    is
       A_Lua_Boolean : Boolean;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Boolean_Input - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Boolean_Input - enter");
       end if;
 
       A_Lua_Boolean := Lua.To_Ada (P_Lua_State, P_Index);
 
       Text_IO.Put_Line ("A_Lua_Boolean=" & A_Lua_Boolean'Img);
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Boolean_Input - exit");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Boolean_Input - exit");
       end if;
 
       return A_Lua_Boolean;
    end Parameter_Boolean_Input;
 
-   function Parameter_Action_Type_Input
-     (P_Lua_State : in Lua.Lua_State;
-      P_Index     :    Lua.Lua_Index) return Action.Type_Action_Type
+   function Parameter_Action_Type_Input (P_Lua_State : in Lua.Lua_State;
+      P_Index                                        : Lua.Lua_Index) return Action.Type_Action_Type
    is
       A_Lua_Integer : Lua.Lua_Integer;
       Action_Type   : Action.Type_Action_Type;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Action_Type_Input - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Action_Type_Input - enter");
       end if;
 
       A_Lua_Integer := Lua.To_Ada (P_Lua_State, P_Index);
@@ -284,95 +215,82 @@ package body Server.Lua_Interface is
       Action_Type := Action.Type_Action_Type (A_Lua_Integer);
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Action_Type_Input - exit");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Action_Type_Input - exit");
       end if;
 
       return Action_Type;
    end Parameter_Action_Type_Input;
 
-   function Parameter_Player_Id_Input
-     (P_Lua_State : in Lua.Lua_State;
-      P_Index     :    Lua.Lua_Index) return Player.Type_Player_Id
+   function Parameter_Player_Id_Input (P_Lua_State : in Lua.Lua_State;
+      P_Index                                      :    Lua.Lua_Index) return Player.Type_Player_Id
    is
       A_Lua_Integer : Lua.Lua_Integer;
       Player_Id     : Player.Type_Player_Id;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Player_Id_Input - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Player_Id_Input - enter");
       end if;
 
       A_Lua_Integer := Lua.To_Ada (P_Lua_State, P_Index);
-      Player_Id := Player.Type_Player_Id (A_Lua_Integer);
+      Player_Id     := Player.Type_Player_Id (A_Lua_Integer);
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Player_Id_Input - exit");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Player_Id_Input - exit");
       end if;
 
       return Player_Id;
    end Parameter_Player_Id_Input;
 
-   function Parameter_Hexagon_Position_Input
-     (P_Lua_State : in Lua.Lua_State;
-      P_Index     :    Lua.Lua_Index) return Hexagon.Type_Hexagon_Position
+   function Parameter_Hexagon_Position_Input (P_Lua_State : in Lua.Lua_State;
+      P_Index :    Lua.Lua_Index) return Hexagon.Type_Hexagon_Position
    is
       A_Lua_Integer : Lua.Lua_Integer;
-      Pos           : Hexagon.Type_Hexagon_Position :=
-        Hexagon.Type_Hexagon_Position'(True, 1, 1);
+      Pos           : Hexagon.Type_Hexagon_Position := Hexagon.Type_Hexagon_Position'(True, 1, 1);
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Hexagon_Position_Input - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Hexagon_Position_Input - enter");
       end if;
 
       A_Lua_Integer := Lua.To_Ada (P_Lua_State, P_Index);
       Pos.A         := Hexagon.Type_Hexagon_Numbers (A_Lua_Integer);
       A_Lua_Integer := Lua.To_Ada (P_Lua_State, P_Index + 1);
-      Pos.B := Hexagon.Type_Hexagon_Numbers (A_Lua_Integer);
+      Pos.B         := Hexagon.Type_Hexagon_Numbers (A_Lua_Integer);
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Hexagon_Position_Input - exit");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Hexagon_Position_Input - exit");
       end if;
 
       return Pos;
    end Parameter_Hexagon_Position_Input;
 
-   function Parameter_Positive_Input
-     (P_Lua_State : in Lua.Lua_State;
-      P_Index     :    Lua.Lua_Index) return Positive
+   function Parameter_Positive_Input (P_Lua_State : in Lua.Lua_State;
+      P_Index                                     :    Lua.Lua_Index) return Positive
    is
       A_Lua_Integer : Lua.Lua_Integer;
       A_Number      : Positive;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Positive_Input - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Positive_Input - enter");
       end if;
 
       A_Lua_Integer := Lua.To_Ada (P_Lua_State, P_Index);
       A_Number      := Positive (A_Lua_Integer);
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Positive_Input - exit");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Positive_Input - exit");
       end if;
 
       return A_Number;
    end Parameter_Positive_Input;
 
-   function Parameter_Piece_Id_Input
-     (P_Lua_State : in Lua.Lua_State;
-      P_Index     :    Lua.Lua_Index) return Piece.Type_Piece_Id
+   function Parameter_Piece_Id_Input (P_Lua_State : in Lua.Lua_State;
+      P_Index                                     :    Lua.Lua_Index) return Piece.Type_Piece_Id
    is
       A_Lua_Integer : Lua.Lua_Integer;
       Piece_Id      : Piece.Type_Piece_Id;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Piece_Id_Input - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Piece_Id_Input - enter");
       end if;
 
       A_Lua_Integer := Lua.To_Ada (P_Lua_State, P_Index);
@@ -380,16 +298,14 @@ package body Server.Lua_Interface is
       Piece_Id := Piece.Type_Piece_Id (A_Lua_Integer);
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Piece_Id_Input - exit");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Piece_Id_Input - exit");
       end if;
 
       return Piece_Id;
    end Parameter_Piece_Id_Input;
 
-   function Parameter_Type_Of_Piece_Input
-     (P_Lua_State : in Lua.Lua_State;
-      P_Index     :    Lua.Lua_Index) return Piece.Type_Piece_Type
+   function Parameter_Type_Of_Piece_Input (P_Lua_State : in Lua.Lua_State;
+      P_Index                                          : Lua.Lua_Index) return Piece.Type_Piece_Type
    is
       A_Lua_Integer : Lua.Lua_Integer;
 
@@ -402,9 +318,8 @@ package body Server.Lua_Interface is
       return A_Type_Of_Piece;
    end Parameter_Type_Of_Piece_Input;
 
-   function Parameter_Category_Input
-     (P_Lua_State : in Lua.Lua_State;
-      P_Index     :    Lua.Lua_Index) return Piece.Type_Category
+   function Parameter_Category_Input (P_Lua_State : in Lua.Lua_State;
+      P_Index                                     :    Lua.Lua_Index) return Piece.Type_Category
    is
       A_Lua_Integer : Lua.Lua_Integer;
 
@@ -423,52 +338,38 @@ package body Server.Lua_Interface is
       return A_Category;
    end Parameter_Category_Input;
 
-   function Parameter_String_Input
-     (P_Lua_State : in Lua.Lua_State;
-      P_Index     :    Lua.Lua_Index) return Utilities.RemoteString.Type_String
+   function Parameter_String_Input (P_Lua_State : in Lua.Lua_State;
+      P_Index :    Lua.Lua_Index) return Utilities.RemoteString.Type_String
    is
       A_String : Utilities.RemoteString.Type_String;
 
       use Interfaces.C;
    begin
-      A_String :=
-        Utilities.RemoteString.To_Unbounded_String
-          (Lua.To_Ada (P_Lua_State, P_Index));
+      A_String := Utilities.RemoteString.To_Unbounded_String (Lua.To_Ada (P_Lua_State, P_Index));
 
       return A_String;
    end Parameter_String_Input;
 
-   function Parameter_Piece_Input
-     (P_Lua_State : in Lua.Lua_State;
-      P_Index     :    Lua.Lua_Index) return Piece.Type_Piece
+   function Parameter_Piece_Input (P_Lua_State : in Lua.Lua_State;
+      P_Index                                  :    Lua.Lua_Index) return Piece.Type_Piece
    is
       A_Piece : Piece.Type_Piece;
    begin
       A_Piece.Id            := Parameter_Piece_Id_Input (P_Lua_State, P_Index);
-      A_Piece.Type_Of_Piece :=
-        Parameter_Type_Of_Piece_Input (P_Lua_State, P_Index + 1);
-      A_Piece.Category  := Parameter_Category_Input (P_Lua_State, P_Index + 2);
-      A_Piece.Name      := Parameter_String_Input (P_Lua_State, P_Index + 3);
-      A_Piece.Player_Id :=
-        Parameter_Player_Id_Input (P_Lua_State, P_Index + 4);
+      A_Piece.Type_Of_Piece := Parameter_Type_Of_Piece_Input (P_Lua_State, P_Index + 1);
+      A_Piece.Category      := Parameter_Category_Input (P_Lua_State, P_Index + 2);
+      A_Piece.Name          := Parameter_String_Input (P_Lua_State, P_Index + 3);
+      A_Piece.Player_Id     := Parameter_Player_Id_Input (P_Lua_State, P_Index + 4);
 
       Text_IO.Put_Line
-        ("Id=" &
-         A_Piece.Id'Img &
-         " Type_Of_Piece=" &
-         A_Piece.Type_Of_Piece'Img &
-         " Category=" &
-         A_Piece.Category'Img &
-         " Name=" &
-         Utilities.RemoteString.To_String (A_Piece.Name) &
-         " Player_Id=" &
-         A_Piece.Player_Id'Img);
+        ("Id=" & A_Piece.Id'Img & " Type_Of_Piece=" & A_Piece.Type_Of_Piece'Img & " Category=" &
+         A_Piece.Category'Img & " Name=" & Utilities.RemoteString.To_String (A_Piece.Name) &
+         " Player_Id=" & A_Piece.Player_Id'Img);
       return A_Piece;
    end Parameter_Piece_Input;
 
-   function Parameter_Effect_Name_Input
-     (P_Lua_State : in Lua.Lua_State;
-      P_Index     :    Lua.Lua_Index) return Effect.Type_Effect_Name
+   function Parameter_Effect_Name_Input (P_Lua_State : in Lua.Lua_State;
+      P_Index                                        : Lua.Lua_Index) return Effect.Type_Effect_Name
    is
       A_Lua_Integer : Lua.Lua_Integer;
 
@@ -481,9 +382,8 @@ package body Server.Lua_Interface is
       return An_Effect_Name;
    end Parameter_Effect_Name_Input;
 
-   function Parameter_Effect_Aux_Input
-     (P_Lua_State : in Lua.Lua_State;
-      P_Index     :    Lua.Lua_Index) return Natural
+   function Parameter_Effect_Aux_Input (P_Lua_State : in Lua.Lua_State;
+      P_Index                                       :    Lua.Lua_Index) return Natural
    is
       A_Lua_Integer : Lua.Lua_Integer;
 
@@ -496,8 +396,7 @@ package body Server.Lua_Interface is
       return An_Effect_Aux;
    end Parameter_Effect_Aux_Input;
 
-   procedure Parameter_Hexagon_Delta_Position_Output
-     (P_Lua_State      : in Lua.Lua_State;
+   procedure Parameter_Hexagon_Delta_Position_Output (P_Lua_State : in Lua.Lua_State;
       P_Delta_Position : in Hexagon.Area.Type_Action_Capabilities)
    is
       Stack_Top_On_Start           : Lua.Lua_Index;
@@ -512,19 +411,16 @@ package body Server.Lua_Interface is
       Stack_Top_On_Start := Lua.Get_Top (P_Lua_State);
 
       Lua.Create_Table (P_Lua_State);
-      for Trav_Parameters in P_Delta_Position'First .. P_Delta_Position'Last
-      loop
+      for Trav_Parameters in P_Delta_Position'First .. P_Delta_Position'Last loop
 
          Lua.Push (P_Lua_State, Lua.Lua_Integer (Trav_Parameters));
 
          Lua.Create_Table (P_Lua_State);
-         Lua_Integer_A :=
-           Lua.Lua_Integer (P_Delta_Position (Trav_Parameters).A);
+         Lua_Integer_A := Lua.Lua_Integer (P_Delta_Position (Trav_Parameters).A);
          Lua.Push (P_Lua_State, Lua_Integer_A);
          Lua.Set_Field (P_Lua_State, Stack_Top_On_Start + 3, "a");
 
-         Lua_Integer_B :=
-           Lua.Lua_Integer (P_Delta_Position (Trav_Parameters).B);
+         Lua_Integer_B := Lua.Lua_Integer (P_Delta_Position (Trav_Parameters).B);
          Lua.Push (P_Lua_State, Lua_Integer_B);
          Lua.Set_Field (P_Lua_State, Stack_Top_On_Start + 3, "b");
 
@@ -540,16 +436,14 @@ package body Server.Lua_Interface is
 
    end Parameter_Hexagon_Delta_Position_Output;
 
-   procedure Parameter_Hexagon_Position_Output
-     (P_Lua_State : in Lua.Lua_State;
-      P_Pos       : in Hexagon.Type_Hexagon_Position)
+   procedure Parameter_Hexagon_Position_Output (P_Lua_State : in Lua.Lua_State;
+      P_Pos                                                 : in Hexagon.Type_Hexagon_Position)
    is
       Stack_Top_On_Start           : Lua.Lua_Index;
       Lua_Integer_A, Lua_Integer_B : Lua.Lua_Integer;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Hexagon_Position_Output - enter ");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Hexagon_Position_Output - enter ");
       end if;
 
       Stack_Top_On_Start := Lua.Get_Top (P_Lua_State);
@@ -565,14 +459,11 @@ package body Server.Lua_Interface is
       Lua.Set_Field (P_Lua_State, Stack_Top_On_Start + 1, "b");
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Hexagon_Position_Output - exit ");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Hexagon_Position_Output - exit ");
       end if;
    end Parameter_Hexagon_Position_Output;
 
-   procedure Parameter_Piece_Output
-     (P_Lua_State : in Lua.Lua_State;
-      P_Piece     : in Piece.Type_Piece)
+   procedure Parameter_Piece_Output (P_Lua_State : in Lua.Lua_State; P_Piece : in Piece.Type_Piece)
    is
       Stack_Top_On_Start : Lua.Lua_Index;
       Lua_Integer        : Lua.Lua_Integer;
@@ -580,8 +471,7 @@ package body Server.Lua_Interface is
       use Piece;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Piece_Output - enter ");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Piece_Output - enter ");
       end if;
 
       Stack_Top_On_Start := Lua.Get_Top (P_Lua_State);
@@ -596,8 +486,7 @@ package body Server.Lua_Interface is
       Lua.Push (P_Lua_State, Lua_Integer);
       Lua.Set_Field (P_Lua_State, Stack_Top_On_Start + 1, "type_of_piece");
 
-      Lua_Integer :=
-        Lua.Lua_Integer (Piece.Type_Category'Pos (P_Piece.Category));
+      Lua_Integer := Lua.Lua_Integer (Piece.Type_Category'Pos (P_Piece.Category));
       Lua.Push (P_Lua_State, Lua_Integer);
       Lua.Set_Field (P_Lua_State, Stack_Top_On_Start + 1, "category");
 
@@ -609,50 +498,42 @@ package body Server.Lua_Interface is
       Lua.Set_Field (P_Lua_State, Stack_Top_On_Start + 1, "player_id");
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Piece_Output - exit ");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Piece_Output - exit ");
       end if;
    end Parameter_Piece_Output;
 
-   procedure Parameter_String_Output
-     (P_Lua_State : in Lua.Lua_State;
-      P_String    : in Utilities.RemoteString.Type_String)
+   procedure Parameter_String_Output (P_Lua_State : in Lua.Lua_State;
+      P_String                                    : in Utilities.RemoteString.Type_String)
    is
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_String_Output - enter ");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_String_Output - enter ");
       end if;
 
       Lua.Push (P_Lua_State, Utilities.RemoteString.To_String (P_String));
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_String_Output - exit ");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_String_Output - exit ");
       end if;
    end Parameter_String_Output;
 
-   procedure Parameter_Landscape_Output
-     (P_Lua_State : in Lua.Lua_State;
-      P_Landscape : in Landscape.Type_Landscape)
+   procedure Parameter_Landscape_Output (P_Lua_State : in Lua.Lua_State;
+      P_Landscape                                    : in Landscape.Type_Landscape)
    is
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Landscape_Output - enter ");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Landscape_Output - enter ");
       end if;
 
       Lua.Push (P_Lua_State, Lua.Lua_Integer (P_Landscape));
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Landscape_Output - exit ");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Landscape_Output - exit ");
       end if;
    end Parameter_Landscape_Output;
 
-   procedure Parameter_Pieces_List_Output
-     (P_Lua_State   : in Lua.Lua_State;
-      P_Pieces_List : in Landscape.Pieces_Here_List.Vector)
+   procedure Parameter_Pieces_List_Output (P_Lua_State : in Lua.Lua_State;
+      P_Pieces_List                                    : in Landscape.Pieces_Here_List.Vector)
    is
       Stack_Top_On_Start : Lua.Lua_Index;
       Lua_Integer        : Lua.Lua_Integer;
@@ -661,8 +542,7 @@ package body Server.Lua_Interface is
       Trav_Pieces : Landscape.Pieces_Here_List.Cursor;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Pieces_List_Output - enter ");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Pieces_List_Output - enter");
       end if;
       Stack_Top_On_Start := Lua.Get_Top (P_Lua_State);
 
@@ -672,8 +552,7 @@ package body Server.Lua_Interface is
       while Landscape.Pieces_Here_List.Has_Element (Trav_Pieces) loop
 
          Lua.Push (P_Lua_State, Lua.Lua_Integer (Table_Index));
-         Lua_Integer :=
-           Lua.Lua_Integer (Landscape.Pieces_Here_List.Element (Trav_Pieces));
+         Lua_Integer := Lua.Lua_Integer (Landscape.Pieces_Here_List.Element (Trav_Pieces));
          Lua.Push (P_Lua_State, Lua_Integer);
 
          Lua.Set_Table (P_Lua_State, Stack_Top_On_Start + 1);
@@ -683,14 +562,11 @@ package body Server.Lua_Interface is
       end loop;
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Parameter_Pieces_List_Output - exit ");
+         Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Pieces_List_Output - exit ");
       end if;
    end Parameter_Pieces_List_Output;
 
-   function Observe_Game_Minimum_Details
-     (P_Lua_State : in Lua.Lua_State) return Integer
-   is
+   function Observe_Game_Minimum_Details (P_Lua_State : in Lua.Lua_State) return Integer is
       Minimum_Details : Positive;
    begin
       Minimum_Details := Parameter_Positive_Input (P_Lua_State, 1);
@@ -715,15 +591,18 @@ package body Server.Lua_Interface is
       Player_Id   : Player.Type_Player_Id;
       Action_Type : Action.Type_Action_Type;
 
-      Pos : Hexagon.Type_Hexagon_Position :=
-        Hexagon.Type_Hexagon_Position'(True, 1, 1);
-      Piece_Id : Piece.Type_Piece_Id := Piece.Undefined_Piece_Id;
+      Pos      : Hexagon.Type_Hexagon_Position := Hexagon.Type_Hexagon_Position'(True, 1, 1);
+      Piece_Id : Piece.Type_Piece_Id           := Piece.Undefined_Piece_Id;
       A_Piece  : Piece.Type_Piece;
       Force    : Boolean;
 
       Ret_Status : Status.Type_Status := Status.Ok;
 
    begin
+      if Verbose then
+         Text_IO.Put_Line ("Server.Lua_Interface.Create_Piece - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
+      end if;
 
       Player_Id   := Parameter_Player_Id_Input (P_Lua_State, 1);
       Action_Type := Parameter_Action_Type_Input (P_Lua_State, 2);
@@ -731,19 +610,14 @@ package body Server.Lua_Interface is
       A_Piece     := Parameter_Piece_Input (P_Lua_State, 5);
       Force       := Parameter_Boolean_Input (P_Lua_State, 10);
 
-      ServerAPI.Create_Piece
-        (Player_Id,
-         Action_Type,
-         Pos,
-         A_Piece,
-         Piece_Id,
-         Ret_Status,
-         Force);
+      ServerAPI.Create_Piece (Player_Id, Action_Type, Pos, A_Piece, Piece_Id, Ret_Status, Force);
 
       Lua.Push (P_Lua_State, Lua.Lua_Integer (Piece_Id));
-      Lua.Push
-        (P_Lua_State,
-         Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
+      Lua.Push (P_Lua_State, Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
+
+      if Verbose then
+         Text_IO.Put_Line ("Server.Lua_Interface.Create_Piece - exit");
+      end if;
 
       return 2;
    end Create_Piece;
@@ -751,14 +625,14 @@ package body Server.Lua_Interface is
    function Put_Piece (P_Lua_State : in Lua.Lua_State) return Integer is
       Player_Id   : Player.Type_Player_Id;
       Action_Type : Action.Type_Action_Type;
-      Pos         : Hexagon.Type_Hexagon_Position :=
-        Hexagon.Type_Hexagon_Position'(True, 1, 1);
-      Piece_Id : Piece.Type_Piece_Id := Piece.Undefined_Piece_Id;
+      Pos         : Hexagon.Type_Hexagon_Position := Hexagon.Type_Hexagon_Position'(True, 1, 1);
+      Piece_Id    : Piece.Type_Piece_Id           := Piece.Undefined_Piece_Id;
 
       Ret_Status : Status.Type_Status := Status.Ok;
    begin
       if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Put_Piece - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Put_Piece - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       Player_Id   := Parameter_Player_Id_Input (P_Lua_State, 1);
@@ -768,9 +642,7 @@ package body Server.Lua_Interface is
 
       ServerAPI.Put_Piece (Player_Id, Action_Type, Pos, Piece_Id, Ret_Status);
 
-      Lua.Push
-        (P_Lua_State,
-         Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
+      Lua.Push (P_Lua_State, Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
 
       if Verbose then
          Text_IO.Put_Line ("Server.Lua_Interface.Put_Piece - exit");
@@ -782,14 +654,14 @@ package body Server.Lua_Interface is
    function Remove_Piece (P_Lua_State : in Lua.Lua_State) return Integer is
       Player_Id   : Player.Type_Player_Id;
       Action_Type : Action.Type_Action_Type;
-      Pos         : Hexagon.Type_Hexagon_Position :=
-        Hexagon.Type_Hexagon_Position'(True, 1, 1);
-      Piece_Id : Piece.Type_Piece_Id := Piece.Undefined_Piece_Id;
+      Pos         : Hexagon.Type_Hexagon_Position := Hexagon.Type_Hexagon_Position'(True, 1, 1);
+      Piece_Id    : Piece.Type_Piece_Id           := Piece.Undefined_Piece_Id;
 
       Ret_Status : Status.Type_Status := Status.Ok;
    begin
       if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Remove_Piece - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Remove_Piece - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       Player_Id   := Parameter_Player_Id_Input (P_Lua_State, 1);
@@ -797,16 +669,9 @@ package body Server.Lua_Interface is
       Pos         := Parameter_Hexagon_Position_Input (P_Lua_State, 3);
       Piece_Id    := Parameter_Piece_Id_Input (P_Lua_State, 5);
 
-      ServerAPI.Remove_Piece
-        (Player_Id,
-         Action_Type,
-         Pos,
-         Piece_Id,
-         Ret_Status);
+      ServerAPI.Remove_Piece (Player_Id, Action_Type, Pos, Piece_Id, Ret_Status);
 
-      Lua.Push
-        (P_Lua_State,
-         Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
+      Lua.Push (P_Lua_State, Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
 
       if Verbose then
          Text_IO.Put_Line ("Server.Lua_Interface.Remove_Piece - exit");
@@ -816,16 +681,15 @@ package body Server.Lua_Interface is
    end Remove_Piece;
 
    function Perform_Attack (P_Lua_State : in Lua.Lua_State) return Integer is
-      Player_Id   : Player.Type_Player_Id;
-      Action_Type : Action.Type_Action_Type;
-      Attacking_Piece_Id,
-      Attacked_Piece_Id : Piece.Type_Piece_Id :=
-        Piece.Undefined_Piece_Id;
+      Player_Id                             : Player.Type_Player_Id;
+      Action_Type                           : Action.Type_Action_Type;
+      Attacking_Piece_Id, Attacked_Piece_Id : Piece.Type_Piece_Id := Piece.Undefined_Piece_Id;
 
       Ret_Status : Status.Type_Status := Status.Ok;
    begin
       if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Perform_Attack - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Perform_Attack - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       Player_Id          := Parameter_Player_Id_Input (P_Lua_State, 1);
@@ -834,15 +698,9 @@ package body Server.Lua_Interface is
       Attacked_Piece_Id  := Parameter_Piece_Id_Input (P_Lua_State, 4);
 
       ServerAPI.Perform_Attack
-        (Player_Id,
-         Action_Type,
-         Attacking_Piece_Id,
-         Attacked_Piece_Id,
-         Ret_Status);
+        (Player_Id, Action_Type, Attacking_Piece_Id, Attacked_Piece_Id, Ret_Status);
 
-      Lua.Push
-        (P_Lua_State,
-         Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
+      Lua.Push (P_Lua_State, Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
 
       if Verbose then
          Text_IO.Put_Line ("Server.Lua_Interface.Perform_Attack - exit");
@@ -850,20 +708,16 @@ package body Server.Lua_Interface is
       return 1;
    end Perform_Attack;
 
-   function Perform_Ranged_Attack
-     (P_Lua_State : in Lua.Lua_State) return Integer
-   is
-      Player_Id   : Player.Type_Player_Id;
-      Action_Type : Action.Type_Action_Type;
-      Attacking_Piece_Id,
-      Attacked_Piece_Id : Piece.Type_Piece_Id :=
-        Piece.Undefined_Piece_Id;
+   function Perform_Ranged_Attack (P_Lua_State : in Lua.Lua_State) return Integer is
+      Player_Id                             : Player.Type_Player_Id;
+      Action_Type                           : Action.Type_Action_Type;
+      Attacking_Piece_Id, Attacked_Piece_Id : Piece.Type_Piece_Id := Piece.Undefined_Piece_Id;
 
       Ret_Status : Status.Type_Status := Status.Ok;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Perform_Ranged_Attack - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Perform_Ranged_Attack - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       Player_Id          := Parameter_Player_Id_Input (P_Lua_State, 1);
@@ -872,36 +726,29 @@ package body Server.Lua_Interface is
       Attacked_Piece_Id  := Parameter_Piece_Id_Input (P_Lua_State, 4);
 
       ServerAPI.Perform_Ranged_Attack
-        (Player_Id,
-         Action_Type,
-         Attacking_Piece_Id,
-         Attacked_Piece_Id,
-         Ret_Status);
+        (Player_Id, Action_Type, Attacking_Piece_Id, Attacked_Piece_Id, Ret_Status);
 
-      Lua.Push
-        (P_Lua_State,
-         Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
+      Lua.Push (P_Lua_State, Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Perform_Ranged_Attack - exit");
+         Text_IO.Put_Line ("Server.Lua_Interface.Perform_Ranged_Attack - exit");
       end if;
 
       return 1;
    end Perform_Ranged_Attack;
 
    function Perform_Move (P_Lua_State : in Lua.Lua_State) return Integer is
-      Player_Id   : Player.Type_Player_Id;
-      Action_Type : Action.Type_Action_Type;
-      From_Pos,
-      To_Pos : Hexagon.Type_Hexagon_Position :=
+      Player_Id        : Player.Type_Player_Id;
+      Action_Type      : Action.Type_Action_Type;
+      From_Pos, To_Pos : Hexagon.Type_Hexagon_Position :=
         Hexagon.Type_Hexagon_Position'(True, 1, 1);
       Moving_Piece_Id : Piece.Type_Piece_Id := Piece.Undefined_Piece_Id;
 
       Ret_Status : Status.Type_Status := Status.Ok;
    begin
       if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Perform_Move - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Perform_Move - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       Player_Id       := Parameter_Player_Id_Input (P_Lua_State, 1);
@@ -910,16 +757,9 @@ package body Server.Lua_Interface is
       From_Pos        := Parameter_Hexagon_Position_Input (P_Lua_State, 4);
       To_Pos          := Parameter_Hexagon_Position_Input (P_Lua_State, 6);
 
-      ServerAPI.Perform_Move
-        (Player_Id,
-         Action_Type,
-         Moving_Piece_Id,
-         To_Pos,
-         Ret_Status);
+      ServerAPI.Perform_Move (Player_Id, Action_Type, Moving_Piece_Id, To_Pos, Ret_Status);
 
-      Lua.Push
-        (P_Lua_State,
-         Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
+      Lua.Push (P_Lua_State, Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
 
       if Verbose then
          Text_IO.Put_Line ("Server.Lua_Interface.Perform_Move - exit");
@@ -928,40 +768,30 @@ package body Server.Lua_Interface is
       return 1;
    end Perform_Move;
 
-   function Perform_Patch_Effect
-     (P_Lua_State : in Lua.Lua_State) return Integer
-   is
+   function Perform_Patch_Effect (P_Lua_State : in Lua.Lua_State) return Integer is
       Player_Id   : Player.Type_Player_Id;
       Action_Type : Action.Type_Action_Type;
-      Piece_Id    : Piece.Type_Piece_Id           := Piece.Undefined_Piece_Id;
-      An_Effect : Effect.Type_Effect;
-      An_Area   : Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A;
+      Piece_Id    : Piece.Type_Piece_Id := Piece.Undefined_Piece_Id;
+      An_Effect_Name : Effect.Type_Effect_Name;
+      An_Area     : Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A;
 
       Ret_Status : Status.Type_Status := Status.Ok;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Perform_Patch_Effect - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Perform_Patch_Effect - enter"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       Player_Id             := Parameter_Player_Id_Input (P_Lua_State, 1);
       Action_Type           := Parameter_Action_Type_Input (P_Lua_State, 2);
       Piece_Id              := Parameter_Piece_Id_Input (P_Lua_State, 3);
-      An_Effect.Effect_Name := Parameter_Effect_Name_Input (P_Lua_State, 4);
-      An_Effect.Aux         := Parameter_Effect_Aux_Input (P_Lua_State, 5);
-      An_Area               := Parameter_Hexagon_Area_Input (P_Lua_State, 6);
+      An_Effect_Name        := Parameter_Effect_Name_Input (P_Lua_State, 4);
+      An_Area               := Parameter_Hexagon_Area_Input (P_Lua_State, 5);
 
       ServerAPI.Perform_Patch_Effect
-        (Player_Id,
-         Action_Type,
-         Piece_Id,
-         An_Effect,
-         An_Area.all,
-         Ret_Status);
+        (Player_Id, Action_Type, Piece_Id, An_Effect_Name, An_Area.all, Ret_Status);
 
-      Lua.Push
-        (P_Lua_State,
-         Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
+      Lua.Push (P_Lua_State, Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
 
       if Verbose then
          Text_IO.Put_Line ("Server.Lua_Interface.Perform_Patch_Effect - exit");
@@ -970,41 +800,30 @@ package body Server.Lua_Interface is
       return 1;
    end Perform_Patch_Effect;
 
-   function Perform_Piece_Effect
-     (P_Lua_State : in Lua.Lua_State) return Integer
-   is
+   function Perform_Piece_Effect (P_Lua_State : in Lua.Lua_State) return Integer is
       Player_Id   : Player.Type_Player_Id;
       Action_Type : Action.Type_Action_Type;
       Piece_Id    : Piece.Type_Piece_Id           := Piece.Undefined_Piece_Id;
-      A_Pos       : Hexagon.Type_Hexagon_Position :=
-        Hexagon.Type_Hexagon_Position'(True, 1, 1);
-      An_Effect : Effect.Type_Effect;
+      A_Pos       : Hexagon.Type_Hexagon_Position := Hexagon.Type_Hexagon_Position'(True, 1, 1);
+      An_Effect_Name : Effect.Type_Effect_Name;
 
       Ret_Status : Status.Type_Status := Status.Ok;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Perform_Piece_Effect - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Perform_Piece_Effect - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       Player_Id             := Parameter_Player_Id_Input (P_Lua_State, 1);
       Action_Type           := Parameter_Action_Type_Input (P_Lua_State, 2);
       Piece_Id              := Parameter_Piece_Id_Input (P_Lua_State, 3);
-      A_Pos := Parameter_Hexagon_Position_Input (P_Lua_State, 4);
-      An_Effect.Effect_Name := Parameter_Effect_Name_Input (P_Lua_State, 6);
-      An_Effect.Aux         := Parameter_Effect_Aux_Input (P_Lua_State, 7);
+      A_Pos                 := Parameter_Hexagon_Position_Input (P_Lua_State, 4);
+      An_Effect_Name        := Parameter_Effect_Name_Input (P_Lua_State, 6);
 
       ServerAPI.Perform_Piece_Effect
-        (Player_Id,
-         Action_Type,
-         Piece_Id,
-         A_Pos,
-         An_Effect,
-         Ret_Status);
+        (Player_Id, Action_Type, Piece_Id, A_Pos, An_Effect_Name, Ret_Status);
 
-      Lua.Push
-        (P_Lua_State,
-         Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
+      Lua.Push (P_Lua_State, Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
 
       if Verbose then
          Text_IO.Put_Line ("Server.Lua_Interface.Perform_Piece_Effect - exit");
@@ -1013,9 +832,7 @@ package body Server.Lua_Interface is
       return 1;
    end Perform_Piece_Effect;
 
-   function Grant_Piece_Effect
-     (P_Lua_State : in Lua.Lua_State) return Integer
-   is
+   function Grant_Piece_Effect (P_Lua_State : in Lua.Lua_State) return Integer is
       Player_Id   : Player.Type_Player_Id;
       Action_Type : Action.Type_Action_Type;
       Piece_Id    : Piece.Type_Piece_Id := Piece.Undefined_Piece_Id;
@@ -1024,7 +841,8 @@ package body Server.Lua_Interface is
       Ret_Status : Status.Type_Status := Status.Ok;
    begin
       if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Grant_Piece_Effect - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Grant_Piece_Effect - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       Player_Id             := Parameter_Player_Id_Input (P_Lua_State, 1);
@@ -1033,16 +851,9 @@ package body Server.Lua_Interface is
       An_Effect.Effect_Name := Parameter_Effect_Name_Input (P_Lua_State, 4);
       An_Effect.Aux         := Parameter_Effect_Aux_Input (P_Lua_State, 5);
 
-      ServerAPI.Grant_Piece_Effect
-        (Player_Id,
-         Action_Type,
-         Piece_Id,
-         An_Effect,
-         Ret_Status);
+      ServerAPI.Grant_Piece_Effect (Player_Id, Action_Type, Piece_Id, An_Effect, Ret_Status);
 
-      Lua.Push
-        (P_Lua_State,
-         Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
+      Lua.Push (P_Lua_State, Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
 
       if Verbose then
          Text_IO.Put_Line ("Server.Lua_Interface.Grant_Piece_Effect - exit");
@@ -1051,36 +862,27 @@ package body Server.Lua_Interface is
       return 1;
    end Grant_Piece_Effect;
 
-   function Revoke_Piece_Effect
-     (P_Lua_State : in Lua.Lua_State) return Integer
-   is
-      Player_Id   : Player.Type_Player_Id;
-      Action_Type : Action.Type_Action_Type;
-      Piece_Id    : Piece.Type_Piece_Id := Piece.Undefined_Piece_Id;
-      An_Effect   : Effect.Type_Effect;
+   function Revoke_Piece_Effect (P_Lua_State : in Lua.Lua_State) return Integer is
+      Player_Id      : Player.Type_Player_Id;
+      Action_Type    : Action.Type_Action_Type;
+      Piece_Id       : Piece.Type_Piece_Id := Piece.Undefined_Piece_Id;
+      An_Effect_Name : Effect.Type_Effect_Name;
 
       Ret_Status : Status.Type_Status := Status.Ok;
    begin
       if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Revoke_Piece_Effect - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Revoke_Piece_Effect - enter - stack:"
+                           & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
-      Player_Id             := Parameter_Player_Id_Input (P_Lua_State, 1);
-      Action_Type           := Parameter_Action_Type_Input (P_Lua_State, 2);
-      Piece_Id              := Parameter_Piece_Id_Input (P_Lua_State, 3);
-      An_Effect.Effect_Name := Parameter_Effect_Name_Input (P_Lua_State, 4);
-      An_Effect.Aux         := Parameter_Effect_Aux_Input (P_Lua_State, 5);
+      Player_Id      := Parameter_Player_Id_Input (P_Lua_State, 1);
+      Action_Type    := Parameter_Action_Type_Input (P_Lua_State, 2);
+      Piece_Id       := Parameter_Piece_Id_Input (P_Lua_State, 3);
+      An_Effect_Name := Parameter_Effect_Name_Input (P_Lua_State, 4);
 
-      ServerAPI.Revoke_Piece_Effect
-        (Player_Id,
-         Action_Type,
-         Piece_Id,
-         An_Effect,
-         Ret_Status);
+      ServerAPI.Revoke_Piece_Effect (Player_Id, Action_Type, Piece_Id, An_Effect_Name, Ret_Status);
 
-      Lua.Push
-        (P_Lua_State,
-         Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
+      Lua.Push (P_Lua_State, Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
 
       if Verbose then
          Text_IO.Put_Line ("Server.Lua_Interface.Revoke_Piece_Effect - exit");
@@ -1089,43 +891,33 @@ package body Server.Lua_Interface is
       return 1;
    end Revoke_Piece_Effect;
 
-   function Grant_Patch_Effect
-     (P_Lua_State : in Lua.Lua_State) return Integer
-   is
+   function Grant_Patch_Effect (P_Lua_State : in Lua.Lua_State) return Integer is
       Player_Id   : Player.Type_Player_Id;
       Action_Type : Action.Type_Action_Type;
       Piece_Id    : Piece.Type_Piece_Id           := Piece.Undefined_Piece_Id;
-      A_Pos       : Hexagon.Type_Hexagon_Position :=
-        Hexagon.Type_Hexagon_Position'(True, 1, 1);
-      An_Effect : Effect.Type_Effect;
-      Area      : Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A;
+      A_Pos       : Hexagon.Type_Hexagon_Position := Hexagon.Type_Hexagon_Position'(True, 1, 1);
+      An_Effect   : Effect.Type_Effect;
+      Area        : Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A;
 
       Ret_Status : Status.Type_Status := Status.Ok;
    begin
       if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Grant_Patch_Effect - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Grant_Patch_Effect - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       Player_Id             := Parameter_Player_Id_Input (P_Lua_State, 1);
       Action_Type           := Parameter_Action_Type_Input (P_Lua_State, 2);
       Piece_Id              := Parameter_Piece_Id_Input (P_Lua_State, 3);
-      A_Pos := Parameter_Hexagon_Position_Input (P_Lua_State, 4);
+      A_Pos                 := Parameter_Hexagon_Position_Input (P_Lua_State, 4);
       An_Effect.Effect_Name := Parameter_Effect_Name_Input (P_Lua_State, 6);
       An_Effect.Aux         := Parameter_Effect_Aux_Input (P_Lua_State, 7);
       Area                  := Parameter_Hexagon_Area_Input (P_Lua_State, 8);
 
       ServerAPI.Grant_Patch_Effect
-        (Player_Id,
-         Action_Type,
-         Piece_Id,
-         A_Pos,
-         An_Effect,
-         Area.all,
-         Ret_Status);
+        (Player_Id, Action_Type, Piece_Id, A_Pos, An_Effect, Area.all, Ret_Status);
 
-      Lua.Push
-        (P_Lua_State,
-         Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
+      Lua.Push (P_Lua_State, Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
 
       if Verbose then
          Text_IO.Put_Line ("Server.Lua_Interface.Grant_Patch_Effect - exit");
@@ -1134,42 +926,30 @@ package body Server.Lua_Interface is
       return 1;
    end Grant_Patch_Effect;
 
-   function Revoke_Patch_Effect
-     (P_Lua_State : in Lua.Lua_State) return Integer
-   is
-      Player_Id   : Player.Type_Player_Id;
-      Action_Type : Action.Type_Action_Type;
-      Piece_Id    : Piece.Type_Piece_Id           := Piece.Undefined_Piece_Id;
-      A_Pos       : Hexagon.Type_Hexagon_Position :=
-        Hexagon.Type_Hexagon_Position'(True, 1, 1);
-      An_Effect : Effect.Type_Effect;
-      Area      : Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A;
+   function Revoke_Patch_Effect (P_Lua_State : in Lua.Lua_State) return Integer is
+      Player_Id      : Player.Type_Player_Id;
+      Action_Type    : Action.Type_Action_Type;
+      Piece_Id       : Piece.Type_Piece_Id           := Piece.Undefined_Piece_Id;
+      An_Effect_Name : Effect.Type_Effect_Name;
+      Area           : Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A;
 
       Ret_Status : Status.Type_Status := Status.Ok;
    begin
       if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Revoke_Patch_Effect - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Revoke_Patch_Effect - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
-      Player_Id             := Parameter_Player_Id_Input (P_Lua_State, 1);
-      Action_Type           := Parameter_Action_Type_Input (P_Lua_State, 2);
-      Piece_Id              := Parameter_Piece_Id_Input (P_Lua_State, 3);
-      A_Pos := Parameter_Hexagon_Position_Input (P_Lua_State, 4);
-      An_Effect.Effect_Name := Parameter_Effect_Name_Input (P_Lua_State, 6);
-      An_Effect.Aux         := Parameter_Effect_Aux_Input (P_Lua_State, 7);
-      Area                  := Parameter_Hexagon_Area_Input (P_Lua_State, 8);
+      Player_Id      := Parameter_Player_Id_Input (P_Lua_State, 1);
+      Action_Type    := Parameter_Action_Type_Input (P_Lua_State, 2);
+      Piece_Id       := Parameter_Piece_Id_Input (P_Lua_State, 3);
+      An_Effect_Name := Parameter_Effect_Name_Input (P_Lua_State, 4);
+      Area           := Parameter_Hexagon_Area_Input (P_Lua_State, 5);
 
       ServerAPI.Revoke_Patch_Effect
-        (Player_Id,
-         Action_Type,
-         Piece_Id,
-         Area.all,
-         An_Effect,
-         Ret_Status);
+        (Player_Id, Action_Type, Piece_Id, Area.all, An_Effect_Name, Ret_Status);
 
-      Lua.Push
-        (P_Lua_State,
-         Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
+      Lua.Push (P_Lua_State, Lua.Lua_Integer (Status.Type_Status'Pos (Ret_Status)));
 
       if Verbose then
          Text_IO.Put_Line ("Server.Lua_Interface.Revoke_Patch_Effect - exit");
@@ -1178,22 +958,19 @@ package body Server.Lua_Interface is
       return 1;
    end Revoke_Patch_Effect;
 
-   function Find_Piece_In_List
-     (P_Lua_State : in Lua.Lua_State) return Integer
-   is
+   function Find_Piece_In_List (P_Lua_State : in Lua.Lua_State) return Integer is
       Piece_Id       : Piece.Type_Piece_Id;
       Piece_Position : ServerAPI.Type_Piece_Position;
    begin
       if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Find_Piece_In_List - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Find_Piece_In_List - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       Piece_Id       := Parameter_Piece_Id_Input (P_Lua_State, 1);
       Piece_Position := ServerAPI.Find_Piece_In_List (Piece_Id);
       Parameter_Piece_Output (P_Lua_State, Piece_Position.Actual_Piece);
-      Parameter_Hexagon_Position_Output
-        (P_Lua_State,
-         Piece_Position.Actual_Pos);
+      Parameter_Hexagon_Position_Output (P_Lua_State, Piece_Position.Actual_Pos);
 
       if Verbose then
          Text_IO.Put_Line ("Server.Lua_Interface.Find_Piece_In_List - exit");
@@ -1201,114 +978,90 @@ package body Server.Lua_Interface is
       return 2;
    end Find_Piece_In_List;
 
-   function Opponents_Activity_Report_Append
-     (P_Lua_State : Lua.Lua_State) return Integer
-   is
+   function Opponents_Activity_Report_Append (P_Lua_State : Lua.Lua_State) return Integer is
       Detail               : Positive;
       Player_Id            : Player.Type_Player_Id;
       Activity_Description : Utilities.RemoteString.Type_String;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Opponents_Activity_Report_Append - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Opponents_Activity_Report_Append - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       Detail               := Parameter_Positive_Input (P_Lua_State, 1);
       Player_Id            := Parameter_Player_Id_Input (P_Lua_State, 2);
       Activity_Description := Parameter_String_Input (P_Lua_State, 3);
 
-      Server.ServerAPI.Opponents_Activity_Report_Append
-        (Detail,
-         Player_Id,
-         Activity_Description);
+      Server.ServerAPI.Opponents_Activity_Report_Append (Detail, Player_Id, Activity_Description);
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Opponents_Activity_Report_Append - exit");
+         Text_IO.Put_Line ("Server.Lua_Interface.Opponents_Activity_Report_Append - exit");
       end if;
       return 1;
    end Opponents_Activity_Report_Append;
 
-   function Player_Activity_Report_Append
-     (P_Lua_State : Lua.Lua_State) return Integer
-   is
+   function Player_Activity_Report_Append (P_Lua_State : Lua.Lua_State) return Integer is
       Detail               : Positive;
       Player_Id            : Player.Type_Player_Id;
       Activity_Description : Utilities.RemoteString.Type_String;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Player_Activity_Report_Append - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Player_Activity_Report_Append - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       Detail               := Parameter_Positive_Input (P_Lua_State, 1);
       Player_Id            := Parameter_Player_Id_Input (P_Lua_State, 2);
       Activity_Description := Parameter_String_Input (P_Lua_State, 3);
 
-      Server.ServerAPI.Player_Activity_Report_Append
-        (Detail,
-         Player_Id,
-         Activity_Description);
+      Server.ServerAPI.Player_Activity_Report_Append (Detail, Player_Id, Activity_Description);
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Player_Activity_Report_Append - exit");
+         Text_IO.Put_Line ("Server.Lua_Interface.Player_Activity_Report_Append - exit");
       end if;
       return 1;
    end Player_Activity_Report_Append;
 
-   function Opponents_System_Report_Append
-     (P_Lua_State : Lua.Lua_State) return Integer
-   is
+   function Opponents_System_Report_Append (P_Lua_State : Lua.Lua_State) return Integer is
       Detail               : Positive;
       Player_Id            : Player.Type_Player_Id;
       Activity_Description : Utilities.RemoteString.Type_String;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Opponents_System_Report_Append - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Opponents_System_Report_Append - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       Detail               := Parameter_Positive_Input (P_Lua_State, 1);
       Player_Id            := Parameter_Player_Id_Input (P_Lua_State, 2);
       Activity_Description := Parameter_String_Input (P_Lua_State, 3);
 
-      Server.ServerAPI.Opponents_System_Report_Append
-        (Detail,
-         Player_Id,
-         Activity_Description);
+      Server.ServerAPI.Opponents_System_Report_Append (Detail, Player_Id, Activity_Description);
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Opponents_System_Report_Append - exit");
+         Text_IO.Put_Line ("Server.Lua_Interface.Opponents_System_Report_Append - exit");
       end if;
       return 1;
    end Opponents_System_Report_Append;
 
-   function Player_System_Report_Append
-     (P_Lua_State : Lua.Lua_State) return Integer
-   is
+   function Player_System_Report_Append (P_Lua_State : Lua.Lua_State) return Integer is
       Detail               : Positive;
       Player_Id            : Player.Type_Player_Id;
       Activity_Description : Utilities.RemoteString.Type_String;
    begin
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Player_System_Report_Append - exit");
+         Text_IO.Put_Line ("Server.Lua_Interface.Player_System_Report_Append - exit - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       Detail               := Parameter_Positive_Input (P_Lua_State, 1);
       Player_Id            := Parameter_Player_Id_Input (P_Lua_State, 2);
       Activity_Description := Parameter_String_Input (P_Lua_State, 3);
 
-      Server.ServerAPI.Player_System_Report_Append
-        (Detail,
-         Player_Id,
-         Activity_Description);
+      Server.ServerAPI.Player_System_Report_Append (Detail, Player_Id, Activity_Description);
 
       if Verbose then
-         Text_IO.Put_Line
-           ("Server.Lua_Interface.Player_System_Report_Append - exit");
+         Text_IO.Put_Line ("Server.Lua_Interface.Player_System_Report_Append - exit");
       end if;
       return 1;
    end Player_System_Report_Append;
@@ -1318,7 +1071,8 @@ package body Server.Lua_Interface is
       Player_Name : Utilities.RemoteString.Type_String;
    begin
       if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Get_Player_Name - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Get_Player_Name - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       Player_Id := Parameter_Player_Id_Input (P_Lua_State, 1);
@@ -1339,7 +1093,8 @@ package body Server.Lua_Interface is
       A_Landscape : Landscape.Type_Landscape;
    begin
       if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Get_Map_Terrain - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Get_Map_Terrain - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       A_Pos := Parameter_Hexagon_Position_Input (P_Lua_State, 1);
@@ -1349,7 +1104,7 @@ package body Server.Lua_Interface is
       Parameter_Landscape_Output (P_Lua_State, A_Landscape);
 
       if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Get_Map_Terrain - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Get_Map_Terrain - exit");
       end if;
       return 1;
 
@@ -1361,7 +1116,8 @@ package body Server.Lua_Interface is
       A_Pieces_List : Landscape.Pieces_Here_List.Vector;
    begin
       if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Get_Map_Pieces_List - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Get_Map_Pieces_List - enter - stack:"
+                          & Lua.Get_Top(P_Lua_State)'Img);
       end if;
 
       A_Pos := Parameter_Hexagon_Position_Input (P_Lua_State, 1);
@@ -1371,7 +1127,7 @@ package body Server.Lua_Interface is
       Parameter_Pieces_List_Output (P_Lua_State, A_Pieces_List);
 
       if Verbose then
-         Text_IO.Put_Line ("Server.Lua_Interface.Get_Map_Pieces_List - enter");
+         Text_IO.Put_Line ("Server.Lua_Interface.Get_Map_Pieces_List - exit");
       end if;
       return 1;
    end Get_Map_Pieces_List;

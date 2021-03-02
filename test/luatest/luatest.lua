@@ -2,7 +2,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This is test logic to test both server and client of Sisyfos.
---      Copyright (C) 2013-2017  Frank J Jorgensen
+--      Copyright (C) 2013-2021  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -72,7 +72,7 @@ ret_status = Sisyfos.Grant_Piece_Effect(2,910,3,4,5)
 print ("ret_status=" .. ret_status)
 print("")
 
-ret_status = Sisyfos.Revoke_Piece_Effect(3,911,4,5,6)
+ret_status = Sisyfos.Revoke_Piece_Effect(3,911,4,5)
 print ("ret_status=" .. ret_status)
 print("")
 
@@ -83,17 +83,17 @@ ret_status = Sisyfos.Grant_Patch_Effect(12,912,13,14,15,16,17, area1)
 print ("ret_status=" .. ret_status)
 print("")
 
-ret_status = Sisyfos.Revoke_Patch_Effect(22,913,23,24,25,26,27, area2)
+ret_status = Sisyfos.Revoke_Patch_Effect(22,913,23,24, area2)
 print ("ret_status=" .. ret_status)
 print("")
 
 local area3 = {{a=1, b=2},{a=3, b=4},{a=5, b=6}}
 
-ret_status = Sisyfos.Perform_Patch_Effect(78,920,33,4,5,area3)
+ret_status = Sisyfos.Perform_Patch_Effect(78,920,33,123,area3)
 print ("ret_status=" .. ret_status)
 print("")
 
-ret_status = Sisyfos.Perform_Piece_Effect(87,921,34,89,98,5,4)
+ret_status = Sisyfos.Perform_Piece_Effect(87,921,34,89,98,321)
 print ("ret_status=" .. ret_status)
 print("")
 

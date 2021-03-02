@@ -1,7 +1,7 @@
 --
 --
 --      Sisyfos Client/Server logic. This logic is a part of both server and client of Sisyfos.
---      Copyright (C) 2015-2019  Frank J Jorgensen
+--      Copyright (C) 2015-2021  Frank J Jorgensen
 --
 --      This program is free software: you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -308,7 +308,7 @@ package body Server.ServerRAPI is
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Piece_Id    : in Piece.Type_Piece_Id;
-      P_Effect      : in Effect.Type_Effect;
+      P_Effect_Name : in Effect.Type_Effect_Name;
       P_Area        : in Hexagon.Area.Type_Action_Capabilities_A)
    is
       use Player;
@@ -336,12 +336,11 @@ package body Server.ServerRAPI is
       elsif P_Piece_Id /= 3 then
          Text_IO.Put_Line ("Perform_Patch_Effect: P_Piece_Id:" & P_Piece_Id'Img & " expected 3");
          Text_IO.Put_Line ("Perform_Patch_Effect                                    - Failed");
-      elsif P_Effect.Effect_Name /= 4 or P_Effect.Aux /= 5 then
+      elsif P_Effect_Name /= 4 then
          Text_IO.Put_Line
-           ("Perform_Patch_Effect: P_Effect:" &
-            P_Effect.Effect_Name'Img &
-            " expected 4  Aux:" &
-            P_Effect.Aux'Img);
+           ("Perform_Patch_Effect: P_Effect_Name:" &
+            P_Effect_Name'Img &
+            " expected 4");
          Text_IO.Put_Line ("Perform_Patch_Effect                                    - Failed");
       elsif P_Area /=
         Hexagon.Area.Type_Action_Capabilities_A'(1 => Hexagon.Type_Hexagon_Position'(True, 8, 3))
@@ -362,7 +361,7 @@ package body Server.ServerRAPI is
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Piece_Id    : in Piece.Type_Piece_Id;
-      P_Effect      : in Effect.Type_Effect)
+      P_Effect_Name : in Effect.Type_Effect_Name)
    is
       use Player;
       use Action;
@@ -387,12 +386,11 @@ package body Server.ServerRAPI is
       elsif P_Piece_Id /= 3 then
          Text_IO.Put_Line ("Perform_Piece_Effect: P_Piece_Id:" & P_Piece_Id'Img & " expected 3");
          Text_IO.Put_Line ("Perform_Piece_Effect                                    - Failed");
-      elsif P_Effect.Effect_Name /= 4 or P_Effect.Aux /= 5 then
+      elsif P_Effect_Name /= 4 then
          Text_IO.Put_Line
-           ("Perform_Piece_Effect: P_Effect:" &
-            P_Effect.Effect_Name'Img &
-            " expected 4  Aux:" &
-            P_Effect.Aux'Img);
+           ("Perform_Piece_Effect: P_Effect_Name:" &
+            P_Effect_Name'Img &
+            " expected 4");
          Text_IO.Put_Line ("Perform_Piece_Effect                                    - Failed");
       else
          Text_IO.Put_Line ("Perform_Piece_Effect                                    - OK");
@@ -449,7 +447,7 @@ package body Server.ServerRAPI is
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Piece_Id    : in Piece.Type_Piece_Id;
-      P_Effect      : in Effect.Type_Effect)
+      P_Effect_Name : in Effect.Type_Effect_Name)
    is
       use Player;
       use Action;
@@ -470,12 +468,11 @@ package body Server.ServerRAPI is
       elsif P_Piece_Id /= 3 then
          Text_IO.Put_Line ("Revoke_Piece_Effect: P_Piece_Id:" & P_Piece_Id'Img & " expected 3");
          Text_IO.Put_Line ("Revoke_Piece_Effect                                     - Failed");
-      elsif P_Effect.Effect_Name /= 4 or P_Effect.Aux /= 5 then
+      elsif P_Effect_Name /= 4 then
          Text_IO.Put_Line
-           ("Revoke_Piece_Effect: P_Effect:" &
-            P_Effect.Effect_Name'Img &
-            " expected 4  Aux:" &
-            P_Effect.Aux'Img);
+           ("Revoke_Piece_Effect: P_Effect_Name:" &
+            P_Effect_Name'Img &
+            " expected 4");
          Text_IO.Put_Line ("Revoke_Piece_Effect                                     - Failed");
       else
          Text_IO.Put_Line ("Revoke_Piece_Effect                                     - OK");
@@ -538,7 +535,7 @@ package body Server.ServerRAPI is
      (P_Player_Id   : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type;
       P_Piece_Id    : in Piece.Type_Piece_Id;
-      P_Effect      : in Effect.Type_Effect;
+      P_Effect_Name : in Effect.Type_Effect_Name;
       P_Area        : in Hexagon.Area.Type_Action_Capabilities_A)
    is
       use Player;
@@ -561,12 +558,11 @@ package body Server.ServerRAPI is
       elsif P_Piece_Id /= 3 then
          Text_IO.Put_Line ("Revoke_Patch_Effect: P_Piece_Id:" & P_Piece_Id'Img & " expected 3");
          Text_IO.Put_Line ("Revoke_Patch_Effect                                     - Failed");
-      elsif P_Effect.Effect_Name /= 4 or P_Effect.Aux /= 5 then
+      elsif P_Effect_Name /= 4 then
          Text_IO.Put_Line
            ("Revoke_Patch_Effect: P_Effect:" &
-            P_Effect.Effect_Name'Img &
-            " expected 4  Aux:" &
-            P_Effect.Aux'Img);
+            P_Effect_Name'Img &
+            " expected 4");
          Text_IO.Put_Line ("Revoke_Patch_Effect                                     - Failed");
       elsif P_Area /=
         Hexagon.Area.Type_Action_Capabilities_A'(1 => Hexagon.Type_Hexagon_Position'(True, 8, 3))
