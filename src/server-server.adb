@@ -50,7 +50,7 @@ package body Server.Server is
          Text_IO.Put_Line ("Server.Server.Init - enter");
       end if;
 
-      Text_IO.Put_Line ("Sisyfos Server - v0.6.0 Copyright (C) 2015-2019  Frank J Jorgensen");
+      Text_IO.Put_Line ("Sisyfos Server - v0.6.1 Copyright (C) 2015-2021  Frank J Jorgensen");
       Text_IO.Put_Line
         ("This program comes with ABSOLUTELY NO WARRANTY; for details see attached gpl.txt");
       Text_IO.Put_Line ("or <http://www.gnu.org/licenses/>");
