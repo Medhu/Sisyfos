@@ -78,4 +78,5 @@ package Hexagon.Area is
       return   Type_Action_Capabilities;
    for Type_Action_Capabilities'Input use Input_Type_Action_Capabilities;
 
+   function To_String (P_Delta_Position : in Type_Hexagon_Delta_Position) return String;
 end Hexagon.Area;

@@ -167,4 +167,10 @@ package body Hexagon.Area is
 
    end Input_Type_Action_Capabilities;
 
+   function To_String (P_Delta_Position : in Type_Hexagon_Delta_Position) return String
+   is
+   begin
+      return "(" & P_Delta_Position.A'Img & ", " & P_Delta_Position.B'Img & ")";
+   end To_String;
+
 end Hexagon.Area;
