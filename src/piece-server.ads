@@ -154,10 +154,6 @@ package Piece.Server is
       P_Effect_Name : in     Effect.Type_Effect_Name; P_Area : in Hexagon.Area.Type_Action_Capabilities_A;
       P_Result                                        : out Status.Type_Result_Status) is abstract;
 
-   function Validate_Patch_Effect (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece : in Piece.Server.Type_Piece'Class; P_Effect_Name : in Effect.Type_Effect_Name;
-      P_Area : in Hexagon.Area.Type_Action_Capabilities_A) return Boolean;
-
    procedure End_Perform_Patch_Effect (P_Player_Id : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
       P_Effect_Name : in Effect.Type_Effect_Name; P_Area : in Hexagon.Area.Type_Action_Capabilities_A;
@@ -173,9 +169,6 @@ package Piece.Server is
    procedure Before_Perform_Piece_Effect (P_Player_Id : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
       P_Effect_Name : in Effect.Type_Effect_Name; P_Result : out Status.Type_Result_Status) is abstract;
-
-   function Validate_Piece_Effect (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece : in Type_Piece'Class; P_Effect_Name : in Effect.Type_Effect_Name) return Boolean;
 
    procedure Perform_Piece_Effect (P_Player_Id : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;

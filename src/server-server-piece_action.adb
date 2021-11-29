@@ -1105,8 +1105,8 @@ package body Server.Server.Piece_Action is
             Utilities.RemoteString.To_Unbounded_String
               ("Perform Patch Effect Piece Position not valid. Command will be cancelled."));
       else
-         if not Piece.Server.Validate_Patch_Effect
-             (P_Action_Type, Piece.Server.Type_Piece (A_Piece_Position.Actual_Piece.all), P_Effect_Name,
+         if not Piece.Server.Validate_Perform_Patch_Effect
+             (P_Player_Id, P_Action_Type, A_Piece_Position.Actual_Piece.all, P_Effect_Name,
               P_Area)
          then
             P_Status := Status.Patch_Effect_Not_Here;
@@ -1195,8 +1195,8 @@ package body Server.Server.Piece_Action is
               ("Perform Piece Effect Piece Position not valid. Command will be cancelled."));
       else
 
-         if not Piece.Server.Validate_Piece_Effect
-             (P_Action_Type, Piece.Server.Type_Piece (A_Piece_Position.Actual_Piece.all), P_Effect_Name)
+         if not Piece.Server.Validate_Perform_Piece_Effect
+             (P_Player_Id, P_Action_Type, A_Piece_Position.Actual_Piece.all, P_Effect_Name)
          then
             P_Status := Status.Piece_Effect_Not_Here;
 

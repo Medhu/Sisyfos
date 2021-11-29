@@ -983,68 +983,6 @@ package body Piece.Server is
       end if;
    end Revoke_Patch_Effect;
 
-   function Validate_Patch_Effect (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece : in Type_Piece'Class; P_Effect_Name : in Effect.Type_Effect_Name;
-      P_Area : in Hexagon.Area.Type_Action_Capabilities_A) return Boolean
-   is
-      Found      : Boolean := False;
-      Trav_Area  : Positive;
-      Cur_Effect : Effect.Effect_List.Cursor;
-      A_Patch    : Hexagon.Server_Map.Type_Server_Patch_Adress;
-
-      use Hexagon;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Piece.Server.Validate_Patch_Effect - enter");
-      end if;
-
-      Trav_Area := P_Area'First;
-      while Trav_Area in P_Area'First .. P_Area'Last and not Found loop
-
-         A_Patch :=
-           Hexagon.Server_Map.Get_Patch_Adress_From_AB (P_Area (Trav_Area).A, P_Area (Trav_Area).B);
-         Cur_Effect := Effect.Effect_List.Find (A_Patch.Effects_Here, P_Effect_Name);
-
-         if Effect.Effect_List.Has_Element (Cur_Effect) then
-            Found := True;
-         end if;
-
-         Trav_Area := Trav_Area + 1;
-      end loop;
-
-      if Verbose then
-         Text_IO.Put_Line ("Piece.Server.Validate_Patch_Effect - exit Found=" & Found'Img);
-      end if;
-
-      return Found;
-   end Validate_Patch_Effect;
-
-   function Validate_Piece_Effect (P_Action_Type : in Action.Type_Action_Type;
-      P_Piece : in Type_Piece'Class; P_Effect_Name : in Effect.Type_Effect_Name) return Boolean
-   is
-      Ret_Status : Boolean := False;
-
-      Cur_Effect : Effect.Effect_List.Cursor;
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Piece.Server.Validate_Piece_Effect - enter");
-      end if;
-
-      Cur_Effect := Effect.Effect_List.Find (P_Piece.Effects_On_Piece, P_Effect_Name);
-
-      if Effect.Effect_List.Has_Element (Cur_Effect) then
-         Ret_Status := True;
-      else
-         Ret_Status := False;
-      end if;
-
-      if Verbose then
-         Text_IO.Put_Line ("Piece.Server.Validate_Piece_Effect - exit Status=" & Ret_Status'Img);
-      end if;
-
-      return Ret_Status;
-   end Validate_Piece_Effect;
-
    procedure Print_Pieces_In_Game is
       Trav : Piece.Server.Pieces_Server_List.Cursor;
 
