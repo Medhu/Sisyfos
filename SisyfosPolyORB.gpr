@@ -16,7 +16,7 @@
 --      You should have received a copy of the GNU General Public License
 --      along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
-with "ada_lua";
+with "lua";
 project SisyfosPolyORB is
 
    for Source_Dirs use ("src",

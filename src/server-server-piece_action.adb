@@ -988,7 +988,20 @@ package body Server.Server.Piece_Action is
 
          A_From_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (A_From_Pos.A, A_From_Pos.B);
 
+         Piece.Server.Fighting_Piece.Before_Perform_Move
+           (P_Player_Id, P_Action_Type,
+            Piece.Server.Fighting_Piece.Type_Piece'Class
+              (A_Moving_Piece_Position.Actual_Piece.all),
+            A_From_Pos, A_To_Pos, P_End_Pos, Result_Status);
+
+         Text_IO.Put_Line("After : Before_Perform_Move - " & Result_Status'Img);
+
+         if Result_Status /= Status.Proceed then
+            P_Status := Status.Not_Before_Perform_Move;
+         end if;
+
          if P_Status = Status.Ok then
+            Text_IO.Put_Line("Beregn Path!");
             Hexagon.Server_Navigation.Find_Path
               (Hexagon.Server_Navigation.Get_Navigation
                  (Hexagon.Server_Navigation.A_Navigation_List, 1).all,
@@ -1006,14 +1019,14 @@ package body Server.Server.Piece_Action is
             A_To_Pos   := Hexagon.Server_Navigation.Path_Pkg.Element (Next_Path_Cursor).all.Pos;
             A_To_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (A_To_Pos.A, A_To_Pos.B);
 
-            Piece.Server.Fighting_Piece.Before_Perform_Move
+            Piece.Server.Fighting_Piece.Before_Perform_Move_Step
               (P_Player_Id, P_Action_Type,
                Piece.Server.Fighting_Piece.Type_Piece'Class
                  (A_Moving_Piece_Position.Actual_Piece.all),
                A_From_Pos, A_To_Pos, P_End_Pos, Result_Status);
 
             if Result_Status /= Status.Proceed then
-               P_Status := Status.Not_Before_Perform_Move;
+               P_Status := Status.Not_Before_Perform_Move_Step;
             end if;
          end if;
 

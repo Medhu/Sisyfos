@@ -160,6 +160,15 @@ package Piece.Server.Fighting_Piece is
       P_End_Pos      : in     Hexagon.Type_Hexagon_Position;
       P_Result       :    out Status.Type_Result_Status) is abstract;
 
+   procedure Before_Perform_Move_Step
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Moving_Piece : in out Piece.Server.Fighting_Piece.Type_Piece;
+      P_From_Pos     : in     Hexagon.Type_Hexagon_Position;
+      P_To_Pos       : in out Hexagon.Type_Hexagon_Position;
+      P_End_Pos      : in     Hexagon.Type_Hexagon_Position;
+      P_Result       :    out Status.Type_Result_Status) is abstract;
+
    procedure End_Perform_Move
      (P_Player_Id          : in     Player.Type_Player_Id;
       P_Action_Type        : in     Action.Type_Action_Type;

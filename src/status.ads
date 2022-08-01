@@ -28,6 +28,7 @@ package Status is
       Patch_Occupied,
       Target_Patch_Occupied,
       Not_Before_Perform_Move,
+      Not_Before_Perform_Move_Step,
       No_Path_Found,
    --
       Completed_Ok,
