@@ -78,7 +78,8 @@ package Piece.Server.Fighting_Piece is
       P_Attacking_Piece,
       P_Attacked_Piece     : in out Piece.Server.Fighting_Piece.Type_Piece;
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Result             :    out Status.Type_Result_Status) is abstract;
+      P_Result             :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure Calculate_Attack_Result
      (P_Player_Id   : in Player.Type_Player_Id;
@@ -86,7 +87,8 @@ package Piece.Server.Fighting_Piece is
       P_Attacking_Piece,
       P_Attacked_Piece     : in out Piece.Server.Fighting_Piece.Type_Piece;
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Winner             :    out Player.Type_Player_Id) is abstract;
+      P_Winner             :    out Player.Type_Player_Id;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure End_Perform_Attack
      (P_Player_Id   : in Player.Type_Player_Id;
@@ -96,7 +98,7 @@ package Piece.Server.Fighting_Piece is
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
       P_Winner             : in     Player.Type_Player_Id;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer) is abstract;
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info) is abstract;
 
    --
    -- Perform Ranged Attack
@@ -122,7 +124,8 @@ package Piece.Server.Fighting_Piece is
       P_Attacking_Piece,
       P_Attacked_Piece     : in out Piece.Server.Fighting_Piece.Type_Piece;
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Result             :    out Status.Type_Result_Status) is abstract;
+      P_Result             :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure Calculate_Ranged_Attack_Result
      (P_Player_Id   : in Player.Type_Player_Id;
@@ -130,7 +133,8 @@ package Piece.Server.Fighting_Piece is
       P_Attacking_Piece,
       P_Attacked_Piece     : in out Piece.Server.Fighting_Piece.Type_Piece;
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Winner             :    out Player.Type_Player_Id) is abstract;
+      P_Winner             :    out Player.Type_Player_Id;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure End_Perform_Ranged_Attack
      (P_Player_Id   : in Player.Type_Player_Id;
@@ -140,7 +144,7 @@ package Piece.Server.Fighting_Piece is
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
       P_Winner             : in     Player.Type_Player_Id;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer) is abstract;
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info) is abstract;
 
    --
    -- Perform_Move
@@ -158,7 +162,8 @@ package Piece.Server.Fighting_Piece is
       P_From_Pos     : in     Hexagon.Type_Hexagon_Position;
       P_To_Pos       : in out Hexagon.Type_Hexagon_Position;
       P_End_Pos      : in     Hexagon.Type_Hexagon_Position;
-      P_Result       :    out Status.Type_Result_Status) is abstract;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure Before_Perform_Move_Step
      (P_Player_Id    : in     Player.Type_Player_Id;
@@ -167,7 +172,8 @@ package Piece.Server.Fighting_Piece is
       P_From_Pos     : in     Hexagon.Type_Hexagon_Position;
       P_To_Pos       : in out Hexagon.Type_Hexagon_Position;
       P_End_Pos      : in     Hexagon.Type_Hexagon_Position;
-      P_Result       :    out Status.Type_Result_Status) is abstract;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure End_Perform_Move
      (P_Player_Id          : in     Player.Type_Player_Id;
@@ -176,7 +182,7 @@ package Piece.Server.Fighting_Piece is
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
       P_End_Pos            : in     Hexagon.Type_Hexagon_Position;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer) is abstract;
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure Perform_Move_Step
      (P_Player_Id              : in     Player.Type_Player_Id;

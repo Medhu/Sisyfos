@@ -19,6 +19,7 @@
 with Ada.Containers.Vectors;
 with Ada.Unchecked_Deallocation;
 with Hexagon.Area.Server_Area;
+with Attempt;
 
 package Server.Server.Cmd is
    type Type_Cmd_Type is
@@ -113,11 +114,11 @@ package Server.Server.Cmd is
       Area                  : Hexagon.Area.Server_Area.Type_Action_Capabilities_Access_A;
    end record;
 
-   Max_Attempt : constant Positive :=
-     Positive'Last; -- Maximum number of attempts to do this command
+
+
    type Type_Cmd (P_Cmd_Type : Type_Cmd_Type) is record
       Attempt_Number     : Natural;
-      Attempts_Remaining : Natural;
+      Attempt_Info       : Attempt.Type_Attempt_Info;
 
       case P_Cmd_Type is
          when Cmd_Create_Price =>

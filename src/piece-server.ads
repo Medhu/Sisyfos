@@ -27,6 +27,7 @@ with Ada.Strings.Unbounded;
 with Action;
 with Ada.Unchecked_Deallocation;
 with Effect;
+with Attempt;
 
 package Piece.Server is
    type Type_Piece is abstract new Piece.Type_Piece with record
@@ -88,12 +89,13 @@ package Piece.Server is
    procedure Before_Create_Piece (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Pos : in Hexagon.Type_Hexagon_Position;
       P_Piece                                 : in out Piece.Server.Type_Piece;
-      P_Result                                :    out Status.Type_Result_Status) is abstract;
+      P_Result                                :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure End_Create_Piece (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Pos : in Hexagon.Type_Hexagon_Position;
       P_Piece : in out Piece.Server.Type_Piece; P_End_Status : in Status.Type_Status;
-      P_Attempts_Remaining                 : in out Integer) is abstract;
+      P_Attempt_Info                 : in out Attempt.Type_Attempt_Info) is abstract;
 
    --
    -- Put_Piece
@@ -109,12 +111,13 @@ package Piece.Server is
    procedure Before_Put_Piece (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Pos : in Hexagon.Type_Hexagon_Position;
       P_Piece                              : in out Piece.Server.Type_Piece;
-      P_Result                             :    out Status.Type_Result_Status) is abstract;
+      P_Result                             :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure End_Put_Piece (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Pos : in Hexagon.Type_Hexagon_Position;
       P_Piece : in out Piece.Server.Type_Piece; P_End_Status : in Status.Type_Status;
-      P_Attempts_Remaining              : in out Integer) is abstract;
+      P_Attempt_Info              : in out Attempt.Type_Attempt_Info) is abstract;
 
    --
    -- Remove_Piece
@@ -129,12 +132,13 @@ package Piece.Server is
 
    procedure Before_Remove_Piece (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
-      P_Result                                :    out Status.Type_Result_Status) is abstract;
+      P_Result                                :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure End_Remove_Piece (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Patch : in out Landscape.Type_Patch;
       P_Piece : in out Piece.Server.Type_Piece; P_End_Status : in Status.Type_Status;
-      P_Attempts_Remaining                 : in out Integer) is abstract;
+      P_Attempt_Info                 : in out Attempt.Type_Attempt_Info) is abstract;
 
    --
    -- Perform_Patch_Effect
@@ -142,7 +146,8 @@ package Piece.Server is
    procedure Perform_Patch_Effect (P_Player_Id : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
       P_Area                                   : in Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect_Name                                 : in Effect.Type_Effect_Name) is abstract;
+      P_Effect_Name                                 : in Effect.Type_Effect_Name;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    function Validate_Perform_Patch_Effect (P_Player_Id : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type; P_Piece : in Piece.Server.Type_Piece;
@@ -152,12 +157,13 @@ package Piece.Server is
    procedure Before_Perform_Patch_Effect (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
       P_Effect_Name : in     Effect.Type_Effect_Name; P_Area : in Hexagon.Area.Type_Action_Capabilities_A;
-      P_Result                                        : out Status.Type_Result_Status) is abstract;
+      P_Result                                        : out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure End_Perform_Patch_Effect (P_Player_Id : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
       P_Effect_Name : in Effect.Type_Effect_Name; P_Area : in Hexagon.Area.Type_Action_Capabilities_A;
-      P_End_Status : in Status.Type_Status; P_Attempts_Remaining : in out Integer) is abstract;
+      P_End_Status : in Status.Type_Status; P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    --
    -- Perform_Piece_Effect
@@ -168,16 +174,18 @@ package Piece.Server is
 
    procedure Before_Perform_Piece_Effect (P_Player_Id : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
-      P_Effect_Name : in Effect.Type_Effect_Name; P_Result : out Status.Type_Result_Status) is abstract;
+      P_Effect_Name : in Effect.Type_Effect_Name; P_Result : out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure Perform_Piece_Effect (P_Player_Id : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
-      P_Effect_Name                              : in Effect.Type_Effect_Name) is abstract;
+      P_Effect_Name                              : in Effect.Type_Effect_Name;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure End_Perform_Piece_Effect (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
       P_Effect_Name : in     Effect.Type_Effect_Name; P_End_Status : in Status.Type_Status;
-      P_Attempts_Remaining                         : in out Integer) is abstract;
+      P_Attempt_Info                         : in out Attempt.Type_Attempt_Info) is abstract;
 
    --
    -- Grant_Piece_Effect
@@ -192,12 +200,13 @@ package Piece.Server is
 
    procedure Before_Grant_Piece_Effect (P_Player_Id : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
-      P_Effect : in Effect.Type_Effect; P_Result : out Status.Type_Result_Status) is abstract;
+      P_Effect : in Effect.Type_Effect; P_Result : out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure End_Grant_Piece_Effect (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
       P_Effect : in     Effect.Type_Effect; P_End_Status : in Status.Type_Status;
-      P_Attempts_Remaining                       : in out Integer) is abstract;
+      P_Attempt_Info                       : in out Attempt.Type_Attempt_Info) is abstract;
 
    --
    -- Revoke_Piece_Effect
@@ -213,12 +222,13 @@ package Piece.Server is
    procedure Before_Revoke_Piece_Effect (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
       P_Effect_Name                                  : in     Effect.Type_Effect_Name;
-      P_Result                                       : out Status.Type_Result_Status) is abstract;
+      P_Result                                       : out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure End_Revoke_Piece_Effect (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
       P_Effect_Name : in     Effect.Type_Effect_Name; P_End_Status : in Status.Type_Status;
-      P_Attempts_Remaining                        : in out Integer) is abstract;
+      P_Attempt_Info                        : in out Attempt.Type_Attempt_Info) is abstract;
 
    --
    -- Grant_Patch_Effect
@@ -236,12 +246,13 @@ package Piece.Server is
    procedure Before_Grant_Patch_Effect (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
       P_Area : in     Hexagon.Area.Type_Action_Capabilities_A; P_Effect : in Effect.Type_Effect;
-      P_Result                                      :    out Status.Type_Result_Status) is abstract;
+      P_Result                                      :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure End_Grant_Patch_Effect (P_Player_Id : in Player.Type_Player_Id;
       P_Action_Type : in Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
       P_Area : in Hexagon.Area.Type_Action_Capabilities_A; P_Effect : in Effect.Type_Effect;
-      P_End_Status : in Status.Type_Status; P_Attempts_Remaining : in out Integer) is abstract;
+      P_End_Status : in Status.Type_Status; P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    --
    -- Revoke_Patch_Effects
@@ -260,13 +271,14 @@ package Piece.Server is
       P_Action_Type : in     Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
       P_Area                                         : in Hexagon.Area.Type_Action_Capabilities_A;
       P_Effect_Name                                  : in     Effect.Type_Effect_Name;
-      P_Result                                       : out Status.Type_Result_Status) is abstract;
+      P_Result                                       : out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure End_Revoke_Patch_Effect (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Piece : in out Piece.Server.Type_Piece;
       P_Area                                      : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_Effect_Name : in     Effect.Type_Effect_Name; P_End_Status : in Status.Type_Status;
-      P_Attempts_Remaining                        : in out Integer) is abstract;
+      P_Attempt_Info                        : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure Print_Pieces_In_Game;
    procedure Put_All_Pieces_Positions (P_Player_Id : in Player.Type_Player_Id);
