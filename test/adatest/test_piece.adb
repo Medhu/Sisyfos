@@ -31,6 +31,7 @@ with Server.ServerAPI;
 with Status;
 with Effect.Server;
 with Server.ServerAPI;
+with Attempt;
 
 package body Test_Piece is
    package Random is new Ada.Numerics.Discrete_Random (Positive);
@@ -103,11 +104,12 @@ package body Test_Piece is
    end Validate_Create_Piece;
 
    procedure Before_Create_Piece
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Pos         : in     Hexagon.Type_Hexagon_Position;
-      P_Piece       : in out Test_Piece.Type_My_Test_Piece;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Pos          : in     Hexagon.Type_Hexagon_Position;
+      P_Piece        : in out Test_Piece.Type_My_Test_Piece;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       use Action;
    begin
@@ -128,11 +130,12 @@ package body Test_Piece is
    end Before_Create_Piece;
 
    procedure Before_Create_Piece
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Pos         : in     Hexagon.Type_Hexagon_Position;
-      P_Piece       : in out Test_Piece.Type_My_Test_House;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Pos          : in     Hexagon.Type_Hexagon_Position;
+      P_Piece        : in out Test_Piece.Type_My_Test_House;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -152,7 +155,7 @@ package body Test_Piece is
       P_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
       use Status;
       use Action;
@@ -168,7 +171,7 @@ package body Test_Piece is
       Test_List.all (Integer (P_Action_Type)).Done   := True;
       Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-      P_Attempts_Remaining := 0;
+      Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Create_Piece;
 
    procedure End_Create_Piece
@@ -177,7 +180,7 @@ package body Test_Piece is
       P_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Piece              : in out Test_Piece.Type_My_Test_House;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
       use Status;
    begin
@@ -192,7 +195,7 @@ package body Test_Piece is
       Test_List.all (Integer (P_Action_Type)).Done   := True;
       Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-      P_Attempts_Remaining := 0;
+      Attempt.Set_Done_Attempt(P_Attempt_Info);
       if Verbose then
          Text_IO.Put_Line
            ("Test_Piece.End_Create_Piece (House)- exit " &
@@ -234,11 +237,12 @@ package body Test_Piece is
    end Validate_Put_Piece;
 
    procedure Before_Put_Piece
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Pos         : in     Hexagon.Type_Hexagon_Position;
-      P_Piece       : in out Test_Piece.Type_My_Test_Piece;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Pos          : in     Hexagon.Type_Hexagon_Position;
+      P_Piece        : in out Test_Piece.Type_My_Test_Piece;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
 
       use Action;
@@ -251,11 +255,12 @@ package body Test_Piece is
    end Before_Put_Piece;
 
    procedure Before_Put_Piece
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Pos         : in     Hexagon.Type_Hexagon_Position;
-      P_Piece       : in out Test_Piece.Type_My_Test_House;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Pos          : in     Hexagon.Type_Hexagon_Position;
+      P_Piece        : in out Test_Piece.Type_My_Test_House;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -271,7 +276,7 @@ package body Test_Piece is
       P_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -285,7 +290,7 @@ package body Test_Piece is
       P_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Piece              : in out Test_Piece.Type_My_Test_House;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -323,10 +328,11 @@ package body Test_Piece is
    end Validate_Remove_Piece;
 
    procedure Before_Remove_Piece
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_Piece;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_Piece;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       use Action;
    begin
@@ -342,10 +348,11 @@ package body Test_Piece is
    end Before_Remove_Piece;
 
    procedure Before_Remove_Piece
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_House;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_House;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -361,7 +368,7 @@ package body Test_Piece is
       P_Patch              : in out Landscape.Type_Patch;
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
       use Status;
    begin
@@ -372,7 +379,7 @@ package body Test_Piece is
       Test_List.all (Integer (P_Action_Type)).Done   := True;
       Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-      P_Attempts_Remaining := 0;
+      Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Remove_Piece;
 
    procedure End_Remove_Piece
@@ -381,7 +388,7 @@ package body Test_Piece is
       P_Patch              : in out Landscape.Type_Patch;
       P_Piece              : in out Test_Piece.Type_My_Test_House;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
       use Status;
    begin
@@ -392,15 +399,16 @@ package body Test_Piece is
       Test_List.all (Integer (P_Action_Type)).Done   := True;
       Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-      P_Attempts_Remaining := 0;
+      Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Remove_Piece;
 
    procedure Perform_Patch_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_Piece;
-      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect_Name : in     Effect.Type_Effect_Name)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_Piece;
+      P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Effect_Name  : in     Effect.Type_Effect_Name;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       A_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
 
@@ -419,11 +427,12 @@ package body Test_Piece is
    end Perform_Patch_Effect;
 
    procedure Perform_Patch_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_House;
-      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect_Name : in     Effect.Type_Effect_Name)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_House;
+      P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Effect_Name  : in     Effect.Type_Effect_Name;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -462,12 +471,13 @@ package body Test_Piece is
    end Validate_Perform_Patch_Effect;
 
    procedure Before_Perform_Patch_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_Piece;
-      P_Effect_Name : in     Effect.Type_Effect_Name;
-      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_Piece;
+      P_Effect_Name  : in     Effect.Type_Effect_Name;
+      P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -478,12 +488,13 @@ package body Test_Piece is
    end Before_Perform_Patch_Effect;
 
    procedure Before_Perform_Patch_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_House;
-      P_Effect_Name : in     Effect.Type_Effect_Name;
-      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_House;
+      P_Effect_Name  : in     Effect.Type_Effect_Name;
+      P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -500,7 +511,7 @@ package body Test_Piece is
       P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_Area               : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -510,7 +521,7 @@ package body Test_Piece is
       Test_List.all (Integer (P_Action_Type)).Done   := True;
       Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-      P_Attempts_Remaining := 0;
+      Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Perform_Patch_Effect;
 
    procedure End_Perform_Patch_Effect
@@ -520,7 +531,7 @@ package body Test_Piece is
       P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_Area               : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -557,11 +568,12 @@ package body Test_Piece is
    end Validate_Perform_Piece_Effect;
 
    procedure Before_Perform_Piece_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_Piece;
-      P_Effect_Name : in     Effect.Type_Effect_Name;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_Piece;
+      P_Effect_Name  : in     Effect.Type_Effect_Name;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -572,11 +584,12 @@ package body Test_Piece is
    end Before_Perform_Piece_Effect;
 
    procedure Before_Perform_Piece_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_House;
-      P_Effect_Name : in     Effect.Type_Effect_Name;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_House;
+      P_Effect_Name  : in     Effect.Type_Effect_Name;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -587,10 +600,11 @@ package body Test_Piece is
    end Before_Perform_Piece_Effect;
 
    procedure Perform_Piece_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_Piece;
-      P_Effect_Name : in     Effect.Type_Effect_Name)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_Piece;
+      P_Effect_Name  : in     Effect.Type_Effect_Name;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       Cursor_Effect : Effect.Effect_List.Cursor;
    begin
@@ -606,10 +620,11 @@ package body Test_Piece is
    end Perform_Piece_Effect;
 
    procedure Perform_Piece_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_House;
-      P_Effect_Name : in     Effect.Type_Effect_Name)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_House;
+      P_Effect_Name  : in     Effect.Type_Effect_Name;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -623,7 +638,7 @@ package body Test_Piece is
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
       P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -633,7 +648,7 @@ package body Test_Piece is
       Test_List.all (Integer (P_Action_Type)).Done   := True;
       Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-      P_Attempts_Remaining := 0;
+      Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Perform_Piece_Effect;
 
    procedure End_Perform_Piece_Effect
@@ -642,7 +657,7 @@ package body Test_Piece is
       P_Piece              : in out Test_Piece.Type_My_Test_House;
       P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -679,11 +694,12 @@ package body Test_Piece is
    end Validate_Grant_Piece_Effect;
 
    procedure Before_Grant_Piece_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_Piece;
-      P_Effect      : in     Effect.Type_Effect;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_Piece;
+      P_Effect       : in     Effect.Type_Effect;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -694,11 +710,12 @@ package body Test_Piece is
    end Before_Grant_Piece_Effect;
 
    procedure Before_Grant_Piece_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_House;
-      P_Effect      : in     Effect.Type_Effect;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_House;
+      P_Effect       : in     Effect.Type_Effect;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -714,7 +731,7 @@ package body Test_Piece is
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
       P_Effect             : in     Effect.Type_Effect;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -724,7 +741,7 @@ package body Test_Piece is
       Test_List.all (Integer (P_Action_Type)).Done   := True;
       Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-      P_Attempts_Remaining := 0;
+      Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Grant_Piece_Effect;
 
    procedure End_Grant_Piece_Effect
@@ -733,7 +750,7 @@ package body Test_Piece is
       P_Piece              : in out Test_Piece.Type_My_Test_House;
       P_Effect             : in     Effect.Type_Effect;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -771,11 +788,12 @@ package body Test_Piece is
    end Validate_Revoke_Piece_Effect;
 
    procedure Before_Revoke_Piece_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_Piece;
-      P_Effect_Name : in     Effect.Type_Effect_Name;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_Piece;
+      P_Effect_Name  : in     Effect.Type_Effect_Name;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -786,11 +804,12 @@ package body Test_Piece is
    end Before_Revoke_Piece_Effect;
 
    procedure Before_Revoke_Piece_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_House;
-      P_Effect_Name : in     Effect.Type_Effect_Name;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_House;
+      P_Effect_Name  : in     Effect.Type_Effect_Name;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -806,7 +825,7 @@ package body Test_Piece is
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
       P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -816,7 +835,7 @@ package body Test_Piece is
       Test_List.all (Integer (P_Action_Type)).Done   := True;
       Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-      P_Attempts_Remaining := 0;
+      Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Revoke_Piece_Effect;
 
    procedure End_Revoke_Piece_Effect
@@ -825,7 +844,7 @@ package body Test_Piece is
       P_Piece              : in out Test_Piece.Type_My_Test_House;
       P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -835,7 +854,7 @@ package body Test_Piece is
       Test_List.all (Integer (P_Action_Type)).Done   := True;
       Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-      P_Attempts_Remaining := 0;
+      Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Revoke_Piece_Effect;
 
    function Validate_Grant_Patch_Effect
@@ -869,12 +888,13 @@ package body Test_Piece is
    end Validate_Grant_Patch_Effect;
 
    procedure Before_Grant_Patch_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_Piece;
-      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect      : in     Effect.Type_Effect;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_Piece;
+      P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Effect       : in     Effect.Type_Effect;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -885,12 +905,13 @@ package body Test_Piece is
    end Before_Grant_Patch_Effect;
 
    procedure Before_Grant_Patch_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_House;
-      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect      : in     Effect.Type_Effect;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_House;
+      P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Effect       : in     Effect.Type_Effect;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -907,7 +928,7 @@ package body Test_Piece is
       P_Area               : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_Effect             : in     Effect.Type_Effect;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -917,7 +938,7 @@ package body Test_Piece is
       Test_List.all (Integer (P_Action_Type)).Done   := True;
       Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-      P_Attempts_Remaining := 0;
+      Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Grant_Patch_Effect;
 
    procedure End_Grant_Patch_Effect
@@ -927,7 +948,7 @@ package body Test_Piece is
       P_Area               : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_Effect             : in     Effect.Type_Effect;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -937,7 +958,7 @@ package body Test_Piece is
       Test_List.all (Integer (P_Action_Type)).Done   := True;
       Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-      P_Attempts_Remaining := 0;
+      Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Grant_Patch_Effect;
 
    function Validate_Revoke_Patch_Effect
@@ -971,12 +992,13 @@ package body Test_Piece is
    end Validate_Revoke_Patch_Effect;
 
    procedure Before_Revoke_Patch_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_Piece;
-      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect_Name : in     Effect.Type_Effect_Name;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_Piece;
+      P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Effect_Name  : in     Effect.Type_Effect_Name;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -987,12 +1009,13 @@ package body Test_Piece is
    end Before_Revoke_Patch_Effect;
 
    procedure Before_Revoke_Patch_Effect
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Test_Piece.Type_My_Test_House;
-      P_Area        : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Effect_Name : in     Effect.Type_Effect_Name;
-      P_Result      :    out Status.Type_Result_Status)
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Test_Piece.Type_My_Test_House;
+      P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Effect_Name  : in     Effect.Type_Effect_Name;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -1009,7 +1032,7 @@ package body Test_Piece is
       P_Area               : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -1018,7 +1041,7 @@ package body Test_Piece is
       Test_List.all (Integer (P_Action_Type)).Done   := True;
       Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-      P_Attempts_Remaining := 0;
+      Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Revoke_Patch_Effect;
 
    procedure End_Revoke_Patch_Effect
@@ -1028,7 +1051,7 @@ package body Test_Piece is
       P_Area               : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -1037,7 +1060,7 @@ package body Test_Piece is
       Test_List.all (Integer (P_Action_Type)).Done   := True;
       Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-      P_Attempts_Remaining := 0;
+      Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Revoke_Patch_Effect;
 
    --
@@ -1061,7 +1084,8 @@ package body Test_Piece is
       P_Action_Type                       : in     Action.Type_Action_Type;
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
       P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
-      P_Result                            :    out Status.Type_Result_Status)
+      P_Result                            :    out Status.Type_Result_Status;
+      P_Attempt_Info                      : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -1076,7 +1100,8 @@ package body Test_Piece is
       P_Action_Type                       : in     Action.Type_Action_Type;
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
       P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
-      P_Winner                            :    out Player.Type_Player_Id)
+      P_Winner                            :    out Player.Type_Player_Id;
+      P_Attempt_Info                      : in out Attempt.Type_Attempt_Info)
    is
       use Piece;
    begin
@@ -1146,7 +1171,7 @@ package body Test_Piece is
       P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Winner                            : in     Player.Type_Player_Id;
       P_End_Status                        : in     Status.Type_Status;
-      P_Attempts_Remaining                : in out Integer)
+      P_Attempt_Info                      : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -1158,7 +1183,7 @@ package body Test_Piece is
       Test_List.all (Integer (P_Action_Type)).Done   := True;
       Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-      P_Attempts_Remaining := 0;
+      Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Perform_Attack;
 
    --
@@ -1182,7 +1207,8 @@ package body Test_Piece is
       P_Action_Type                       : in     Action.Type_Action_Type;
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
       P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
-      P_Result                            :    out Status.Type_Result_Status)
+      P_Result                            :    out Status.Type_Result_Status;
+      P_Attempt_Info                      : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -1197,7 +1223,8 @@ package body Test_Piece is
       P_Action_Type                       : in     Action.Type_Action_Type;
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
       P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
-      P_Winner                            :    out Player.Type_Player_Id)
+      P_Winner                            :    out Player.Type_Player_Id;
+      P_Attempt_Info                      : in out Attempt.Type_Attempt_Info)
    is
       use Piece;
    begin
@@ -1220,7 +1247,7 @@ package body Test_Piece is
       P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Winner                            : in     Player.Type_Player_Id;
       P_End_Status                        : in     Status.Type_Status;
-      P_Attempts_Remaining                : in out Integer)
+      P_Attempt_Info                      : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
@@ -1230,7 +1257,7 @@ package body Test_Piece is
       Test_List.all (Integer (P_Action_Type)).Done   := True;
       Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-      P_Attempts_Remaining := 0;
+      Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Perform_Ranged_Attack;
 
    --
@@ -1257,7 +1284,8 @@ package body Test_Piece is
       P_From_Pos     : in     Hexagon.Type_Hexagon_Position;
       P_To_Pos       : in out Hexagon.Type_Hexagon_Position;
       P_End_Pos      : in     Hexagon.Type_Hexagon_Position;
-      P_Result       :    out Status.Type_Result_Status)
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       use Action;
    begin
@@ -1272,6 +1300,30 @@ package body Test_Piece is
       end if;
    end Before_Perform_Move;
 
+   procedure Before_Perform_Move_Step
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Moving_Piece : in out Test_Piece.Type_My_Test_Piece;
+      P_From_Pos     : in     Hexagon.Type_Hexagon_Position;
+      P_To_Pos       : in out Hexagon.Type_Hexagon_Position;
+      P_End_Pos      : in     Hexagon.Type_Hexagon_Position;
+      P_Result       :    out Status.Type_Result_Status;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
+   is
+      use Action;
+   begin
+      if Verbose then
+         Text_IO.Put_Line ("Test_Piece.Before_Perform_Move_Step (Piece) - enter - exit");
+      end if;
+
+      if P_Action_Type = 1031 then
+         P_Result := Status.Fail;
+      else
+         P_Result := Status.Proceed;
+      end if;
+   end Before_Perform_Move_Step;
+
+
    procedure End_Perform_Move
      (P_Player_Id          : in     Player.Type_Player_Id;
       P_Action_Type        : in     Action.Type_Action_Type;
@@ -1279,7 +1331,7 @@ package body Test_Piece is
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
       P_End_Pos            : in     Hexagon.Type_Hexagon_Position;
       P_End_Status         : in     Status.Type_Status;
-      P_Attempts_Remaining : in out Integer)
+      P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
       use Status;
       use Action;
@@ -1292,19 +1344,20 @@ package body Test_Piece is
          Test_List.all (Integer (P_Action_Type)).Done   := True;
          Test_List.all (Integer (P_Action_Type)).Result := Status.Ok;
 
-         P_Attempts_Remaining := 0;
+         Attempt.Set_Done_Attempt(P_Attempt_Info);
       elsif P_End_Status = Status.No_Path_Found then
          Test_List.all (Integer (P_Action_Type)).Done   := True;
          Test_List.all (Integer (P_Action_Type)).Result := Status.No_Path_Found;
 
-         P_Attempts_Remaining := 0;
+         Attempt.Set_Done_Attempt(P_Attempt_Info);
       elsif P_End_Status = Status.Not_Before_Perform_Move and P_Action_Type = 1031 then
          Test_List.all (Integer (P_Action_Type)).Done   := True;
          Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
 
-         P_Attempts_Remaining := 0;
+         Attempt.Set_Done_Attempt(P_Attempt_Info);
       else
-         P_Attempts_Remaining := P_Attempts_Remaining - 1;
+--         P_Attempt_Info := P_Attempt_Info - 1;
+         Attempt.Set_Attempt(P_Attempt_Info, Attempt.Get_Attempt(P_Attempt_Info) + 1);
       end if;
 
    end End_Perform_Move;
