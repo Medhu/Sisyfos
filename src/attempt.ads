@@ -20,21 +20,30 @@ with Ada.Strings.Unbounded;
 
 package Attempt is
 
-   type Type_Attempt_Info is private;  --new Natural;
-   Initial_Attempt : constant Type_Attempt_Info ;
-   Attempt_Done    : constant Type_Attempt_Info ;
+   type Type_Attempt_Status is (Initial, Done);
+   type Type_Info is new Natural;
+   type Type_Attempt_Info is private;
 
-   procedure Set_Attempt (P_Attempt_Info : in out Type_Attempt_Info; P_Value : in Natural);
-   procedure Set_Initial_Attempt (P_Attempt_Info : in out Type_Attempt_Info);
+
+   procedure Set_Attempt_Info (P_Attempt_Info : in out Type_Attempt_Info; P_Info : in Natural);
+   function Get_Attempt_Info (P_Attempt_Info : in Type_Attempt_Info) return Natural;
+
+   procedure Set_Attempt_Status (P_Attempt_Info : in out Type_Attempt_Info; P_Status : in Type_Attempt_Status);
+   function Get_Attempt_Status (P_Attempt_Info : in Type_Attempt_Info) return Type_Attempt_Status;
+
+
+   function Initial_Attempt return Type_Attempt_Info;
    procedure Set_Done_Attempt (P_Attempt_Info : in out Type_Attempt_Info);
 
-   function Get_Attempt (P_Attempt_Info : in Type_Attempt_Info) return Natural;
+
    function To_String (P_Attempt_Info : in Type_Attempt_Info) return String; --Ada.Strings.Unbounded.Unbounded_String;
 
    Illegal_Attempt_Info : exception;
 private
-   type Type_Attempt_Info is new Natural;
-   Initial_Attempt : constant Type_Attempt_Info := Type_Attempt_Info(1);
-   Attempt_Done    : constant Type_Attempt_Info := Type_Attempt_Info(99999);
+   type Type_Attempt_Info is
+      record
+         Status : Type_Attempt_Status;
+         Info   : Natural;
+      end record;
 
 end Attempt;

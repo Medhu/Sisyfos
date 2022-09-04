@@ -1357,7 +1357,7 @@ package body Test_Piece is
          Attempt.Set_Done_Attempt(P_Attempt_Info);
       else
 --         P_Attempt_Info := P_Attempt_Info - 1;
-         Attempt.Set_Attempt(P_Attempt_Info, Attempt.Get_Attempt(P_Attempt_Info) + 1);
+         Attempt.Set_Attempt_Info(P_Attempt_Info, Natural(Attempt.Get_Attempt_Info(P_Attempt_Info)) + 1);
       end if;
 
    end End_Perform_Move;

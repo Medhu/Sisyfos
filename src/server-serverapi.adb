@@ -160,7 +160,7 @@ package body Server.ServerAPI is
          Text_IO.Put_Line ("Server.ServerAPI.Create_Piece - enter");
       end if;
 
-      Attempt.Set_Initial_Attempt(Attempt_Info);
+      Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.New_Piece (P_Piece, A_Server_Piece);
 
@@ -184,7 +184,7 @@ package body Server.ServerAPI is
          Text_IO.Put_Line ("Server.ServerAPI.Put_Piece - enter");
       end if;
 
-      Attempt.Set_Initial_Attempt(Attempt_Info);
+      Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Put_Piece
         (P_Player_Id, P_Action_Type, P_Pos, P_Piece_Id, P_Status, Attempt_Info);
@@ -204,7 +204,7 @@ package body Server.ServerAPI is
          Text_IO.Put_Line ("Server.ServerAPI.Remove_Piece - enter");
       end if;
 
-      Attempt.Set_Initial_Attempt(Attempt_Info);
+      Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Remove_Piece (P_Player_Id, P_Action_Type, P_Piece_Id, P_Status, Attempt_Info);
 
@@ -224,7 +224,7 @@ package body Server.ServerAPI is
          Text_IO.Put_Line ("Server.ServerAPI.Perform_Attack (from, to) - enter");
       end if;
 
-      Attempt.Set_Initial_Attempt(Attempt_Info);
+      Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Perform_Attack
         (P_Player_Id, P_Action_Type, P_Attacking_Piece_Id, P_Attacked_Piece_Id, P_Status, Attempt_Info);
@@ -246,7 +246,7 @@ package body Server.ServerAPI is
          Text_IO.Put_Line ("Server.ServerAPI.Perform_Ranged_Attack - enter");
       end if;
 
-      Attempt.Set_Initial_Attempt(Attempt_Info);
+      Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Perform_Ranged_Attack
         (P_Player_Id, P_Action_Type, P_Attacking_Piece_Id, P_Attacked_Piece_Id, P_Status, Attempt_Info);
@@ -268,7 +268,7 @@ package body Server.ServerAPI is
            ("Server.ServerAPI.Perform_Move (from,to)- enter P_Piece_Id=" & P_Piece_Id'Img);
       end if;
 
-      Attempt.Set_Initial_Attempt(Attempt_Info);
+      Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Perform_Move
         (P_Player_Id, P_Action_Type, P_Piece_Id, P_To_Pos, P_Status, Attempt_Info);
@@ -291,7 +291,7 @@ package body Server.ServerAPI is
            ("Server.ServerAPI.Perform_Patch_Effect - enter P_Piece_Id=" & P_Piece_Id'Img);
       end if;
 
-      Attempt.Set_Initial_Attempt(Attempt_Info);
+      Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Perform_Patch_Effect
         (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect_Name, P_Area, P_Status, Attempt_Info);
@@ -313,7 +313,7 @@ package body Server.ServerAPI is
            ("Server.ServerAPI.Perform_Piece_Effect - enter P_Piece_Id=" & P_Piece_Id'Img);
       end if;
 
-      Attempt.Set_Initial_Attempt(Attempt_Info);
+      Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Perform_Piece_Effect
         (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect_Name, P_Status, Attempt_Info);
@@ -333,7 +333,7 @@ package body Server.ServerAPI is
          Text_IO.Put_Line ("Server.ServerAPI.Grant_Piece_Effect- enter");
       end if;
 
-      Attempt.Set_Initial_Attempt(Attempt_Info);
+      Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Grant_Piece_Effect
         (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect, P_Status, Attempt_Info);
@@ -353,7 +353,7 @@ package body Server.ServerAPI is
          Text_IO.Put_Line ("Server.ServerAPI.Revoke_Piece_Effect- enter");
       end if;
 
-      Attempt.Set_Initial_Attempt(Attempt_Info);
+      Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Revoke_Piece_Effect
         (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect_Name, P_Status, Attempt_Info);
@@ -374,7 +374,7 @@ package body Server.ServerAPI is
          Text_IO.Put_Line ("Server.ServerAPI.Grant_Patch_Effect- enter");
       end if;
 
-      Attempt.Set_Initial_Attempt(Attempt_Info);
+      Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Grant_Patch_Effect
         (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect, P_Area, P_Status, Attempt_Info);
@@ -395,7 +395,7 @@ package body Server.ServerAPI is
          Text_IO.Put_Line ("Server.ServerAPI.Revoke_Patch_Effect- enter");
       end if;
 
-      Attempt.Set_Initial_Attempt(Attempt_Info);
+      Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Revoke_Patch_Effect
         (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect_Name, P_Area, P_Status, Attempt_Info);

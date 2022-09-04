@@ -46,7 +46,7 @@ package body Server.Server.Piece_Action is
          A_Cmd := Server.Cmd.Cmd_List_Pkg.Element (Trav);
 
          if A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Create_Price then
-            if A_Cmd.all.Attempt_Info /= Attempt.Attempt_Done then
+            if Attempt.Get_Attempt_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -71,7 +71,7 @@ package body Server.Server.Piece_Action is
             end if;
 
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Put_Piece then
-            if A_Cmd.all.Attempt_Info /= Attempt.Attempt_Done then
+            if Attempt.Get_Attempt_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -94,7 +94,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Remove_Piece then
-            if A_Cmd.all.Attempt_Info /= Attempt.Attempt_Done then
+            if Attempt.Get_Attempt_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -118,7 +118,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Perform_Attack then
-            if A_Cmd.all.Attempt_Info /= Attempt.Attempt_Done then
+            if Attempt.Get_Attempt_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -143,7 +143,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Perform_Ranged_Attack then
-            if A_Cmd.all.Attempt_Info /= Attempt.Attempt_Done then
+            if Attempt.Get_Attempt_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -168,7 +168,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Perform_Move then
-            if A_Cmd.all.Attempt_Info /= Attempt.Attempt_Done then
+            if Attempt.Get_Attempt_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -193,7 +193,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Perform_Patch_Effect then
-            if A_Cmd.all.Attempt_Info /= Attempt.Attempt_Done then
+            if Attempt.Get_Attempt_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -219,7 +219,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Perform_Piece_Effect then
-            if A_Cmd.all.Attempt_Info /= Attempt.Attempt_Done then
+            if Attempt.Get_Attempt_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -244,7 +244,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Grant_Piece_Effect then
-            if A_Cmd.all.Attempt_Info /= Attempt.Attempt_Done then
+            if Attempt.Get_Attempt_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -268,7 +268,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Revoke_Piece_Effect then
-            if A_Cmd.all.Attempt_Info /= Attempt.Attempt_Done then
+            if Attempt.Get_Attempt_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -293,7 +293,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Grant_Patch_Effect then
-            if A_Cmd.all.Attempt_Info /= Attempt.Attempt_Done then
+            if Attempt.Get_Attempt_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -319,7 +319,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Revoke_Patch_Effect then
-            if A_Cmd.all.Attempt_Info /= Attempt.Attempt_Done then
+            if Attempt.Get_Attempt_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -354,7 +354,7 @@ package body Server.Server.Piece_Action is
 
          A_Cmd := Server.Cmd.Cmd_List_Pkg.Element (Trav);
 
-         if A_Cmd.all.Attempt_Info = Attempt.Attempt_Done then
+         if Attempt.Get_Attempt_Status(A_Cmd.all.Attempt_Info) = Attempt.Done then
             Server.Cmd.Free_Cmd (A_Cmd);
             Server.Cmd.Cmd_List_Pkg.Delete (P_Cmd_List, Trav);
          end if;

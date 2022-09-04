@@ -20,45 +20,46 @@
 
 package body Attempt is
 
---   Initial_Attempt : constant Type_Attempt_Info := Type_Attempt_Info(1);
---   Attempt_Done    : constant Type_Attempt_Info := Type_Attempt_Info(99999);
-
-   procedure Set_Attempt (P_Attempt_Info : in out Type_Attempt_Info; P_Value : in Natural)
+   procedure Set_Attempt_Info (P_Attempt_Info : in out Type_Attempt_Info; P_Info : in Natural)
    is
    begin
-      if Natural(P_Value) = Natural(Initial_Attempt) then
-         raise Illegal_Attempt_Info
-         with "Illegal to set the predefines Attempt_Info to " & Initial_Attempt'Img;
-      elsif Natural(P_Value) = Natural(Attempt_Done) then
-         raise Illegal_Attempt_Info
-         with "Illegal to set the predefines Attempt_Info to " & Attempt_Done'Img;
-      else
-         P_Attempt_Info := Type_Attempt_Info(P_Value);
-      end if;
+         P_Attempt_Info.Info := P_Info;
+   end Set_Attempt_Info;
 
-   end Set_Attempt;
-
-   procedure Set_Initial_Attempt (P_Attempt_Info : in out Type_Attempt_Info)
+   function Get_Attempt_Info (P_Attempt_Info : in Type_Attempt_Info) return Natural
    is
    begin
-      P_Attempt_Info := Initial_Attempt;
-   end Set_Initial_Attempt;
+      return P_Attempt_Info.Info;
+   end Get_Attempt_Info;
+
+   function Initial_Attempt return Type_Attempt_Info
+   is
+   begin
+      return Type_Attempt_Info'(Initial, 0);
+   end Initial_Attempt;
 
    procedure Set_Done_Attempt (P_Attempt_Info : in out Type_Attempt_Info)
    is
    begin
-      P_Attempt_Info := Attempt_Done;
+      P_Attempt_Info.Status := Done;
    end Set_Done_Attempt;
 
-   function Get_Attempt (P_Attempt_Info : in Type_Attempt_Info) return Natural
+   procedure Set_Attempt_Status (P_Attempt_Info : in out Type_Attempt_Info; P_Status : in Type_Attempt_Status)
    is
    begin
-      return Natural(P_Attempt_Info);
-   end Get_Attempt;
+      P_Attempt_Info.Status := P_Status;
+   end Set_Attempt_Status;
+
+   function Get_Attempt_Status (P_Attempt_Info : in Type_Attempt_Info) return Type_Attempt_Status
+   is
+   begin
+      return P_Attempt_Info.Status;
+   end Get_Attempt_Status;
+
 
    function To_String (P_Attempt_Info : in Type_Attempt_Info) return String--Ada.Strings.Unbounded.Unbounded_String
    is
    begin
-      return P_Attempt_Info'img;
+      return P_Attempt_Info.Status'img & " " & P_Attempt_Info.Info'Img;
    end To_String;
 end Attempt;
