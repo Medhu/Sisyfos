@@ -96,6 +96,6 @@ package Status is
 
    type Type_Game_Status is (Playing, End_Of_Game);
 
-   type Type_Result_Status is (Proceed, Retry, Fail);
+--   type Type_Result_Status is (Proceed, Retry, Fail);
 
 end Status;

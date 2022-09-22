@@ -1442,7 +1442,7 @@ package body Tc_Hexagon_Navigation is
 
       AUnit.Assertions.Assert
         (Condition => Test_Piece.Test_List.all (1013).Result = Status.Ok,
-         Message   => "Bad status when putting a piece " & Ret_Status'Img);
+         Message   => "Bad status when putting a piece " & Test_Piece.Test_List.all (1013).Result'Img);
 
       A_Patch := Hexagon.Client_Map.Get_Patch_Adress_From_AB (Map_Player_1, 15, 16);
       Piece.Client_Piece.Create_Piece

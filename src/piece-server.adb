@@ -740,8 +740,10 @@ package body Piece.Server is
    end Validate_Grant_Revoke_Effect_Piece;
 
    procedure Put_Piece (P_Player_Id : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type; P_Patch : in out Landscape.Type_Patch;
-      P_Piece                       : in out Type_Piece; P_Status : out Status.Type_Status)
+                        P_Action_Type : in     Action.Type_Action_Type;
+                        P_Patch : in out Landscape.Type_Patch;
+                        P_Piece                       : in out Type_Piece;
+                        P_Status : out Status.Type_Status)
    is
 
       use Status;
@@ -801,8 +803,10 @@ package body Piece.Server is
    end Validate_Removing_Piece;
 
    procedure Remove_Piece (P_Player_Id : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type; P_Patch : in out Landscape.Type_Patch;
-      P_Piece                          : in out Type_Piece; P_Status : out Status.Type_Status)
+                           P_Action_Type : in     Action.Type_Action_Type;
+                           P_Patch : in out Landscape.Type_Patch;
+                           P_Piece                          : in out Type_Piece;
+                           P_Status : out Status.Type_Status)
    is
       Index   : Positive;
       A_Piece : Piece.Server.Type_Piece_Access_Class;
@@ -835,8 +839,10 @@ package body Piece.Server is
    end Remove_Piece;
 
    procedure Grant_Piece_Effect (P_Player_Id : in Player.Type_Player_Id;
-      P_Action_Type : in Action.Type_Action_Type; P_Piece : in out Type_Piece;
-      P_Effect : in Effect.Type_Effect; P_Status : out Status.Type_Status)
+                                 P_Action_Type : in Action.Type_Action_Type;
+                                 P_Piece : in out Type_Piece;
+                                 P_Effect : in Effect.Type_Effect;
+                                 P_Status : out Status.Type_Status)
    is
    begin
       if Verbose then
@@ -858,8 +864,10 @@ package body Piece.Server is
    end Grant_Piece_Effect;
 
    procedure Revoke_Piece_Effect (P_Player_Id : in Player.Type_Player_Id;
-      P_Action_Type : in Action.Type_Action_Type; P_Piece : in out Type_Piece;
-      P_Effect_Name : in Effect.Type_Effect_Name; P_Status : out Status.Type_Status)
+                                  P_Action_Type : in Action.Type_Action_Type;
+                                  P_Piece : in out Type_Piece;
+                                  P_Effect_Name : in Effect.Type_Effect_Name;
+                                  P_Status : out Status.Type_Status)
    is
    begin
       if Verbose then
@@ -916,9 +924,11 @@ package body Piece.Server is
    end Validate_Grant_Revoke_Effect_Patch;
 
    procedure Grant_Patch_Effect (P_Player_Id : in     Player.Type_Player_Id;
-      P_Action_Type                          : in Action.Type_Action_Type; P_Piece : in Type_Piece;
-      P_Effect : in     Effect.Type_Effect; P_Area : in Hexagon.Area.Type_Action_Capabilities_A;
-      P_Status                               :    out Status.Type_Status)
+                                 P_Action_Type                          : in Action.Type_Action_Type;
+                                 P_Piece : in Type_Piece;
+                                 P_Effect : in     Effect.Type_Effect;
+                                 P_Area : in Hexagon.Area.Type_Action_Capabilities_A;
+                                 P_Status                               :    out Status.Type_Status)
    is
       A_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress := null;
    begin
@@ -951,9 +961,11 @@ package body Piece.Server is
    end Grant_Patch_Effect;
 
    procedure Revoke_Patch_Effect (P_Player_Id : in Player.Type_Player_Id;
-      P_Action_Type                           : in Action.Type_Action_Type; P_Piece : in Type_Piece;
-      P_Effect_Name                           : in Effect.Type_Effect_Name;
-      P_Area : in Hexagon.Area.Type_Action_Capabilities_A; P_Status : out Status.Type_Status)
+                                  P_Action_Type                           : in Action.Type_Action_Type;
+                                  P_Piece : in Type_Piece;
+                                  P_Effect_Name                           : in Effect.Type_Effect_Name;
+                                  P_Area : in Hexagon.Area.Type_Action_Capabilities_A;
+                                  P_Status : out Status.Type_Status)
    is
       A_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress := null;
    begin

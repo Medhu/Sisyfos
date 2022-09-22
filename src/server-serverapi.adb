@@ -165,9 +165,10 @@ package body Server.ServerAPI is
       Server.Piece_Action.New_Piece (P_Piece, A_Server_Piece);
 
       Server.Piece_Action.Init_Piece
-        (P_Player_Id, P_Action_Type, P_Pos, A_Server_Piece, P_Status, Attempt_Info, P_Force);
+        (P_Player_Id, P_Action_Type, P_Pos, A_Server_Piece, Attempt_Info, P_Force);
 
       P_Piece_Id := A_Server_Piece.all.Id;
+      P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
 
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Create_Piece - exit P_Status=" & P_Status'Img);
@@ -175,8 +176,10 @@ package body Server.ServerAPI is
    end Create_Piece;
 
    procedure Put_Piece (P_Player_Id : in Player.Type_Player_Id;
-      P_Action_Type : in Action.Type_Action_Type; P_Pos : in Hexagon.Type_Hexagon_Position;
-      P_Piece_Id                    : in Piece.Type_Piece_Id; P_Status : out Status.Type_Status)
+                        P_Action_Type : in Action.Type_Action_Type;
+                        P_Pos : in Hexagon.Type_Hexagon_Position;
+                        P_Piece_Id                    : in Piece.Type_Piece_Id;
+                        P_Status : out Status.Type_Status)
    is
       Attempt_Info : Attempt.Type_Attempt_Info;
    begin
@@ -187,7 +190,9 @@ package body Server.ServerAPI is
       Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Put_Piece
-        (P_Player_Id, P_Action_Type, P_Pos, P_Piece_Id, P_Status, Attempt_Info);
+        (P_Player_Id, P_Action_Type, P_Pos, P_Piece_Id, Attempt_Info);
+
+      P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
 
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Put_Piece - exit " & P_Status'Img);
@@ -195,8 +200,10 @@ package body Server.ServerAPI is
    end Put_Piece;
 
    procedure Remove_Piece (P_Player_Id : in Player.Type_Player_Id;
-      P_Action_Type : in Action.Type_Action_Type; P_Pos : in Hexagon.Type_Hexagon_Position;
-      P_Piece_Id                       : in Piece.Type_Piece_Id; P_Status : out Status.Type_Status)
+                           P_Action_Type : in Action.Type_Action_Type;
+                           P_Pos : in Hexagon.Type_Hexagon_Position;
+                           P_Piece_Id                       : in Piece.Type_Piece_Id;
+                           P_Status : out Status.Type_Status)
    is
       Attempt_Info : Attempt.Type_Attempt_Info;
    begin
@@ -206,7 +213,9 @@ package body Server.ServerAPI is
 
       Attempt_Info := Attempt.Initial_Attempt;
 
-      Server.Piece_Action.Remove_Piece (P_Player_Id, P_Action_Type, P_Piece_Id, P_Status, Attempt_Info);
+      Server.Piece_Action.Remove_Piece (P_Player_Id, P_Action_Type, P_Piece_Id, Attempt_Info);
+
+      P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
 
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Remove_Piece - exit");
@@ -227,7 +236,9 @@ package body Server.ServerAPI is
       Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Perform_Attack
-        (P_Player_Id, P_Action_Type, P_Attacking_Piece_Id, P_Attacked_Piece_Id, P_Status, Attempt_Info);
+        (P_Player_Id, P_Action_Type, P_Attacking_Piece_Id, P_Attacked_Piece_Id, Attempt_Info);
+
+      P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
 
       if Verbose then
          Text_IO.Put_Line
@@ -249,7 +260,9 @@ package body Server.ServerAPI is
       Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Perform_Ranged_Attack
-        (P_Player_Id, P_Action_Type, P_Attacking_Piece_Id, P_Attacked_Piece_Id, P_Status, Attempt_Info);
+        (P_Player_Id, P_Action_Type, P_Attacking_Piece_Id, P_Attacked_Piece_Id, Attempt_Info);
+
+      P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
 
       if Verbose then
          Text_IO.Put_Line
@@ -271,7 +284,9 @@ package body Server.ServerAPI is
       Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Perform_Move
-        (P_Player_Id, P_Action_Type, P_Piece_Id, P_To_Pos, P_Status, Attempt_Info);
+        (P_Player_Id, P_Action_Type, P_Piece_Id, P_To_Pos, Attempt_Info);
+
+      P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
 
       if Verbose then
          Text_IO.Put_Line
@@ -294,7 +309,9 @@ package body Server.ServerAPI is
       Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Perform_Patch_Effect
-        (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect_Name, P_Area, P_Status, Attempt_Info);
+        (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect_Name, P_Area, Attempt_Info);
+
+      P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
 
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Perform_Patch_Effect - exit P_Status=" & P_Status'Img);
@@ -316,7 +333,9 @@ package body Server.ServerAPI is
       Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Perform_Piece_Effect
-        (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect_Name, P_Status, Attempt_Info);
+        (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect_Name, Attempt_Info);
+
+      P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
 
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Perform_Piece_Effect - exit P_Status=" & P_Status'Img);
@@ -336,7 +355,9 @@ package body Server.ServerAPI is
       Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Grant_Piece_Effect
-        (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect, P_Status, Attempt_Info);
+        (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect, Attempt_Info);
+
+      P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
 
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Grant_Piece_Effect- exit");
@@ -356,7 +377,9 @@ package body Server.ServerAPI is
       Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Revoke_Piece_Effect
-        (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect_Name, P_Status, Attempt_Info);
+        (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect_Name, Attempt_Info);
+
+      P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
 
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Revoke_Piece_Effect- exit");
@@ -377,7 +400,9 @@ package body Server.ServerAPI is
       Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Grant_Patch_Effect
-        (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect, P_Area, P_Status, Attempt_Info);
+        (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect, P_Area, Attempt_Info);
+
+      P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
 
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Grant_Patch_Effect- exit");
@@ -398,7 +423,9 @@ package body Server.ServerAPI is
       Attempt_Info := Attempt.Initial_Attempt;
 
       Server.Piece_Action.Revoke_Patch_Effect
-        (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect_Name, P_Area, P_Status, Attempt_Info);
+        (P_Player_Id, P_Action_Type, P_Piece_Id, P_Effect_Name, P_Area, Attempt_Info);
+
+      P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
 
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Revoke_Patch_Effect- exit");

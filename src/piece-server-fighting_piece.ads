@@ -63,7 +63,9 @@ package Piece.Server.Fighting_Piece is
       P_Attacking_Piece,
       P_Attacked_Piece         : in out Piece.Server.Fighting_Piece.Type_Piece;
       P_From_Patch, P_To_Patch : in out Landscape.Type_Patch;
-      P_Winner                 : in     Player.Type_Player_Id);
+      P_Winner                 : in     Player.Type_Player_Id;
+      P_Status                 :    out Status.Type_Status);
+
 
    function Validate_Perform_Attack
      (P_Player_Id   : in Player.Type_Player_Id;
@@ -78,7 +80,6 @@ package Piece.Server.Fighting_Piece is
       P_Attacking_Piece,
       P_Attacked_Piece     : in out Piece.Server.Fighting_Piece.Type_Piece;
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Result             :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure Calculate_Attack_Result
@@ -97,7 +98,6 @@ package Piece.Server.Fighting_Piece is
       P_Attacked_Piece     : in out Piece.Server.Fighting_Piece.Type_Piece;
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
       P_Winner             : in     Player.Type_Player_Id;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info) is abstract;
 
    --
@@ -109,7 +109,8 @@ package Piece.Server.Fighting_Piece is
       P_Attacking_Piece,
       P_Attacked_Piece         : in out Piece.Server.Fighting_Piece.Type_Piece;
       P_From_Patch, P_To_Patch : in out Landscape.Type_Patch;
-      P_Winner                 : in     Player.Type_Player_Id);
+      P_Winner                 : in     Player.Type_Player_Id;
+      P_Status                 :    out Status.Type_Status);
 
    function Validate_Perform_Ranged_Attack
      (P_Player_Id   : in Player.Type_Player_Id;
@@ -124,7 +125,6 @@ package Piece.Server.Fighting_Piece is
       P_Attacking_Piece,
       P_Attacked_Piece     : in out Piece.Server.Fighting_Piece.Type_Piece;
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
-      P_Result             :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure Calculate_Ranged_Attack_Result
@@ -143,7 +143,6 @@ package Piece.Server.Fighting_Piece is
       P_Attacked_Piece     : in out Piece.Server.Fighting_Piece.Type_Piece;
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
       P_Winner             : in     Player.Type_Player_Id;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info) is abstract;
 
    --
@@ -162,7 +161,6 @@ package Piece.Server.Fighting_Piece is
       P_From_Pos     : in     Hexagon.Type_Hexagon_Position;
       P_To_Pos       : in out Hexagon.Type_Hexagon_Position;
       P_End_Pos      : in     Hexagon.Type_Hexagon_Position;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure Before_Perform_Move_Step
@@ -172,7 +170,6 @@ package Piece.Server.Fighting_Piece is
       P_From_Pos     : in     Hexagon.Type_Hexagon_Position;
       P_To_Pos       : in out Hexagon.Type_Hexagon_Position;
       P_End_Pos      : in     Hexagon.Type_Hexagon_Position;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure End_Perform_Move
@@ -181,14 +178,14 @@ package Piece.Server.Fighting_Piece is
       P_Moving_Piece       : in out Piece.Server.Fighting_Piece.Type_Piece;
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
       P_End_Pos            : in     Hexagon.Type_Hexagon_Position;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info) is abstract;
 
    procedure Perform_Move_Step
      (P_Player_Id              : in     Player.Type_Player_Id;
       P_Action_Type            : in     Action.Type_Action_Type;
       P_Moving_Piece           : in out Piece.Server.Fighting_Piece.Type_Piece;
-      P_From_Patch, P_To_Patch : in out Landscape.Type_Patch);
+      P_From_Patch, P_To_Patch : in out Landscape.Type_Patch;
+      P_Status                 :    out  Status.Type_Status);
 
    procedure Upkeep
      (P_Patch : in out Hexagon.Server_Map.Type_Server_Patch;

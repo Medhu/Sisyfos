@@ -30,62 +30,68 @@ package Server.Server.Piece_Action is
 
    procedure Init_Piece (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Pos : in Hexagon.Type_Hexagon_Position;
-      P_Piece : in out Piece.Server.Type_Piece_Access_Class; P_Status : out Status.Type_Status;
+      P_Piece : in out Piece.Server.Type_Piece_Access_Class;
       P_Attempt_Info           : in out Attempt.Type_Attempt_Info; P_Force : in Boolean := False);
 
    procedure Put_Piece (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Pos : in Hexagon.Type_Hexagon_Position;
-      P_Piece_Id                    : in     Piece.Type_Piece_Id; P_Status : out Status.Type_Status;
+      P_Piece_Id                    : in     Piece.Type_Piece_Id;
       P_Attempt_Info          : in out Attempt.Type_Attempt_Info);
 
    procedure Remove_Piece (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
-      P_Status :    out Status.Type_Status; P_Attempt_Info : in out Attempt.Type_Attempt_Info);
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info);
 
    procedure Perform_Attack (P_Player_Id        : in     Player.Type_Player_Id;
       P_Action_Type                             : in     Action.Type_Action_Type;
       P_Attacking_Piece_Id, P_Attacked_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Status :    out Status.Type_Status; P_Attempt_Info : in out Attempt.Type_Attempt_Info);
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info);
 
    procedure Perform_Ranged_Attack (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type                             : in     Action.Type_Action_Type;
       P_Attacking_Piece_Id, P_Attacked_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Status :    out Status.Type_Status; P_Attempt_Info : in out Attempt.Type_Attempt_Info);
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info);
 
    procedure Perform_Move (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
-      P_End_Pos : in     Hexagon.Type_Hexagon_Position; P_Status : out Status.Type_Status;
+      P_End_Pos : in     Hexagon.Type_Hexagon_Position;
       P_Attempt_Info             : in out Attempt.Type_Attempt_Info);
 
    procedure Perform_Patch_Effect (P_Player_Id : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
-      P_Effect_Name : in     Effect.Type_Effect_Name; P_Area : in Hexagon.Area.Type_Action_Capabilities_A;
-      P_Status :    out Status.Type_Status; P_Attempt_Info : in out Attempt.Type_Attempt_Info);
+                                   P_Action_Type : in     Action.Type_Action_Type;
+                                   P_Piece_Id : in Piece.Type_Piece_Id;
+                                   P_Effect_Name : in     Effect.Type_Effect_Name;
+                                   P_Area : in Hexagon.Area.Type_Action_Capabilities_A;
+                                   P_Attempt_Info : in out Attempt.Type_Attempt_Info);
 
    procedure Perform_Piece_Effect (P_Player_Id : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
-      P_Effect_Name : in     Effect.Type_Effect_Name; P_Status : out Status.Type_Status;
-      P_Attempt_Info                     : in out Attempt.Type_Attempt_Info);
+                                   P_Action_Type : in     Action.Type_Action_Type;
+                                   P_Piece_Id : in Piece.Type_Piece_Id;
+                                   P_Effect_Name : in     Effect.Type_Effect_Name;
+                                   P_Attempt_Info                     : in out Attempt.Type_Attempt_Info);
 
    procedure Grant_Piece_Effect (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
-      P_Effect : in     Effect.Type_Effect; P_Status : out Status.Type_Status;
+      P_Effect : in     Effect.Type_Effect;
       P_Attempt_Info                   : in out Attempt.Type_Attempt_Info);
 
    procedure Revoke_Piece_Effect (P_Player_Id : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
-      P_Effect_Name : in     Effect.Type_Effect_Name; P_Status : out Status.Type_Status;
-      P_Attempt_Info                    : in out Attempt.Type_Attempt_Info);
+                                  P_Action_Type : in     Action.Type_Action_Type;
+                                  P_Piece_Id : in Piece.Type_Piece_Id;
+                                  P_Effect_Name : in     Effect.Type_Effect_Name;
+                                  P_Attempt_Info                    : in out Attempt.Type_Attempt_Info);
 
    procedure Grant_Patch_Effect (P_Player_Id : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
-      P_Effect : in     Effect.Type_Effect; P_Area : in Hexagon.Area.Type_Action_Capabilities_A;
-      P_Status :    out Status.Type_Status; P_Attempt_Info : in out Attempt.Type_Attempt_Info);
+                                 P_Action_Type : in     Action.Type_Action_Type;
+                                 P_Piece_Id : in Piece.Type_Piece_Id;
+                                 P_Effect : in     Effect.Type_Effect;
+                                 P_Area : in Hexagon.Area.Type_Action_Capabilities_A;
+                                 P_Attempt_Info : in out Attempt.Type_Attempt_Info);
 
    procedure Revoke_Patch_Effect (P_Player_Id : in     Player.Type_Player_Id;
       P_Action_Type : in     Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
       P_Effect_Name                           : in     Effect.Type_Effect_Name;
-      P_Area : in     Hexagon.Area.Type_Action_Capabilities_A; P_Status : out Status.Type_Status;
+      P_Area : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_Attempt_Info                    : in out Attempt.Type_Attempt_Info);
 
    function Is_Effect_On_Piece (P_Player_Id : in Player.Type_Player_Id;

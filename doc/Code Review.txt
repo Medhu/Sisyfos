@@ -1,0 +1,156 @@
+
+
+
+Server.ServerAPI
+
+
+-Create_Piece: 
+--P_Status : out Status.Type_Status
+--Call: Server.Piece_Action.New_Piece (no status is returned) 
+--Call: Server.Piece_Action.Init_Piece (sending Attempt_Info) <---
+--P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
+
+-Put_Piece:
+--P_Status : out Status.Type_Status
+--Call: Server.Piece_Action.Put_Piece (sending Attempt_Info)
+--P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
+
+-Remove_Piece:
+--P_Status : out Status.Type_Status
+--Call: Server.Piece_Action.Remove_Piece (sending Attempt_Info)
+--P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
+
+
+-Perform_Attack:
+--P_Status : out Status.Type_Status
+--Call: Server.Piece_Action.Perform_Attack (sending Attempt_Info)
+--P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
+
+
+-Perform_Ranged_Attack:
+--P_Status : out Status.Type_Status
+--Call: Server.Piece_Action.Perform_Ranged_Attack (sending Attempt_Info)
+--P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
+
+
+-Perform_Move:
+--P_Status : out Status.Type_Status
+--Call: Server.Piece_Action.Perform_Move (sending Attempt_Info)
+--P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
+
+
+-Perform_Patch_Effect:
+--P_Status : out Status.Type_Status
+--Call: Server.Piece_Action.Perform_Patch_Effect (send Attempt_Info)
+--P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
+
+
+
+-Perform_Piece_Effect:
+--P_Status : out Status.Type_Status
+--Call: Server.Piece_Action.Perform_Piece_Effect (sending Attempt_Info)
+--P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
+
+
+
+-Grant_Piece_Effect:
+--P_Status : out Status.Type_Status
+--Call: Server.Piece_Action.Grant_Piece_Effect (sending Attempt_Info)
+--P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
+
+
+-Revoke_Piece_Effect:
+--P_Status : out Status.Type_Status
+--Call: Server.Piece_Action.Revoke_Piece_Effect (sending Attempt_Info)
+--P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
+
+
+-Grant_Patch_Effect:
+--P_Status : out Status.Type_Status
+--Server.Piece_Action.Grant_Patch_Effect (sending Attempt_Info)
+--P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
+
+
+-Revoke_Patch_Effect:
+--P_Status : out Status.Type_Status
+--Server.Piece_Action.Revoke_Patch_Effect (sendin Attempt_Info)
+--P_Status := Attempt.Get_Attempt_Status(Attempt_Info);
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+
+Server.Server.Piece_Action
+
+-New_Piece: No Status
+--Call: Piece.Server.New_Piece
+
+-Delete_Piece
+--Call: Piece.Server.Delete_Piece
+
+-Init_Piece: P_Attempt_Info, no P_Status
+--Set_Attempt_Status: OK
+--A lot of logic
+
+-Put_Piece:
+--P_Attempt_Info, no P_Status
+--Set_Attempt_Status: OK
+
+
+-Remove_Piece:
+--P_Attempt_Info, no P_Status
+--Set_Attempt_Status: OK
+
+
+
+-Perform_Attack:
+--P_Attempt_Info, no P_Status
+--Set_Attempt_Status: OK
+
+
+-Perform_Ranged_Attack:
+--P_Attempt_Info, no P_Status
+--Set_Attempt_Status: OK
+
+
+
+-Perform_Move:
+--P_Attempt_Info, no P_Status
+--Set_Attempt_Status: OK
+
+
+-Perform_Patch_Effect:
+--P_Attempt_Info, no P_Status
+--Set_Attempt_Status: OK
+
+
+-Perform_Piece_Effect:
+--P_Attempt_Info, no P_Status
+--Set_Attempt_Status: OK
+
+
+-Grant_Piece_Effect:
+--P_Attempt_Info, no P_Status
+--Set_Attempt_Status: OK
+
+
+-Revoke_Piece_Effect:
+--P_Attempt_Info, no P_Status
+--Set_Attempt_Status: OK
+
+
+-Grant_Patch_Effect:
+--Fikset til  P_Attempt_Info, no P_Status
+--Fikset til Set_Attempt_Status: OK
+
+-Revoke_Patch_Effect:
+--Fikset til  P_Attempt_Info, no P_Status
+--Fikset til Set_Attempt_Status: OK
+
+
+
+Piece-Server
+
+
+

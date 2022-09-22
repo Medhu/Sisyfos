@@ -108,7 +108,6 @@ package body Test_Piece is
       P_Action_Type  : in     Action.Type_Action_Type;
       P_Pos          : in     Hexagon.Type_Hexagon_Position;
       P_Piece        : in out Test_Piece.Type_My_Test_Piece;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       use Action;
@@ -122,9 +121,9 @@ package body Test_Piece is
       end if;
 
       if P_Action_Type = 1027 then
-         P_Result := Status.Fail;
+         Attempt.Set_Failed_Attempt(P_Attempt_Info);
       else
-         P_Result := Status.Proceed;
+         Attempt.Set_Proceed_Attempt(P_Attempt_Info);
       end if;
 
    end Before_Create_Piece;
@@ -134,7 +133,6 @@ package body Test_Piece is
       P_Action_Type  : in     Action.Type_Action_Type;
       P_Pos          : in     Hexagon.Type_Hexagon_Position;
       P_Piece        : in out Test_Piece.Type_My_Test_House;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -146,7 +144,7 @@ package body Test_Piece is
             P_Player_Id'Img);
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Create_Piece;
 
    procedure End_Create_Piece
@@ -154,7 +152,6 @@ package body Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
       use Status;
@@ -169,7 +166,7 @@ package body Test_Piece is
       end if;
 
       Test_List.all (Integer (P_Action_Type)).Done   := True;
-      Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
+      Test_List.all (Integer (P_Action_Type)).Result := Attempt.Get_Attempt_Status(P_Attempt_Info);
 
       Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Create_Piece;
@@ -179,7 +176,6 @@ package body Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Piece              : in out Test_Piece.Type_My_Test_House;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
       use Status;
@@ -193,7 +189,7 @@ package body Test_Piece is
       end if;
 
       Test_List.all (Integer (P_Action_Type)).Done   := True;
-      Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
+      Test_List.all (Integer (P_Action_Type)).Result := Attempt.Get_Attempt_Status(P_Attempt_Info);
 
       Attempt.Set_Done_Attempt(P_Attempt_Info);
       if Verbose then
@@ -241,7 +237,6 @@ package body Test_Piece is
       P_Action_Type  : in     Action.Type_Action_Type;
       P_Pos          : in     Hexagon.Type_Hexagon_Position;
       P_Piece        : in out Test_Piece.Type_My_Test_Piece;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
 
@@ -251,7 +246,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Put_Piece (Piece) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Put_Piece;
 
    procedure Before_Put_Piece
@@ -259,7 +254,6 @@ package body Test_Piece is
       P_Action_Type  : in     Action.Type_Action_Type;
       P_Pos          : in     Hexagon.Type_Hexagon_Position;
       P_Piece        : in out Test_Piece.Type_My_Test_House;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -267,7 +261,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Put_Piece (House) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Put_Piece;
 
    procedure End_Put_Piece
@@ -275,7 +269,6 @@ package body Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -289,7 +282,6 @@ package body Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Piece              : in out Test_Piece.Type_My_Test_House;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -331,7 +323,6 @@ package body Test_Piece is
      (P_Player_Id    : in     Player.Type_Player_Id;
       P_Action_Type  : in     Action.Type_Action_Type;
       P_Piece        : in out Test_Piece.Type_My_Test_Piece;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       use Action;
@@ -341,9 +332,9 @@ package body Test_Piece is
       end if;
 
       if P_Action_Type = 1029 then
-         P_Result := Status.Fail;
+         Attempt.Set_Failed_Attempt(P_Attempt_Info);
       else
-         P_Result := Status.Proceed;
+         Attempt.Set_Proceed_Attempt(P_Attempt_Info);
       end if;
    end Before_Remove_Piece;
 
@@ -351,7 +342,6 @@ package body Test_Piece is
      (P_Player_Id    : in     Player.Type_Player_Id;
       P_Action_Type  : in     Action.Type_Action_Type;
       P_Piece        : in out Test_Piece.Type_My_Test_House;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -359,7 +349,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Remove_Piece (House) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Remove_Piece;
 
    procedure End_Remove_Piece
@@ -367,7 +357,6 @@ package body Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Patch              : in out Landscape.Type_Patch;
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
       use Status;
@@ -377,7 +366,7 @@ package body Test_Piece is
       end if;
 
       Test_List.all (Integer (P_Action_Type)).Done   := True;
-      Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
+      Test_List.all (Integer (P_Action_Type)).Result := Attempt.Get_Attempt_Status(P_Attempt_Info);
 
       Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Remove_Piece;
@@ -387,7 +376,6 @@ package body Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Patch              : in out Landscape.Type_Patch;
       P_Piece              : in out Test_Piece.Type_My_Test_House;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
       use Status;
@@ -397,7 +385,7 @@ package body Test_Piece is
       end if;
 
       Test_List.all (Integer (P_Action_Type)).Done   := True;
-      Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
+      Test_List.all (Integer (P_Action_Type)).Result := Attempt.Get_Attempt_Status(P_Attempt_Info);
 
       Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Remove_Piece;
@@ -476,7 +464,6 @@ package body Test_Piece is
       P_Piece        : in out Test_Piece.Type_My_Test_Piece;
       P_Effect_Name  : in     Effect.Type_Effect_Name;
       P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -484,7 +471,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Perform_Patch_Effect (Piece) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Perform_Patch_Effect;
 
    procedure Before_Perform_Patch_Effect
@@ -493,7 +480,6 @@ package body Test_Piece is
       P_Piece        : in out Test_Piece.Type_My_Test_House;
       P_Effect_Name  : in     Effect.Type_Effect_Name;
       P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -501,7 +487,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Perform_Patch_Effect (House) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Perform_Patch_Effect;
 
    procedure End_Perform_Patch_Effect
@@ -510,7 +496,6 @@ package body Test_Piece is
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
       P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_Area               : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -519,7 +504,7 @@ package body Test_Piece is
       end if;
 
       Test_List.all (Integer (P_Action_Type)).Done   := True;
-      Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
+      Test_List.all (Integer (P_Action_Type)).Result := Attempt.Get_Attempt_Status(P_Attempt_Info);
 
       Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Perform_Patch_Effect;
@@ -530,7 +515,6 @@ package body Test_Piece is
       P_Piece              : in out Test_Piece.Type_My_Test_House;
       P_Effect_Name        : in     Effect.Type_Effect_Name;
       P_Area               : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -572,7 +556,6 @@ package body Test_Piece is
       P_Action_Type  : in     Action.Type_Action_Type;
       P_Piece        : in out Test_Piece.Type_My_Test_Piece;
       P_Effect_Name  : in     Effect.Type_Effect_Name;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -580,7 +563,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Perform_Piece_Effect (Piece) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Perform_Piece_Effect;
 
    procedure Before_Perform_Piece_Effect
@@ -588,7 +571,6 @@ package body Test_Piece is
       P_Action_Type  : in     Action.Type_Action_Type;
       P_Piece        : in out Test_Piece.Type_My_Test_House;
       P_Effect_Name  : in     Effect.Type_Effect_Name;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -596,7 +578,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Perform_Piece_Effect (House) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Perform_Piece_Effect;
 
    procedure Perform_Piece_Effect
@@ -637,7 +619,6 @@ package body Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
       P_Effect_Name        : in     Effect.Type_Effect_Name;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -646,7 +627,7 @@ package body Test_Piece is
       end if;
 
       Test_List.all (Integer (P_Action_Type)).Done   := True;
-      Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
+      Test_List.all (Integer (P_Action_Type)).Result := Attempt.Get_Attempt_Status(P_Attempt_Info);
 
       Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Perform_Piece_Effect;
@@ -656,7 +637,6 @@ package body Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece              : in out Test_Piece.Type_My_Test_House;
       P_Effect_Name        : in     Effect.Type_Effect_Name;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -698,7 +678,6 @@ package body Test_Piece is
       P_Action_Type  : in     Action.Type_Action_Type;
       P_Piece        : in out Test_Piece.Type_My_Test_Piece;
       P_Effect       : in     Effect.Type_Effect;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -706,7 +685,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Grant_Piece_Effect (Piece) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Grant_Piece_Effect;
 
    procedure Before_Grant_Piece_Effect
@@ -714,7 +693,6 @@ package body Test_Piece is
       P_Action_Type  : in     Action.Type_Action_Type;
       P_Piece        : in out Test_Piece.Type_My_Test_House;
       P_Effect       : in     Effect.Type_Effect;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -722,7 +700,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Grant_Piece_Effect (House) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Grant_Piece_Effect;
 
    procedure End_Grant_Piece_Effect
@@ -730,7 +708,6 @@ package body Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
       P_Effect             : in     Effect.Type_Effect;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -739,7 +716,7 @@ package body Test_Piece is
       end if;
 
       Test_List.all (Integer (P_Action_Type)).Done   := True;
-      Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
+      Test_List.all (Integer (P_Action_Type)).Result := Attempt.Get_Attempt_Status(P_Attempt_Info);
 
       Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Grant_Piece_Effect;
@@ -749,7 +726,6 @@ package body Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece              : in out Test_Piece.Type_My_Test_House;
       P_Effect             : in     Effect.Type_Effect;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -792,7 +768,6 @@ package body Test_Piece is
       P_Action_Type  : in     Action.Type_Action_Type;
       P_Piece        : in out Test_Piece.Type_My_Test_Piece;
       P_Effect_Name  : in     Effect.Type_Effect_Name;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -800,7 +775,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Revoke_Piece_Effect (Piece) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Revoke_Piece_Effect;
 
    procedure Before_Revoke_Piece_Effect
@@ -808,7 +783,6 @@ package body Test_Piece is
       P_Action_Type  : in     Action.Type_Action_Type;
       P_Piece        : in out Test_Piece.Type_My_Test_House;
       P_Effect_Name  : in     Effect.Type_Effect_Name;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -816,7 +790,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Revoke_Piece_Effect (House) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Revoke_Piece_Effect;
 
    procedure End_Revoke_Piece_Effect
@@ -824,7 +798,6 @@ package body Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece              : in out Test_Piece.Type_My_Test_Piece;
       P_Effect_Name        : in     Effect.Type_Effect_Name;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -833,7 +806,7 @@ package body Test_Piece is
       end if;
 
       Test_List.all (Integer (P_Action_Type)).Done   := True;
-      Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
+      Test_List.all (Integer (P_Action_Type)).Result := Attempt.Get_Attempt_Status(P_Attempt_Info);
 
       Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Revoke_Piece_Effect;
@@ -843,7 +816,6 @@ package body Test_Piece is
       P_Action_Type        : in     Action.Type_Action_Type;
       P_Piece              : in out Test_Piece.Type_My_Test_House;
       P_Effect_Name        : in     Effect.Type_Effect_Name;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -852,7 +824,7 @@ package body Test_Piece is
       end if;
 
       Test_List.all (Integer (P_Action_Type)).Done   := True;
-      Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
+      Test_List.all (Integer (P_Action_Type)).Result := Attempt.Get_Attempt_Status(P_Attempt_Info);
 
       Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Revoke_Piece_Effect;
@@ -893,7 +865,6 @@ package body Test_Piece is
       P_Piece        : in out Test_Piece.Type_My_Test_Piece;
       P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_Effect       : in     Effect.Type_Effect;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -901,7 +872,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Grant_Patch_Effect (Piece) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Grant_Patch_Effect;
 
    procedure Before_Grant_Patch_Effect
@@ -910,7 +881,6 @@ package body Test_Piece is
       P_Piece        : in out Test_Piece.Type_My_Test_House;
       P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_Effect       : in     Effect.Type_Effect;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -918,7 +888,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Grant_Patch_Effect (House) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Grant_Patch_Effect;
 
    procedure End_Grant_Patch_Effect
@@ -997,7 +967,6 @@ package body Test_Piece is
       P_Piece        : in out Test_Piece.Type_My_Test_Piece;
       P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_Effect_Name  : in     Effect.Type_Effect_Name;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -1005,7 +974,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Revoke_Patch_Effect (Piece) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Revoke_Patch_Effect;
 
    procedure Before_Revoke_Patch_Effect
@@ -1014,7 +983,6 @@ package body Test_Piece is
       P_Piece        : in out Test_Piece.Type_My_Test_House;
       P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
       P_Effect_Name  : in     Effect.Type_Effect_Name;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -1022,7 +990,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Revoke_Patch_Effect (House) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Revoke_Patch_Effect;
 
    procedure End_Revoke_Patch_Effect
@@ -1084,7 +1052,6 @@ package body Test_Piece is
       P_Action_Type                       : in     Action.Type_Action_Type;
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
       P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
-      P_Result                            :    out Status.Type_Result_Status;
       P_Attempt_Info                      : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -1092,7 +1059,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Perform_Attack (Piece) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Perform_Attack;
 
    procedure Calculate_Attack_Result
@@ -1170,18 +1137,17 @@ package body Test_Piece is
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
       P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Winner                            : in     Player.Type_Player_Id;
-      P_End_Status                        : in     Status.Type_Status;
       P_Attempt_Info                      : in out Attempt.Type_Attempt_Info)
    is
    begin
       if Verbose then
          Text_IO.Put_Line
-           ("Test_Piece.End_Perform_Attack (Piece) - enter - exit P_End_Status=" &
-            P_End_Status'Img);
+           ("Test_Piece.End_Perform_Attack (Piece) - enter - exit P_Attempt_Info=" &
+            Attempt.To_String(P_Attempt_Info) );
       end if;
 
       Test_List.all (Integer (P_Action_Type)).Done   := True;
-      Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
+      Test_List.all (Integer (P_Action_Type)).Result := Attempt.Get_Attempt_Status(P_Attempt_Info);
 
       Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Perform_Attack;
@@ -1207,7 +1173,6 @@ package body Test_Piece is
       P_Action_Type                       : in     Action.Type_Action_Type;
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
       P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
-      P_Result                            :    out Status.Type_Result_Status;
       P_Attempt_Info                      : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -1215,7 +1180,7 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.Before_Perform_Ranged_Attack (Piece) - enter - exit");
       end if;
 
-      P_Result := Status.Proceed;
+      Attempt.Set_Proceed_Attempt(P_Attempt_Info);
    end Before_Perform_Ranged_Attack;
 
    procedure Calculate_Ranged_Attack_Result
@@ -1246,7 +1211,6 @@ package body Test_Piece is
       P_Attacking_Piece, P_Attacked_Piece : in out Test_Piece.Type_My_Test_Piece;
       P_From_Pos, P_To_Pos                : in     Hexagon.Type_Hexagon_Position;
       P_Winner                            : in     Player.Type_Player_Id;
-      P_End_Status                        : in     Status.Type_Status;
       P_Attempt_Info                      : in out Attempt.Type_Attempt_Info)
    is
    begin
@@ -1255,7 +1219,7 @@ package body Test_Piece is
       end if;
 
       Test_List.all (Integer (P_Action_Type)).Done   := True;
-      Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
+      Test_List.all (Integer (P_Action_Type)).Result := Attempt.Get_Attempt_Status(P_Attempt_Info);
 
       Attempt.Set_Done_Attempt(P_Attempt_Info);
    end End_Perform_Ranged_Attack;
@@ -1284,7 +1248,6 @@ package body Test_Piece is
       P_From_Pos     : in     Hexagon.Type_Hexagon_Position;
       P_To_Pos       : in out Hexagon.Type_Hexagon_Position;
       P_End_Pos      : in     Hexagon.Type_Hexagon_Position;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       use Action;
@@ -1294,9 +1257,9 @@ package body Test_Piece is
       end if;
 
       if P_Action_Type = 1031 then
-         P_Result := Status.Fail;
+         Attempt.Set_Failed_Attempt(P_Attempt_Info);
       else
-         P_Result := Status.Proceed;
+         Attempt.Set_Proceed_Attempt(P_Attempt_Info);
       end if;
    end Before_Perform_Move;
 
@@ -1307,7 +1270,6 @@ package body Test_Piece is
       P_From_Pos     : in     Hexagon.Type_Hexagon_Position;
       P_To_Pos       : in out Hexagon.Type_Hexagon_Position;
       P_End_Pos      : in     Hexagon.Type_Hexagon_Position;
-      P_Result       :    out Status.Type_Result_Status;
       P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       use Action;
@@ -1317,9 +1279,9 @@ package body Test_Piece is
       end if;
 
       if P_Action_Type = 1031 then
-         P_Result := Status.Fail;
+         Attempt.Set_Failed_Attempt(P_Attempt_Info);
       else
-         P_Result := Status.Proceed;
+         Attempt.Set_Proceed_Attempt(P_Attempt_Info);
       end if;
    end Before_Perform_Move_Step;
 
@@ -1330,7 +1292,6 @@ package body Test_Piece is
       P_Moving_Piece       : in out Test_Piece.Type_My_Test_Piece;
       P_From_Pos, P_To_Pos : in     Hexagon.Type_Hexagon_Position;
       P_End_Pos            : in     Hexagon.Type_Hexagon_Position;
-      P_End_Status         : in     Status.Type_Status;
       P_Attempt_Info       : in out Attempt.Type_Attempt_Info)
    is
       use Status;
@@ -1340,19 +1301,19 @@ package body Test_Piece is
          Text_IO.Put_Line ("Test_Piece.End_Perform_Move (Piece) - enter - exit");
       end if;
 
-      if P_End_Status = Status.Completed_Ok then
+      if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Completed_Ok then
          Test_List.all (Integer (P_Action_Type)).Done   := True;
          Test_List.all (Integer (P_Action_Type)).Result := Status.Ok;
 
          Attempt.Set_Done_Attempt(P_Attempt_Info);
-      elsif P_End_Status = Status.No_Path_Found then
+      elsif Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.No_Path_Found then
          Test_List.all (Integer (P_Action_Type)).Done   := True;
          Test_List.all (Integer (P_Action_Type)).Result := Status.No_Path_Found;
 
          Attempt.Set_Done_Attempt(P_Attempt_Info);
-      elsif P_End_Status = Status.Not_Before_Perform_Move and P_Action_Type = 1031 then
+      elsif Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Not_Before_Perform_Move and P_Action_Type = 1031 then
          Test_List.all (Integer (P_Action_Type)).Done   := True;
-         Test_List.all (Integer (P_Action_Type)).Result := P_End_Status;
+         Test_List.all (Integer (P_Action_Type)).Result := Attempt.Get_Attempt_Status(P_Attempt_Info);
 
          Attempt.Set_Done_Attempt(P_Attempt_Info);
       else

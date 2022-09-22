@@ -35,31 +35,55 @@ package body Attempt is
    function Initial_Attempt return Type_Attempt_Info
    is
    begin
-      return Type_Attempt_Info'(Initial, 0);
+      return Type_Attempt_Info'(Initial, Status.Ok, 0);
    end Initial_Attempt;
 
    procedure Set_Done_Attempt (P_Attempt_Info : in out Type_Attempt_Info)
    is
    begin
-      P_Attempt_Info.Status := Done;
+      P_Attempt_Info.Command_Status := Done;
    end Set_Done_Attempt;
 
-   procedure Set_Attempt_Status (P_Attempt_Info : in out Type_Attempt_Info; P_Status : in Type_Attempt_Status)
+   procedure Set_Proceed_Attempt (P_Attempt_Info : in out Type_Attempt_Info)
    is
    begin
-      P_Attempt_Info.Status := P_Status;
+      P_Attempt_Info.Command_Status := Proceed;
+   end Set_Proceed_Attempt;
+
+   procedure Set_Failed_Attempt (P_Attempt_Info : in out Type_Attempt_Info)
+   is
+   begin
+      P_Attempt_Info.Command_Status := Failed;
+   end Set_Failed_Attempt;
+
+
+   procedure Set_Command_Status (P_Attempt_Info : in out Type_Attempt_Info; P_Status : in Type_Command_Status)
+   is
+   begin
+      P_Attempt_Info.Command_Status := P_Status;
+   end Set_Command_Status;
+
+   function Get_Command_Status (P_Attempt_Info : in Type_Attempt_Info) return Type_Command_Status
+   is
+   begin
+      return P_Attempt_Info.Command_Status;
+   end Get_Command_Status;
+
+   procedure Set_Attempt_Status (P_Attempt_Info : in out Type_Attempt_Info; P_Status : in Status.Type_Status)
+   is
+   begin
+      P_Attempt_Info.Attempt_Status := P_Status;
    end Set_Attempt_Status;
 
-   function Get_Attempt_Status (P_Attempt_Info : in Type_Attempt_Info) return Type_Attempt_Status
+   function Get_Attempt_Status (P_Attempt_Info : in Type_Attempt_Info) return Status.Type_Status
    is
    begin
-      return P_Attempt_Info.Status;
+      return P_Attempt_Info.Attempt_Status;
    end Get_Attempt_Status;
-
 
    function To_String (P_Attempt_Info : in Type_Attempt_Info) return String--Ada.Strings.Unbounded.Unbounded_String
    is
    begin
-      return P_Attempt_Info.Status'img & " " & P_Attempt_Info.Info'Img;
+      return P_Attempt_Info.Command_Status'img & " " & P_Attempt_Info.Info'Img;
    end To_String;
 end Attempt;

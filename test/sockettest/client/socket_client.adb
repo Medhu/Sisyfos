@@ -30,7 +30,7 @@ procedure socket_client is
 begin
    Text_IO.Put_Line ("Socket Test");
    Client.ClientRPC.Init;
-   Client.ClientRPC.Connect (Utilities.RemoteString.To_Unbounded_String ("10.0.1.10"), 4000);
+   Client.ClientRPC.Connect (Utilities.RemoteString.To_Unbounded_String ("10.0.1.20"), 4000);
    Text_IO.Put_Line ("Client managed to connect");
 
    Client.ClientRPC.Start;
