@@ -169,7 +169,7 @@ package body Tc_Hexagon_Navigation is
            Hexagon.Server_Navigation.Hexagon_Distance
              (Hexagon.Type_Hexagon_Position'(True, 1, 1),
               Hexagon.Type_Hexagon_Position'(True, 2, 3)) =
-           3,
+           30,
          Message => "Didnt find distance from 1, 1 to 2, 3");
 
       if Verbose then
@@ -190,7 +190,7 @@ package body Tc_Hexagon_Navigation is
            Hexagon.Server_Navigation.Hexagon_Distance
              (Hexagon.Type_Hexagon_Position'(True, 15, 15),
               Hexagon.Type_Hexagon_Position'(True, 18, 15)) =
-           3,
+           30,
          Message => "Didnt find distance from 15, 15 to 15, 18");
 
       if Verbose then
@@ -212,7 +212,7 @@ package body Tc_Hexagon_Navigation is
            Hexagon.Server_Navigation.Hexagon_Distance
              (Hexagon.Type_Hexagon_Position'(True, 15, 15),
               Hexagon.Type_Hexagon_Position'(True, 18, 12)) =
-           3,
+           30,
          Message => "Didnt find distance from 15, 15 to 18, 12");
 
       if Verbose then
@@ -233,7 +233,7 @@ package body Tc_Hexagon_Navigation is
            Hexagon.Server_Navigation.Hexagon_Distance
              (Hexagon.Type_Hexagon_Position'(True, 15, 15),
               Hexagon.Type_Hexagon_Position'(True, 13, 14)) =
-           3,
+           30,
          Message => "Didnt find distance from 15, 15 to 13, 14");
 
       if Verbose then
@@ -254,7 +254,7 @@ package body Tc_Hexagon_Navigation is
            Hexagon.Server_Navigation.Hexagon_Distance
              (Hexagon.Type_Hexagon_Position'(True, 15, 15),
               Hexagon.Type_Hexagon_Position'(True, 16, 20)) =
-           6,
+           60,
          Message =>
            "Didnt find distance from 15, 15 to 16, 20 " &
            Hexagon.Server_Navigation.Hexagon_Distance
@@ -280,7 +280,7 @@ package body Tc_Hexagon_Navigation is
            Hexagon.Server_Navigation.Hexagon_Distance
              (Hexagon.Type_Hexagon_Position'(True, 15, 15),
               Hexagon.Type_Hexagon_Position'(True, 19, 13)) =
-           4,
+           40,
          Message =>
            "Didnt find distance from 15, 15 to 19, 13 " &
            Hexagon.Server_Navigation.Hexagon_Distance
@@ -306,7 +306,7 @@ package body Tc_Hexagon_Navigation is
            Hexagon.Server_Navigation.Hexagon_Distance
              (Hexagon.Type_Hexagon_Position'(True, 15, 15),
               Hexagon.Type_Hexagon_Position'(True, 17, 11)) =
-           4,
+           40,
          Message =>
            "Didnt find distance from 15, 15 to 17, 11 " &
            Hexagon.Server_Navigation.Hexagon_Distance
@@ -332,7 +332,7 @@ package body Tc_Hexagon_Navigation is
            Hexagon.Server_Navigation.Hexagon_Distance
              (Hexagon.Type_Hexagon_Position'(True, 15, 15),
               Hexagon.Type_Hexagon_Position'(True, 11, 13)) =
-           6,
+           60,
          Message =>
            "Didnt find distance from 15, 15 to 11, 13 " &
            Hexagon.Server_Navigation.Hexagon_Distance
@@ -358,7 +358,7 @@ package body Tc_Hexagon_Navigation is
            Hexagon.Server_Navigation.Hexagon_Distance
              (Hexagon.Type_Hexagon_Position'(True, 15, 15),
               Hexagon.Type_Hexagon_Position'(True, 13, 11)) =
-           6,
+           60,
          Message =>
            "Didnt find distance from 15, 15 to 13, 11 " &
            Hexagon.Server_Navigation.Hexagon_Distance

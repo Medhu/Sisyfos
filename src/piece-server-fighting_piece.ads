@@ -195,10 +195,11 @@ package Piece.Server.Fighting_Piece is
      (P_Piece : in Piece.Type_Piece) return Utilities.RemoteString.Type_String;
 
    function Movement_Cost
-     (P_Player_Id   : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type;
-      P_Piece       : in out Piece.Server.Fighting_Piece.Type_Piece;
-      P_From_Patch  : in out Landscape.Type_Patch;
-      P_To_Patch    : in out Landscape.Type_Patch) return Integer is abstract;
+     (P_Player_Id    : in     Player.Type_Player_Id;
+      P_Action_Type  : in     Action.Type_Action_Type;
+      P_Piece        : in out Piece.Server.Fighting_Piece.Type_Piece;
+      P_Start, P_End : in     Hexagon.Type_Hexagon_Position;
+      P_From_Patch   : in out Landscape.Type_Patch;
+      P_To_Patch     : in out Landscape.Type_Patch) return Integer is abstract;
 
 end Piece.Server.Fighting_Piece;

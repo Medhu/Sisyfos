@@ -84,6 +84,6 @@ package body Attempt is
    function To_String (P_Attempt_Info : in Type_Attempt_Info) return String--Ada.Strings.Unbounded.Unbounded_String
    is
    begin
-      return P_Attempt_Info.Command_Status'img & " " & P_Attempt_Info.Info'Img;
+      return P_Attempt_Info.Command_Status'img & " " & P_Attempt_Info.Attempt_Status'Img & " " & P_Attempt_Info.Info'Img;
    end To_String;
 end Attempt;

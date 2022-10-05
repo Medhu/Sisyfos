@@ -377,12 +377,12 @@ package body Hexagon.Server_Navigation is
       AB := abs (Integer ((P_To.A - P_From.A) + (P_To.B - P_From.B)));
 
       if A <= AB and then B <= AB then
-         return A + B;
+         return (A + B) * 10;
       else
          if B <= A then
-            return AB + B;
+            return (AB + B) * 10;
          else
-            return AB + A;
+            return (AB + A) * 10;
          end if;
       end if;
 
@@ -410,7 +410,7 @@ package body Hexagon.Server_Navigation is
       Best_So_Far_Cursor, N : A_Star_Vector.Cursor;
 
       Solution_Found  : Boolean;
-      Neighbour_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
+      Neighbour_Patch_Access, Current_Patch_Access : Hexagon.Server_Map.Type_Server_Patch_Adress;
 
       procedure Build_Path (P_Closed_List : in     Hexagon.Server_Navigation.A_Star_Vector.Map;
          P_Path                           : in out Hexagon.Server_Navigation.Path_Pkg.Vector)
@@ -492,6 +492,10 @@ package body Hexagon.Server_Navigation is
                Current_Navigation_Node_Access :=
                  Get_Navigation_Node_By_Id (P_Navigation, Best_So_Far.Navigation_Id);
 
+               Current_Patch_Access := Hexagon.Server_Map.Get_Patch_Adress_From_AB
+                 (Current_Navigation_Node_Access.all.Pos.A,
+                  Current_Navigation_Node_Access.all.Pos.B);
+
                Neighbour_Cursor :=
                  Navigation_Neighbours_List_Pkg.First
                    (Current_Navigation_Node_Access.all.Neighbours);
@@ -505,16 +509,10 @@ package body Hexagon.Server_Navigation is
                        Hexagon.Server_Navigation.Navigation_Neighbours_List_Pkg.Element
                          (Neighbour_Cursor));
 
-                  Neighbour_Patch :=
+                  Neighbour_Patch_Access :=
                     Hexagon.Server_Map.Get_Patch_Adress_From_AB
                       (Neighbour_Node_Access.all.Pos.A, Neighbour_Node_Access.all.Pos.B);
 
-                  if
-                    (Landscape.Server.Has_Patch_Free_Slot
-                       (Landscape.Type_Patch (Neighbour_Patch.all)) and
-                     Piece.Server.Patch_Belongs_To_Player
-                       (Landscape.Type_Patch (Neighbour_Patch.all), P_Player_Id))
-                  then
 
                      declare
                         Neighbour_Node_Id : Hexagon.Server_Navigation.Type_Navigation_Node_Id;
@@ -537,9 +535,11 @@ package body Hexagon.Server_Navigation is
                            G :=
                              Best_So_Far.G +
                              Piece.Server.Fighting_Piece.Movement_Cost
-                               (P_Player_Id, P_Action_Type, P_Piece,
-                                Landscape.Type_Patch (Neighbour_Patch.all),
-                                Landscape.Type_Patch (Neighbour_Patch.all));
+                                 (P_Player_Id, P_Action_Type, P_Piece,
+                                  P_From,
+                                  P_To,
+                                Landscape.Type_Patch (Current_Patch_Access.all),
+                                Landscape.Type_Patch (Neighbour_Patch_Access.all));
 
                            H :=
                              Hexagon_Distance
@@ -567,7 +567,6 @@ package body Hexagon.Server_Navigation is
 
                      end;
 
-                  end if;
                   Neighbour_Cursor := Navigation_Neighbours_List_Pkg.Next (Neighbour_Cursor);
 
                end loop; -- Nearby nodes
