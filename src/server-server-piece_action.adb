@@ -1042,6 +1042,17 @@ package body Server.Server.Piece_Action is
             A_To_Pos   := Hexagon.Server_Navigation.Path_Pkg.Element (Next_Path_Cursor).all.Pos;
             A_To_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (A_To_Pos.A, A_To_Pos.B);
 
+            if not Landscape.Server.Has_Patch_Free_Slot (Landscape.Type_Patch(A_To_Patch.all)) then
+               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Target_Patch_Occupied );
+            end if;
+
+            if not Piece.Server.Patch_Belongs_To_Player(Landscape.Type_Patch(A_To_Patch.all), P_Player_Id) then
+               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Target_Patch_Occupied );
+            end if;
+
+         end if;
+
+         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
             Piece.Server.Fighting_Piece.Before_Perform_Move_Step
               (P_Player_Id, P_Action_Type,
                Piece.Server.Fighting_Piece.Type_Piece'Class

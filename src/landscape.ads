@@ -42,6 +42,8 @@ package Landscape is
       Landscape_Here : Landscape.Type_Landscape;
    end record;
 
+   function To_String (P_Land : in Type_Land) return String;
+
    type Type_Patch (P_Known : Boolean) is new Type_Land with record
       case P_Known is
          when True =>

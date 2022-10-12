@@ -1306,9 +1306,9 @@ package body Test_Piece is
          Test_List.all (Integer (P_Action_Type)).Result := Status.Ok;
 
          Attempt.Set_Done_Attempt(P_Attempt_Info);
-      elsif Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.No_Path_Found then
+      elsif Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Target_Patch_Occupied then
          Test_List.all (Integer (P_Action_Type)).Done   := True;
-         Test_List.all (Integer (P_Action_Type)).Result := Status.No_Path_Found;
+         Test_List.all (Integer (P_Action_Type)).Result := Status.Target_Patch_Occupied;
 
          Attempt.Set_Done_Attempt(P_Attempt_Info);
       elsif Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Not_Before_Perform_Move and P_Action_Type = 1031 then

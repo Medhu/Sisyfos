@@ -840,7 +840,7 @@ package body TC_Piece_Client_Piece is
             "tc_piece_client_piece-Test_Perform_Move_To_Occupied_Patch_09.html"));
 
       AUnit.Assertions.Assert
-        (Condition => Test_Piece.Test_List.all (1026).Result = Status.No_Path_Found,
+        (Condition => Test_Piece.Test_List.all (1026).Result = Status.Target_Patch_Occupied,
          Message   =>
            "Should have received the status Target_Patch_Occupied " &
            Test_Piece.Test_List.all (1026).Result'Img);

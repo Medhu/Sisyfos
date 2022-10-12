@@ -18,13 +18,20 @@
 --
 
 with Text_IO;
+with Hexagon;
 
 package body Landscape is
    Verbose : constant Boolean := False;
 
+   function To_String (P_Land : in Type_Land) return String
+   is
+   begin
+      return "(" & Hexagon.To_String(P_Land.Pos) & ")";
+   end To_String;
+
    procedure Put (P_Patch : in Type_Patch) is
    begin
-      Text_IO.Put_Line ("Patch Pos :" & P_Patch.Pos.A'Img & "a + " & P_Patch.Pos.B'Img & "b" );
+      Text_IO.Put_Line ("Patch Pos :" & To_String(P_Patch) & " ");
    end Put;
 
    procedure Put_Pieces_Here (P_Pieces_Here : in Pieces_Here_List.Vector) is
