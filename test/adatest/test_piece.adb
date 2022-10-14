@@ -32,6 +32,7 @@ with Status;
 with Effect.Server;
 with Server.ServerAPI;
 with Attempt;
+with Hexagon.Server_Navigation;
 
 package body Test_Piece is
    package Random is new Ada.Numerics.Discrete_Random (Positive);
@@ -1450,8 +1451,25 @@ package body Test_Piece is
       P_From_Patch   : in out Landscape.Type_Patch;
       P_To_Patch     : in out Landscape.Type_Patch) return Integer
    is
+      D : Integer;
    begin
-      return 1;
+
+      D :=
+        Hexagon.Server_Navigation.Hexagon_Distance (P_Start, P_To_Patch.Pos);
+
+      if D < 40 then
+         if not Landscape.Server.Has_Patch_Free_Slot(P_To_Patch) then
+            return 10000;
+         end if;
+
+         if Piece.Server.Patch_Belongs_To_Player (P_To_Patch, P_Player_Id) then
+            return 10;
+         else
+            return 50;
+         end if;
+      else
+         return 10;
+      end if;
    end Movement_Cost;
 
    procedure Upkeep

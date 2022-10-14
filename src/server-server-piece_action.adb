@@ -1016,8 +1016,6 @@ package body Server.Server.Piece_Action is
               (A_Moving_Piece_Position.Actual_Piece.all),
             A_From_Pos, A_To_Pos, P_End_Pos, P_Attempt_Info);
 
-         Text_IO.Put_Line("After : Before_Perform_Move - " & Attempt.To_String (P_Attempt_Info) );
-
          if Attempt.Get_Command_Status(P_Attempt_Info) /= Attempt.Proceed then
             Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Not_Before_Perform_Move);
          end if;

@@ -93,9 +93,9 @@ package body Piece.Server.Fighting_Piece is
       if Verbose then
          Text_IO.Put_Line ("Piece.Server.Fighting_Piece.Perform_Attack_Step - enter");
       end if;
-Text_IO.Put_Line("A");
+
       if P_Winner = P_Attacked_Piece.Player_Id then
-Text_IO.Put_Line("B");
+
          -- Attacked Piece won
          -- remove loosing piece, winner stays on his position
          Remove_Piece
@@ -103,43 +103,41 @@ Text_IO.Put_Line("B");
             Ret_Status);
 
          P_Status := Ret_Status;
---Text_IO.Put_Line("C:" & Ret_Status'Img);
+
       elsif P_Winner = P_Attacking_Piece.Player_Id then
-Text_IO.Put_Line("D");
+
          -- Attacking Piece won
          -- remove loosing (Attacked Piece) piece
          Remove_Piece
            (P_Attacked_Piece.Player_Id, P_Action_Type, P_To_Patch, P_Attacked_Piece, Ret_Status);
-Text_IO.Put_Line("E:" & Ret_Status'Img);
 
          if Ret_Status = Status.Ok then
---Text_IO.Put_Line("F");
+
             -- Move the Attacking Piece if patch where we won is free to move into
             A_Patch :=
               Hexagon.Server_Map.Get_Patch_Adress_From_AB (P_To_Patch.Pos.A, P_To_Patch.Pos.B);
 
             if Landscape.Server.Is_Patch_Empty (Landscape.Type_Patch (A_Patch.all)) then
                -- move winning piece
-Text_IO.Put_Line("G");
+
                Remove_Piece
                  (P_Attacking_Piece.Player_Id, P_Action_Type, P_From_Patch, P_Attacking_Piece,
                   Ret_Status);
-Text_IO.Put_Line("H:" & Ret_Status'Img);
+
                if Ret_Status = Status.Ok then
                   Put_Piece
                     (P_Attacking_Piece.Player_Id, P_Action_Type, P_To_Patch, P_Attacking_Piece,
                      Ret_Status);
-Text_IO.Put_Line("I:" & Ret_Status'Img);
+
                else
                   P_Status := Ret_Status;
---Text_IO.Put_Line("J");
+
                end if;
             end if;
          else
             P_Status := Ret_Status;
---Text_IO.Put_Line("K");
+
          end if;
---Text_IO.Put_Line("L");
 
       elsif P_Winner /= Player.Undefined_Player_Id then
          -- If the 'Winner' is neither of the two attacking/attacked piece and the winner is also

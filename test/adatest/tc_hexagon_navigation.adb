@@ -1535,6 +1535,19 @@ package body Tc_Hexagon_Navigation is
          Hexagon.Type_Hexagon_Position'(True, To_A, To_B),
          Ret_Status,
          Path);
+      --
+      Trav   := Hexagon.Server_Navigation.Path_Pkg.First (Path);
+      while Hexagon.Server_Navigation.Path_Pkg.Has_Element (Trav) loop
+         Text_IO.Put_Line("A->" & Hexagon.To_String(Hexagon.Server_Navigation.Path_Pkg.Element (Trav).all.Pos));
+
+         Trav := Hexagon.Server_Navigation.Path_Pkg.Next (Trav);
+      end loop;
+
+      for x in Answer'First .. Answer'Last loop
+         Text_IO.Put_Line("B->" & Hexagon.To_String(Answer(x) ));
+      end loop;
+      --
+
 
       Result := True;
       Trav   := Hexagon.Server_Navigation.Path_Pkg.First (Path);
@@ -1548,6 +1561,8 @@ package body Tc_Hexagon_Navigation is
          Trav := Hexagon.Server_Navigation.Path_Pkg.Next (Trav);
       end loop;
 
+      Text_IO.Put_Line(":" & Hexagon.Server_Navigation.Path_Pkg.Length (Path)'Img
+                      & " " & Answer'Length'Img);
       if Hexagon.Server_Navigation.Path_Pkg.Length (Path) /= Answer'Length then
          Result := False;
       end if;
@@ -1555,7 +1570,10 @@ package body Tc_Hexagon_Navigation is
       AUnit.Assertions.Assert
         (Condition => Result,
          Message   =>
-           "Didnt find path from 15, 15 to 13, 18 - has problem with reaching because there are 3 patches in front that cant be used.");
+           "Didnt find path from 15, 15 to 13, 18 - has problem with reaching because there are 3 patches in front that cant be used. "
+         & " Expected the path to be of length " & Answer'Length'Img & " but we got "
+         & Hexagon.Server_Navigation.Path_Pkg.Length (Path)'Img );
+
       if Verbose then
          Text_IO.Put_Line
            ("Tc_Hexagon_Navigation.Test_Find_Path_to_15_15_to_13_18_Blocked_By_Pieces - exit");
