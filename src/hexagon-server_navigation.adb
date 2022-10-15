@@ -377,12 +377,12 @@ package body Hexagon.Server_Navigation is
       AB := abs (Integer ((P_To.A - P_From.A) + (P_To.B - P_From.B)));
 
       if A <= AB and then B <= AB then
-         return (A + B) * 10;
+         return (A + B);
       else
          if B <= A then
-            return (AB + B) * 10;
+            return (AB + B);
          else
-            return (AB + A) * 10;
+            return (AB + A);
          end if;
       end if;
 
