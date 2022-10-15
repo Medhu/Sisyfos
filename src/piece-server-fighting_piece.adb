@@ -133,6 +133,8 @@ package body Piece.Server.Fighting_Piece is
                   P_Status := Ret_Status;
 
                end if;
+            else
+               P_Status := Ret_Status;
             end if;
          else
             P_Status := Ret_Status;
