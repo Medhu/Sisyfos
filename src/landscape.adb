@@ -34,28 +34,6 @@ package body Landscape is
       Text_IO.Put_Line ("Patch Pos :" & To_String(P_Patch) & " ");
    end Put;
 
-   procedure Put_Pieces_Here (P_Pieces_Here : in Pieces_Here_List.Vector) is
-      Trav : Landscape.Pieces_Here_List.Cursor;
-
-   begin
-      if Verbose then
-         Text_IO.Put_Line ("Landscape.Put_Pieces_Here - enter");
-      end if;
-
-      Text_IO.Put_Line("Print Pieces on this Patch");
-      Trav := Landscape.Pieces_Here_List.First (P_Pieces_Here);
-      while Landscape.Pieces_Here_List.Has_Element (Trav) loop
-         Text_IO.Put_Line ("Piece_Id=" & Landscape.Pieces_Here_List.Element (Trav)'Img);
-
-         Trav := Landscape.Pieces_Here_List.Next (Trav);
-      end loop;
-
-      if Verbose then
-         Text_IO.Put_Line ("Landscape.Put_Pieces_Here - exit");
-      end if;
-
-   end Put_Pieces_Here;
-
    procedure Write_Patch (Stream : access Root_Stream_Type'Class; Item : in Type_Patch) is
    begin
       if Verbose then
@@ -80,8 +58,6 @@ package body Landscape is
       Hexagon.Type_Hexagon_Position'Read (Stream, Item.Pos);
 
       Landscape.Type_Landscape'Read (Stream, Item.Landscape_Here);
-
-      Item.Pieces_Here := Landscape.Pieces_Here_List.Empty_Vector;
 
       if Verbose then
          Text_IO.Put_Line

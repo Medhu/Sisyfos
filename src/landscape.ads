@@ -20,7 +20,6 @@
 with Piece;
 with Hexagon;
 with Ada.Streams; use Ada.Streams;
-with Ada.Containers.Vectors;
 with Effect;
 
 package Landscape is
@@ -30,12 +29,6 @@ package Landscape is
    Undefined_Landscape : constant Type_Landscape := 9999999;
 
    type Type_List_Landscape is array (Landscape.Type_Landscape range <>) of Boolean;
-
-   package Pieces_Here_List is new Ada.Containers.Vectors
-     (Positive,
-      Piece.Type_Piece_Id,
-      Piece."=");
-   package Pieces_Here_Sort is new Pieces_Here_List.Generic_Sorting (Piece.Piece_Left_Less);
 
    type Type_Land is tagged record
       Pos : Hexagon.Type_Hexagon_Position := Hexagon.Type_Hexagon_Position'(P_Valid => False);
@@ -47,7 +40,7 @@ package Landscape is
    type Type_Patch (P_Known : Boolean) is new Type_Land with record
       case P_Known is
          when True =>
-            Pieces_Here        : Pieces_Here_List.Vector;
+--            Pieces_Here        : Pieces_Here_List.Vector;
             Effects_Here       : Effect.Effect_List.Map;
          when False =>
             null;
@@ -57,7 +50,6 @@ package Landscape is
    type Type_Map is array (1 .. 100, 1 .. 100) of Type_Land;
 
    procedure Put (P_Patch : in Type_Patch);
-   procedure Put_Pieces_Here (P_Pieces_Here : in Pieces_Here_List.Vector);
 
    procedure Write_Patch (Stream : access Root_Stream_Type'Class; Item : in Type_Patch);
    for Type_Patch'Write use Write_Patch;

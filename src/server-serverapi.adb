@@ -599,20 +599,34 @@ package body Server.ServerAPI is
    end Get_Map_Terrain;
 
    function Get_Map_Pieces_List
-     (P_Pos : in Hexagon.Type_Hexagon_Position) return Landscape.Pieces_Here_List.Vector
+     (P_Pos : in Hexagon.Type_Hexagon_Position) return Piece.Pieces_Id_List.Vector
    is
-      A_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
+      Trav : Piece.Server.Pieces_Server_List.Cursor;
+      A_Piece_Position : Piece.Server.Type_Piece_Position;
+      Pieces_Id_List : Piece.Pieces_Id_List.Vector;
+
+      use Hexagon;
    begin
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Get_Map_Pieces_List - enter");
       end if;
 
-      A_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (P_Pos.A, P_Pos.B);
+      Trav := Piece.Server.Pieces_Server_List.First(Piece.Server.All_Pieces_In_Game);
+      while Piece.Server.Pieces_Server_List.Has_Element(Trav) loop
+         A_Piece_Position := Piece.Server.Pieces_Server_List.Element(Trav);
+         if A_Piece_Position.Actual_Pos = P_Pos then
+            Piece.Pieces_Id_List.Append(Pieces_Id_List, Pieces_Id_List);
+         end if;
+
+
+         Trav := Piece.Server.Pieces_Server_List.Next(Trav);
+      end loop;
 
       if Verbose then
          Text_IO.Put_Line ("Server.ServerAPI.Get_Map_Pieces_List - exit");
       end if;
-      return A_Patch.all.Pieces_Here;
+
+      return Pieces_Id_List;
    end Get_Map_Pieces_List;
 
 end Server.ServerAPI;

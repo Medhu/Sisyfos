@@ -31,7 +31,7 @@ package body Hexagon.Server_Map is
    procedure Put (P_Patch : in Type_Server_Patch) is
    begin
       Text_IO.Put_Line ("" & P_Patch.Pos.A'Img & "a + " & P_Patch.Pos.B'Img & "b ");
-      Landscape.Put_Pieces_Here (P_Patch.Pieces_Here);
+--      Landscape.Put_Pieces_Here (P_Patch.Pieces_Here);
    end Put;
 
    function Are_Neighbours (P_From, P_To : in Type_Server_Patch) return Boolean is
@@ -100,7 +100,7 @@ package body Hexagon.Server_Map is
          for ArrayY in P_Map'First (2) .. P_Map'Last (2) loop -- Vertical
             P_Map (ArrayX, ArrayY) := new Type_Server_Patch'(Hexagon.Server_Map.Empty);
 
-            P_Map (ArrayX, ArrayY).Pieces_Here := Landscape.Pieces_Here_List.Empty_Vector;
+--            P_Map (ArrayX, ArrayY).Pieces_Here := Landscape.Pieces_Here_List.Empty_Vector;
 
          end loop;
       end loop;
@@ -204,20 +204,21 @@ package body Hexagon.Server_Map is
    end Reset_Visit;
 
    procedure Reset_Pieces_On_Patches is
-      Trav  : Landscape.Pieces_Here_List.Cursor;
+--      Trav  : Landscape.Pieces_Here_List.Cursor;
       Index : Positive;
 
    begin
       for ArrayX in A_Map'First (1) .. A_Map'Last (1) loop -- Horisontal
          for ArrayY in A_Map'First (2) .. A_Map'Last (2) loop -- Vertical
+            null;
 
-            Trav := Landscape.Pieces_Here_List.First (A_Map (ArrayX, ArrayY).all.Pieces_Here);
-            while Landscape.Pieces_Here_List.Has_Element (Trav) loop
-               Index := Landscape.Pieces_Here_List.To_Index (Trav);
+--            Trav := Landscape.Pieces_Here_List.First (A_Map (ArrayX, ArrayY).all.Pieces_Here);
+--            while Landscape.Pieces_Here_List.Has_Element (Trav) loop
+--               Index := Landscape.Pieces_Here_List.To_Index (Trav);
 
-               Landscape.Pieces_Here_List.Delete (A_Map (ArrayX, ArrayY).all.Pieces_Here, Index);
-               Landscape.Pieces_Here_List.Next (Trav);
-            end loop;
+--               Landscape.Pieces_Here_List.Delete (A_Map (ArrayX, ArrayY).all.Pieces_Here, Index);
+--               Landscape.Pieces_Here_List.Next (Trav);
+--            end loop;
          end loop;
       end loop;
    end Reset_Pieces_On_Patches;
@@ -341,7 +342,7 @@ package body Hexagon.Server_Map is
    procedure Save_Scenario (P_Filename : in Ada.Strings.Unbounded.Unbounded_String) is
       Write_File        : Ada.Streams.Stream_IO.File_Type;
       Out_Stream        : Stream_Access;
-      Trav_Piece        : Landscape.Pieces_Here_List.Cursor;
+      --Trav_Piece        : Landscape.Pieces_Here_List.Cursor;
 
    begin
       if Verbose then
@@ -370,13 +371,13 @@ package body Hexagon.Server_Map is
                ") " &
                A_Map (Trav_X, Trav_Y).Landscape_Here'Img);
 
-            Trav_Piece := Landscape.Pieces_Here_List.First (A_Map (Trav_X, Trav_Y).Pieces_Here);
-            while Landscape.Pieces_Here_List.Has_Element (Trav_Piece) loop
-               String'Write
-                 (Ada.Streams.Stream_IO.Stream (Write_File),
-                  " Id=" & Landscape.Pieces_Here_List.Element (Trav_Piece)'Img & "-");
-               Trav_Piece := Landscape.Pieces_Here_List.Next (Trav_Piece);
-            end loop;
+--            Trav_Piece := Landscape.Pieces_Here_List.First (A_Map (Trav_X, Trav_Y).Pieces_Here);
+--            while Landscape.Pieces_Here_List.Has_Element (Trav_Piece) loop
+--               String'Write
+--                 (Ada.Streams.Stream_IO.Stream (Write_File),
+--                  " Id=" & Landscape.Pieces_Here_List.Element (Trav_Piece)'Img & "-");
+--               Trav_Piece := Landscape.Pieces_Here_List.Next (Trav_Piece);
+--            end loop;
 
             String'Write (Ada.Streams.Stream_IO.Stream (Write_File), "    </td>");
          end loop;
@@ -400,8 +401,9 @@ package body Hexagon.Server_Map is
       for Trav_X in A_Map'First (1) .. A_Map'Last (1) loop
          Text_IO.New_Line;
          for Trav_Y in A_Map'First (2) .. A_Map'Last (2) loop
+            null;
 
-            Landscape.Put_Pieces_Here (A_Map (Trav_X, Trav_Y).Pieces_Here);
+--            Landscape.Put_Pieces_Here (A_Map (Trav_X, Trav_Y).Pieces_Here);
          end loop;
       end loop;
 

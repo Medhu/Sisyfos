@@ -31,8 +31,8 @@ package Landscape.Server is
 
    procedure Init (P_Landscape_Info : in Type_Landscape_Type_Info_List);
 
-   function Is_Patch_Empty (P_Patch : in Landscape.Type_Patch) return Boolean;
-   function Has_Patch_Free_Slot (P_Patch : in Landscape.Type_Patch) return Boolean;
+--   function Is_Patch_Empty (P_Patch : in Landscape.Type_Patch) return Boolean;
+--   function Has_Patch_Free_Slot (P_Patch : in Landscape.Type_Patch) return Boolean;
 
    function Get_Landscape_Info (P_Landscape : in Type_Landscape) return Type_Landscape_Type_Info;
    procedure Print_Patch (P_Patch : in Landscape.Type_Patch);

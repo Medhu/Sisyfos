@@ -32,6 +32,7 @@ with Attempt;
 package Piece.Server is
    type Type_Piece is abstract new Piece.Type_Piece with record
       Effects_On_Piece : Effect.Effect_List.Map;
+      Actual_Pos   : Hexagon.Type_Hexagon_Position;
    end record;
 
    type Type_Piece_Access is access all Type_Piece;
@@ -59,7 +60,6 @@ package Piece.Server is
 
    type Type_Pieces_Report is record
       Observed_Patches        : Observation.Observation_Of_Patches.Observations_Of_Patches.Set;
-      Observed_Pieces         : Observation.Observation_Of_Pieces.Observations_Of_Pieces.Set;
       Observed_Pieces_Info : Observation.Observation_Of_Pieces_Info.Observations_Of_Pieces_Info.Set;
       Observed_Pieces_Effects : Observation.Observation_Of_Pieces_Effects
         .Observations_Of_Pieces_Effects
@@ -323,8 +323,13 @@ package Piece.Server is
    function Get_Type_Of_Piece_Name
      (P_Piece : in Piece.Type_Piece) return Utilities.RemoteString.Type_String;
 
+   function Has_Patch_Free_Slot (P_Patch : in Landscape.Type_Patch) return Boolean;
+
    function Find_Slot_Of_Pieces (P_Patch : in Landscape.Type_Patch;
       P_Piece                            : in Piece.Type_Piece) return Positive;
+
+   function Get_Pieces_On_Patch (P_Patch : in Hexagon.Server_Map.Type_Server_Patch)
+                                 return Piece.Server.Pieces_Server_List.Vector;
 
    procedure Get_Pieces_Report (P_Player_Id : in     Player.Type_Player_Id;
       P_Pieces_Report                       :    out Type_Pieces_Report);

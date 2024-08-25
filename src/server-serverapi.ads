@@ -149,7 +149,7 @@ package Server.ServerAPI is
      (P_Pos : in Hexagon.Type_Hexagon_Position) return Landscape.Type_Landscape;
 
    function Get_Map_Pieces_List
-     (P_Pos : in Hexagon.Type_Hexagon_Position) return Landscape.Pieces_Here_List.Vector;
+     (P_Pos : in Hexagon.Type_Hexagon_Position) return Piece.Pieces_Id_List.Vector;
 
    function Get_Player_Name
      (P_Player_Id : in Player.Type_Player_Id) return Utilities.RemoteString.Type_String;

@@ -171,11 +171,6 @@ package body Server.Server is
                     .Current_Player_Pieces_Observations
                     .Observed_Patches);
 
-               Observation.Observation_Of_Pieces.Observations_Of_Pieces.Clear
-                 (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
-                    .Current_Player_Pieces_Observations
-                    .Observed_Pieces);
-
                Observation.Observation_Of_Pieces_Info.Observations_Of_Pieces_Info.Clear
                  (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                     .Current_Player_Pieces_Observations
@@ -201,8 +196,6 @@ package body Server.Server is
                --
                declare
                   Frame_Observation : Observation.Observation_Of_Patches.Changes_To_Patches.Vector;
-                  Frame_Observed_Pieces : Observation.Observation_Of_Pieces.Changes_To_Pieces
-                    .Vector;
                   Frame_Pieces_Info : Observation.Observation_Of_Pieces_Info.Changes_To_Pieces_Info
                     .Vector;
                   Frame_Pieces_Effects : Observation.Observation_Of_Pieces_Effects
@@ -224,15 +217,6 @@ package body Server.Server is
                        .Previous_Player_Pieces_Observations
                        .Observed_Patches,
                      Frame_Observation);
-
-                  Observation.Observation_Of_Pieces.Find_Delta_Observed_Pieces
-                    (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
-                       .Current_Player_Pieces_Observations
-                       .Observed_Pieces,
-                     Player_List_Internal (Player.Type_Player_Id (Trav_Player))
-                       .Previous_Player_Pieces_Observations
-                       .Observed_Pieces,
-                     Frame_Observed_Pieces);
 
                   Observation.Observation_Of_Pieces_Info.Find_Delta_Observed_Pieces_Info
                     (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
@@ -270,9 +254,6 @@ package body Server.Server is
                   if Observation.Observation_Of_Patches.Changes_To_Patches.Length
                       (Frame_Observation) /=
                     0 or
-                    Observation.Observation_Of_Pieces.Changes_To_Pieces.Length
-                        (Frame_Observed_Pieces) /=
-                      0 or
                     Observation.Observation_Of_Pieces_Info.Changes_To_Pieces_Info.Length
                         (Frame_Pieces_Info) /=
                       0 or
@@ -285,7 +266,6 @@ package body Server.Server is
                     Observation.Activity.Activity_Report.Length (Frame_Activity_Info) /= 0 then
 
                      Frame.Observed_Patches     := Frame_Observation;
-                     Frame.Observed_Pieces      := Frame_Observed_Pieces;
                      Frame.Pieces_Info          := Frame_Pieces_Info;
                      Frame.Pieces_Effects_Info  := Frame_Pieces_Effects;
                      Frame.Patches_Effects_Info := Frame_Patches_Effects;
@@ -303,14 +283,6 @@ package body Server.Server is
                          (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                             .Current_Player_Pieces_Observations
                             .Observed_Patches);
-
-                     Player_List_Internal (Player.Type_Player_Id (Trav_Player))
-                       .Previous_Player_Pieces_Observations
-                       .Observed_Pieces :=
-                       Observation.Observation_Of_Pieces.Observations_Of_Pieces.Copy
-                         (Player_List_Internal (Player.Type_Player_Id (Trav_Player))
-                            .Current_Player_Pieces_Observations
-                            .Observed_Pieces);
 
                      Player_List_Internal (Player.Type_Player_Id (Trav_Player))
                        .Previous_Player_Pieces_Observations

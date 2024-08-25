@@ -19,6 +19,7 @@
 
 with Utilities;
 with Player;
+with Ada.Containers.Vectors;
 
 package Piece is
 
@@ -53,5 +54,13 @@ package Piece is
    procedure Put (P_Piece : in Type_Piece);
    function Left_Less_Pieces (Left, Right : in Type_Piece) return Boolean;
    function Equal_Pieces (Left, Right : in Type_Piece) return Boolean;
+
+   package Pieces_Id_List is new Ada.Containers.Vectors
+     (Positive,
+      Piece.Type_Piece_Id,
+     Piece."=");
+   package Pieces_ID_Sort is new Pieces_Id_List.Generic_Sorting (Piece.Piece_Left_Less);
+
+   procedure Put_Pieces_Id (P_Pieces_Id : in Pieces_Id_List.Vector);
 
 end Piece;

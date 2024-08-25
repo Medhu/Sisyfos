@@ -533,13 +533,13 @@ package body Server.Lua_Interface is
    end Parameter_Landscape_Output;
 
    procedure Parameter_Pieces_List_Output (P_Lua_State : in Lua.Lua_State;
-      P_Pieces_List                                    : in Landscape.Pieces_Here_List.Vector)
+      P_Pieces_List                                    : in Piece.Pieces_Id_List.Vector)
    is
       Stack_Top_On_Start : Lua.Lua_Index;
       Lua_Integer        : Lua.Lua_Integer;
       Table_Index        : Positive;
 
-      Trav_Pieces : Landscape.Pieces_Here_List.Cursor;
+      Trav_Pieces : Piece.Pieces_Id_List.Cursor;
    begin
       if Verbose then
          Text_IO.Put_Line ("Server.Lua_Interface.Parameter_Pieces_List_Output - enter");
@@ -547,18 +547,18 @@ package body Server.Lua_Interface is
       Stack_Top_On_Start := Lua.Get_Top (P_Lua_State);
 
       Lua.Create_Table (P_Lua_State);
-      Trav_Pieces := Landscape.Pieces_Here_List.First (P_Pieces_List);
+      Trav_Pieces := Piece.Pieces_Id_List.First (P_Pieces_List);
       Table_Index := 1;
-      while Landscape.Pieces_Here_List.Has_Element (Trav_Pieces) loop
+      while Piece.Pieces_Id_List.Has_Element (Trav_Pieces) loop
 
          Lua.Push (P_Lua_State, Lua.Lua_Integer (Table_Index));
-         Lua_Integer := Lua.Lua_Integer (Landscape.Pieces_Here_List.Element (Trav_Pieces));
+         Lua_Integer := Lua.Lua_Integer (Piece.Pieces_Id_List.Element (Trav_Pieces));
          Lua.Push (P_Lua_State, Lua_Integer);
 
          Lua.Set_Table (P_Lua_State, Stack_Top_On_Start + 1);
 
          Table_Index := Table_Index + 1;
-         Trav_Pieces := Landscape.Pieces_Here_List.Next (Trav_Pieces);
+         Trav_Pieces := Piece.Pieces_Id_List.Next (Trav_Pieces);
       end loop;
 
       if Verbose then
@@ -1113,7 +1113,7 @@ package body Server.Lua_Interface is
    function Get_Map_Pieces_List (P_Lua_State : Lua.Lua_State) return Integer is
       A_Pos : Hexagon.Type_Hexagon_Position;
 
-      A_Pieces_List : Landscape.Pieces_Here_List.Vector;
+      A_Pieces_List : Piece.Pieces_Id_List.Vector;
    begin
       if Verbose then
          Text_IO.Put_Line ("Server.Lua_Interface.Get_Map_Pieces_List - enter - stack:"

@@ -1040,7 +1040,7 @@ package body Server.Server.Piece_Action is
             A_To_Pos   := Hexagon.Server_Navigation.Path_Pkg.Element (Next_Path_Cursor).all.Pos;
             A_To_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (A_To_Pos.A, A_To_Pos.B);
 
-            if not Landscape.Server.Has_Patch_Free_Slot (Landscape.Type_Patch(A_To_Patch.all)) then
+            if not Piece.Server.Has_Patch_Free_Slot (Landscape.Type_Patch(A_To_Patch.all)) then
                Attempt.Set_Failed_Attempt(P_Attempt_Info);
                Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Target_Patch_Occupied );
             end if;

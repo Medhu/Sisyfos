@@ -45,7 +45,7 @@ package Observation is
 
       package Changes_To_Patches is new Ada.Containers.Vectors (Positive, Type_Observed_Patch);
 
-      procedure Print_Pieces_Observed_Patches (P_Observed_Patches : in Observations_Of_Patches.Set);
+      procedure Print_Observed_Patches (P_Observed_Patches : in Observations_Of_Patches.Set);
 
       procedure Find_Delta_Observations
         (P_Current, P_Previous : in     Observations_Of_Patches.Set;
@@ -86,35 +86,6 @@ package Observation is
          P_Observed_Pieces_Info :    out Changes_To_Pieces_Info.Vector);
 
    end Observation_Of_Pieces_Info;
-
-   package Observation_Of_Pieces is
-      type Type_Observed_Piece is record
-         Pos           : Hexagon.Type_Hexagon_Position;
-         Piece_Here_Id : Piece.Type_Piece_Id;
-      end record;
-
-      function Left_Less_Observed_Pieces (Left, Right : in Type_Observed_Piece) return Boolean;
-
-      function Equal_Observed_Pieces (Left, Right : in Type_Observed_Piece) return Boolean;
-
-      package Observations_Of_Pieces is new Ada.Containers.Ordered_Sets
-        (Type_Observed_Piece,
-         Left_Less_Observed_Pieces,
-         Equal_Observed_Pieces);
-
-      package Changes_To_Pieces is new Ada.Containers.Vectors (Positive, Type_Observed_Piece);
-
-      procedure Print_Pieces_Observed_Pieces (P_Observed_Pieces : in Observations_Of_Pieces.Set);
-
-      function Find_Piece_Id
-        (P_Observed_Pieces : in Observations_Of_Pieces.Set;
-         P_Piece_Id        :    Piece.Type_Piece_Id) return Boolean;
-
-      procedure Find_Delta_Observed_Pieces
-        (P_Current, P_Previous : in     Observations_Of_Pieces.Set;
-         P_Observed_Pieces     :    out Changes_To_Pieces.Vector);
-
-   end Observation_Of_Pieces;
 
    package Observation_Of_Pieces_Effects is
       type Type_Piece_Effect is record
@@ -188,7 +159,6 @@ package Observation is
    package Frames is
       type Type_Visibility_Frames is record
          Observed_Patches     : Observation_Of_Patches.Changes_To_Patches.Vector;
-         Observed_Pieces      : Observation_Of_Pieces.Changes_To_Pieces.Vector;
          Pieces_Info          : Observation_Of_Pieces_Info.Changes_To_Pieces_Info.Vector;
          Pieces_Effects_Info  : Observation_Of_Pieces_Effects.Changes_To_Pieces_Effects.Vector;
          Patches_Effects_Info : Observation_Of_Patches_Effects.Changes_To_Patches_Effects.Vector;

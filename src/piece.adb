@@ -82,6 +82,28 @@ package body Piece is
       return Left = Right;
    end Equal_Pieces;
 
+   procedure Put_Pieces_Id (P_Pieces_Id : in Pieces_Id_List.Vector) is
+      Trav : Piece.Pieces_Id_List.Cursor;
+
+   begin
+      if Verbose then
+         Text_IO.Put_Line ("Piece.Put_Pieces_Id - enter");
+      end if;
+
+      Text_IO.Put_Line("Print Pieces on this Patch");
+      Trav := Piece.Pieces_Id_List.First (P_Pieces_Id);
+      while Piece.Pieces_Id_List.Has_Element (Trav) loop
+         Text_IO.Put_Line ("Piece_Id=" & Piece.Pieces_Id_List.Element (Trav)'Img);
+
+         Trav := Piece.Pieces_Id_List.Next (Trav);
+      end loop;
+
+      if Verbose then
+         Text_IO.Put_Line ("Piece.Put_Pieces_Id - exit");
+      end if;
+
+   end Put_Pieces_Id;
+
    procedure Put (P_Piece : in Type_Piece) is
    begin
       Text_IO.Put_Line
