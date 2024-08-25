@@ -35,26 +35,6 @@ package body Landscape.Server is
       end if;
    end Init;
 
---   function Is_Patch_Empty (P_Patch : in Landscape.Type_Patch) return Boolean is
---   begin
-
---      return Landscape.Pieces_Here_List.Length (P_Patch.Pieces_Here) = 0;
---   end Is_Patch_Empty;
-
---   function Has_Patch_Free_Slot (P_Patch : in Landscape.Type_Patch) return Boolean is
-
---   begin
-
---      if Verbose then
---         Text_IO.Put_Line
---           ("Landscape.Has_Patch_Free_Slot - enter - exit length=" &
---            Landscape.Pieces_Here_List.Length (P_Patch.Pieces_Here)'Img);
---      end if;
-
---      return Landscape.Pieces_Here_List.Length (P_Patch.Pieces_Here) <
---        Ada.Containers.Count_Type (Landscape.Server.Get_Landscape_Info(P_Patch.Landscape_Here).Max_Pieces_Here);
---   end Has_Patch_Free_Slot;
-
    function Get_Landscape_Info (P_Landscape : in Type_Landscape) return Type_Landscape_Type_Info
    is
    begin

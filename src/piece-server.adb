@@ -662,45 +662,69 @@ package body Piece.Server is
       return Found;
    end Is_Piece_Here;
 
-   --DENNE REGNER IKKE UT DET SAMME SOM FØR
-   function Find_Slot_Of_Pieces (P_Patch : in Landscape.Type_Patch;
-      P_Piece                            : in Piece.Type_Piece) return Positive
-   is
-      Found : Boolean := False;
-      Trav  : Piece.Server.Pieces_Server_List.Cursor;
-      A_Piece_Position : Piece.Server.Type_Piece_Position;
+   function Is_Patch_Empty (P_Patch : in Landscape.Type_Patch) return Boolean is
+      Trav : Piece.Server.Pieces_Server_List.Cursor;
+      Found : Boolean;
 
-      use Piece;
+      use Hexagon;
    begin
-      Trav := Piece.Server.Pieces_Server_List.First (Piece.Server.All_Pieces_In_Game);
-      while Piece.Server.Pieces_Server_List.Has_Element (Trav) and not Found loop
-         A_Piece_Position := Piece.Server.Pieces_Server_List.Element(Trav);
+      Trav := Piece.Server.Pieces_Server_List.First(Piece.Server.All_Pieces_In_Game);
 
-         if A_Piece_Position.Actual_Piece.all.Id = P_Piece.Id then
-            Found := True;
-         else
-            Piece.Server.Pieces_Server_List.Next (Trav);
-         end if;
+      Found := False;
+      while not Found and then Piece.Server.Pieces_Server_List.Has_Element(Trav) loop
+         Found := Piece.Server.Pieces_Server_List.Element(Trav).Actual_Pos = P_Patch.Pos;
+
+         Trav := Piece.Server.Pieces_Server_List.Next(Trav);
       end loop;
 
-      return Landscape.Pieces_Here_List.To_Index (Trav);
-   end Find_Slot_Of_Pieces;
+      return not Found; -- If we found a piece the patch is not empty.
+   end Is_Patch_Empty;
+
+
+   --DENNE REGNER IKKE UT DET SAMME SOM FØR
+--   function Find_Slot_Of_Pieces (P_Patch : in Landscape.Type_Patch;
+--      P_Piece                            : in Piece.Type_Piece) return Positive
+--   is
+--      Found : Boolean := False;
+--      Trav  : Piece.Server.Pieces_Server_List.Cursor;
+--      A_Piece_Position : Piece.Server.Type_Piece_Position;
+
+--      use Piece;
+--   begin
+--      Trav := Piece.Server.Pieces_Server_List.First (Piece.Server.All_Pieces_In_Game);
+--      while Piece.Server.Pieces_Server_List.Has_Element (Trav) and not Found loop
+--         A_Piece_Position := Piece.Server.Pieces_Server_List.Element(Trav);
+
+--         if A_Piece_Position.Actual_Piece.all.Id = P_Piece.Id then
+--            Found := True;
+--         else
+--            Piece.Server.Pieces_Server_List.Next (Trav);
+--         end if;
+--      end loop;
+
+--      return Piece.Server.Pieces_Here_List.To_Index (Trav);
+--   end Find_Slot_Of_Pieces;
 
    function Get_Pieces_On_Patch (P_Patch : in Hexagon.Server_Map.Type_Server_Patch)
                                  return Piece.Server.Pieces_Server_List.Vector
    is
       Ret : Piece.Server.Pieces_Server_List.Vector;
-      A_Piece_Position : Type_Piece_Position;
+      A_Piece_Position : Piece.Server.Type_Piece_Position;
       Trav : Piece.Server.Pieces_Server_List.Cursor;
+
+      use Hexagon;
    begin
       Trav := Piece.Server.Pieces_Server_List.First(Piece.Server.All_Pieces_In_Game);
       while Piece.Server.Pieces_Server_List.Has_Element(Trav) loop
-         A_Piece_Position := Piece.Server.Pieces_Server_List.Element_Type(Trav);
+         A_Piece_Position := Piece.Server.Pieces_Server_List.Element(Trav);
+
          if A_Piece_Position.Actual_Pos = P_Patch.Pos then
             Piece.Server.Pieces_Server_List.Append(Ret, A_Piece_Position );
          end if;
 
       end loop;
+
+      return Ret;
    end Get_Pieces_On_Patch;
 
    function Patch_Belongs_To_Player (P_Patch : in Landscape.Type_Patch;
@@ -715,7 +739,7 @@ package body Piece.Server is
            ("Piece.Server.Patch_Belongs_To_Player - enter P_Player_Id=" & P_Player_Id'Img);
       end if;
 
-      if Landscape.Server.Is_Patch_Empty (P_Patch) then
+      if Piece.Server.Is_Patch_Empty (P_Patch) then
          Ret := True; -- Neutral patch belongs to noone and everyone
       else
          Ret := Get_Pieces_Players (P_Patch) = P_Player_Id;
@@ -740,7 +764,7 @@ package body Piece.Server is
       end if;
       P_Status := Status.Ok;
 
-      if not Landscape.Server.Has_Patch_Free_Slot (P_Patch) or
+      if not Piece.Server.Has_Patch_Free_Slot (P_Patch) or
         not Patch_Belongs_To_Player (P_Patch, P_Player_Id) then
          P_Status := Status.Patch_Occupied;
       elsif P_Piece.Category = Piece.Fighting_Piece
@@ -814,9 +838,6 @@ package body Piece.Server is
       Validate_Target_Patch_And_Piece (P_Patch, Piece.Type_Piece (P_Piece), P_Player_Id, P_Status);
 
       if P_Status = Status.Ok then
-         -- Copy new data from the client patch into the server patch
-         Landscape.Pieces_Here_List.Append (P_Patch.Pieces_Here, P_Piece.Id);
-         Landscape.Pieces_Here_Sort.Sort (P_Patch.Pieces_Here);
          Piece.Server.Set_Position (P_Piece, P_Patch.Pos);
 
          P_Status := Status.Ok;
@@ -859,7 +880,6 @@ package body Piece.Server is
                            P_Piece                          : in out Type_Piece;
                            P_Status : out Status.Type_Status)
    is
-      Index   : Positive;
       A_Piece : Piece.Server.Type_Piece_Access_Class;
 
       use Ada.Containers;
@@ -876,10 +896,6 @@ package body Piece.Server is
           (Piece.Server.Type_Piece (A_Piece.all), P_Player_Id) then
          P_Status := Status.Not_Players_Piece;
       else
-         Index := Piece.Server.Find_Slot_Of_Pieces (P_Patch, Piece.Type_Piece (P_Piece));
-
-         Landscape.Pieces_Here_List.Delete (P_Patch.Pieces_Here, Index);
-
          Piece.Server.Unset_Position (P_Piece, P_Patch.Pos);
          P_Status := Status.Ok;
       end if;
@@ -1201,8 +1217,6 @@ package body Piece.Server is
       A_Category    : Piece.Type_Category;
       Num_Of_Pieces : Ada.Containers.Count_Type;
 
-      A_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
-
       Read_File   : Ada.Streams.Stream_IO.File_Type;
       Read_Stream : Ada.Streams.Stream_IO.Stream_Access;
    begin
@@ -1240,15 +1254,6 @@ package body Piece.Server is
          Hexagon.Type_Hexagon_Position'Read (Read_Stream, An_Element.Actual_Pos);
          Pieces_Server_List.Append (P_Piece_List, An_Element);
 
-         -- Add piece to Landscape.Patch:
-         A_Patch :=
-           Hexagon.Server_Map.Get_Patch_Adress_From_AB
-             (An_Element.Actual_Pos.A, An_Element.Actual_Pos.B);
-         Landscape.Pieces_Here_List.Append
-           (A_Patch.all.Pieces_Here, An_Element.Actual_Piece.all.Id);
-         Landscape.Pieces_Here_Sort.Sort
-           (A_Patch.all
-              .Pieces_Here); -- this sorting will be done too many times - but I don't care for now.
       end loop;
 
       Ada.Streams.Stream_IO.Close (Read_File);

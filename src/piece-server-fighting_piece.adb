@@ -117,7 +117,7 @@ package body Piece.Server.Fighting_Piece is
             A_Patch :=
               Hexagon.Server_Map.Get_Patch_Adress_From_AB (P_To_Patch.Pos.A, P_To_Patch.Pos.B);
 
-            if Landscape.Server.Is_Patch_Empty (Landscape.Type_Patch (A_Patch.all)) then
+            if Piece.Server.Is_Patch_Empty (Landscape.Type_Patch (A_Patch.all)) then
                -- move winning piece
 
                Remove_Piece

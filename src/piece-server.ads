@@ -325,8 +325,10 @@ package Piece.Server is
 
    function Has_Patch_Free_Slot (P_Patch : in Landscape.Type_Patch) return Boolean;
 
-   function Find_Slot_Of_Pieces (P_Patch : in Landscape.Type_Patch;
-      P_Piece                            : in Piece.Type_Piece) return Positive;
+--   function Find_Slot_Of_Pieces (P_Patch : in Landscape.Type_Patch;
+--      P_Piece                            : in Piece.Type_Piece) return Positive;
+
+   function Is_Patch_Empty (P_Patch : in Landscape.Type_Patch) return Boolean;
 
    function Get_Pieces_On_Patch (P_Patch : in Hexagon.Server_Map.Type_Server_Patch)
                                  return Piece.Server.Pieces_Server_List.Vector;
