@@ -20,7 +20,7 @@ with Text_IO;
 
 package body Server.Server.Cmd is
 
-   Verbose : constant Boolean := False;
+   Verbose : constant Boolean := True;
 
    procedure Create_Piece (P_Cmd_List : in out Cmd_List_Pkg.Vector;
       P_Player_Id : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;

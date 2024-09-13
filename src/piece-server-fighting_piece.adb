@@ -21,7 +21,7 @@ with Text_IO;
 
 package body Piece.Server.Fighting_Piece is
 
-   Verbose : constant Boolean := False;
+   Verbose : constant Boolean := True;
 
    Piece_Type_Info_List : Type_Piece_Type_Info_List_Access;
 

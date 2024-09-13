@@ -52,7 +52,6 @@ package Hexagon.Server_Map is
    type Type_Visit_Procedure is access procedure (P_Patch : in out Type_Server_Patch_Adress);
 
    procedure Reset_Visit;
-   procedure Reset_Pieces_On_Patches;
 
    procedure Numerate (P_Patch : in out Type_Server_Patch; P_A, P_B : in Type_Hexagon_Numbers);
 

@@ -60,6 +60,7 @@ package Piece.Server is
 
    type Type_Pieces_Report is record
       Observed_Patches        : Observation.Observation_Of_Patches.Observations_Of_Patches.Set;
+      Observed_Pieces         : Observation.Observation_Of_Pieces.Observations_Of_Pieces.Set;
       Observed_Pieces_Info : Observation.Observation_Of_Pieces_Info.Observations_Of_Pieces_Info.Set;
       Observed_Pieces_Effects : Observation.Observation_Of_Pieces_Effects
         .Observations_Of_Pieces_Effects

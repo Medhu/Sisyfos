@@ -20,7 +20,7 @@
 with Text_IO;
 
 package body Observation is
-   Verbose : constant Boolean := False;
+   Verbose : constant Boolean := True;
 
    package body Observation_Of_Patches is
       function Left_Less_Observation (Left, Right : in Type_Observed_Patch) return Boolean is
@@ -113,7 +113,7 @@ package body Observation is
 
       end Find_Delta_Observations;
 
-      procedure Print_Observed_Patches
+      procedure Print_Pieces_Observed_Patches
         (P_Observed_Patches : in Observations_Of_Patches.Set)
       is
          Current_Observation_Cursor : Observations_Of_Patches.Cursor;
@@ -133,8 +133,156 @@ package body Observation is
 
             Observations_Of_Patches.Next (Current_Observation_Cursor);
          end loop;
-      end Print_Observed_Patches;
+      end Print_Pieces_Observed_Patches;
    end Observation_Of_Patches;
+
+   package body Observation_Of_Pieces is
+      function Equal_Observed_Pieces (Left, Right : in Type_Observed_Piece) return Boolean is
+      begin
+         return Left = Right;
+      end Equal_Observed_Pieces;
+
+      function Left_Less_Observed_Pieces (Left, Right : in Type_Observed_Piece) return Boolean is
+      begin
+         return Integer (Left.Pos.A) * 10000000 +
+           Integer (Left.Pos.B) * 10000 +
+           Integer (Left.Piece_Here_Id) * 10 <
+           Integer (Right.Pos.A) * 10000000 +
+             Integer (Right.Pos.B) * 10000 +
+             Integer (Right.Piece_Here_Id) * 10;
+      end Left_Less_Observed_Pieces;
+
+      procedure Find_Delta_Observed_Pieces
+        (P_Current, P_Previous : in     Observations_Of_Pieces.Set;
+         P_Observed_Pieces     :    out Changes_To_Pieces.Vector)
+      is
+
+         Found              : Boolean;
+         Cursor_Current     : Observations_Of_Pieces.Cursor;
+         Cursor_Previous    : Observations_Of_Pieces.Cursor;
+         Curr_Obs, Prev_Obs : Type_Observed_Piece;
+
+         use Piece;
+      begin
+         if Verbose then
+            Text_IO.Put_Line
+              ("Observation.Observation_Of_Pieces.Find_Delta_Observed_Pieces - enter");
+         end if;
+
+         Changes_To_Pieces.Clear (P_Observed_Pieces);
+
+         Cursor_Current := Observations_Of_Pieces.First (P_Current);
+         while Observations_Of_Pieces.Has_Element (Cursor_Current) loop
+            Curr_Obs := Observations_Of_Pieces.Element (Cursor_Current);
+
+            Found           := False;
+            Cursor_Previous := Observations_Of_Pieces.First (P_Previous);
+            while Observations_Of_Pieces.Has_Element (Cursor_Previous) and not Found loop
+               Prev_Obs := Observations_Of_Pieces.Element (Cursor_Previous);
+
+               if Prev_Obs.Piece_Here_Id = Curr_Obs.Piece_Here_Id then
+
+                  if Prev_Obs /= Curr_Obs then
+                     Changes_To_Pieces.Append (P_Observed_Pieces, Curr_Obs);
+                  end if;
+                  Found := True;
+               end if;
+
+               Cursor_Previous := Observations_Of_Pieces.Next (Cursor_Previous);
+            end loop;
+
+            if not Found then
+               Changes_To_Pieces.Append
+                 (P_Observed_Pieces,
+                  Type_Observed_Piece'(Curr_Obs.Pos, Curr_Obs.Piece_Here_Id));
+            end if;
+
+            Cursor_Current := Observations_Of_Pieces.Next (Cursor_Current);
+         end loop;
+
+         Cursor_Previous := Observations_Of_Pieces.First (P_Previous);
+         while Observations_Of_Pieces.Has_Element (Cursor_Previous) loop
+
+            Prev_Obs := Observations_Of_Pieces.Element (Cursor_Previous);
+
+            Found          := False;
+            Cursor_Current := Observations_Of_Pieces.First (P_Current);
+            while Observations_Of_Pieces.Has_Element (Cursor_Current) loop
+               Curr_Obs := Observations_Of_Pieces.Element (Cursor_Current);
+
+               if Prev_Obs.Piece_Here_Id = Curr_Obs.Piece_Here_Id then
+
+                  Found := True;
+               end if;
+
+               Cursor_Current := Observations_Of_Pieces.Next (Cursor_Current);
+            end loop;
+
+            if not Found then
+               Changes_To_Pieces.Append
+                 (P_Observed_Pieces,
+                  Type_Observed_Piece'
+                    (Hexagon.Type_Hexagon_Position'(P_Valid => False), Prev_Obs.Piece_Here_Id));
+            end if;
+
+            Cursor_Previous := Observations_Of_Pieces.Next (Cursor_Previous);
+         end loop;
+
+         if Verbose then
+            Text_IO.Put_Line
+              ("Observation.Observation_Of_Pieces.Find_Delta_Observed_Pieces - exit");
+         end if;
+
+      end Find_Delta_Observed_Pieces;
+
+      function Find_Piece_Id
+        (P_Observed_Pieces : in Observations_Of_Pieces.Set;
+         P_Piece_Id        :    Piece.Type_Piece_Id) return Boolean
+      is
+         Trav  : Observations_Of_Pieces.Cursor;
+         Found : Boolean := False;
+
+         use Piece;
+      begin
+         Trav := Observations_Of_Pieces.First (P_Observed_Pieces);
+         while Observations_Of_Pieces.Has_Element (Trav) and not Found loop
+
+            if Observations_Of_Pieces.Element (Trav).Piece_Here_Id = P_Piece_Id then
+               Found := True;
+            end if;
+
+            Trav := Observations_Of_Pieces.Next (Trav);
+         end loop;
+
+         return Found;
+      end Find_Piece_Id;
+
+      procedure Print_Pieces_Observed_Pieces (P_Observed_Pieces : in Observations_Of_Pieces.Set) is
+         Current_Observation_Cursor : Observations_Of_Pieces.Cursor;
+         Current_Piece_Id           : Piece.Type_Piece_Id;
+      begin
+         Text_IO.Put_Line
+           ("Find_Piece length:" & Observations_Of_Pieces.Length (P_Observed_Pieces)'Img);
+         Current_Observation_Cursor := Observations_Of_Pieces.First (P_Observed_Pieces);
+
+         while Observations_Of_Pieces.Has_Element (Current_Observation_Cursor) loop
+            Current_Piece_Id :=
+              Observations_Of_Pieces.Element (Current_Observation_Cursor).Piece_Here_Id;
+
+            Text_IO.Put_Line
+              (">Observed Piece " &
+               " A=" &
+               Observations_Of_Pieces.Element (Current_Observation_Cursor).Pos.A'Img &
+               " B=" &
+               Observations_Of_Pieces.Element (Current_Observation_Cursor).Pos.B'Img &
+               " Piece.Id=" &
+               Current_Piece_Id'Img);
+
+            Observations_Of_Pieces.Next (Current_Observation_Cursor);
+         end loop;
+
+      end Print_Pieces_Observed_Pieces;
+   end Observation_Of_Pieces;
 
    package body Observation_Of_Pieces_Info is
       function Equal_Observed_Pieces_Info
@@ -588,6 +736,9 @@ package body Observation is
                   Observation_Of_Patches.Changes_To_Patches.Length (An_Element.Observed_Patches)'
                     Img);
                Text_IO.Put
+                 (" An_Element.Observed_Pieces=" &
+                  Observation_Of_Pieces.Changes_To_Pieces.Length (An_Element.Observed_Pieces)'Img);
+               Text_IO.Put
                  (" An_Element.Pieces_Info=" &
                   Observation_Of_Pieces_Info.Changes_To_Pieces_Info.Length (An_Element.Pieces_Info)'
                     Img);
@@ -607,6 +758,7 @@ package body Observation is
             end if;
 
             Observation_Of_Patches.Changes_To_Patches.Clear (An_Element.Observed_Patches);
+            Observation_Of_Pieces.Changes_To_Pieces.Clear (An_Element.Observed_Pieces);
             Observation_Of_Pieces_Info.Changes_To_Pieces_Info.Clear (An_Element.Pieces_Info);
             Observation_Of_Pieces_Effects.Changes_To_Pieces_Effects.Clear
               (An_Element.Pieces_Effects_Info);
@@ -619,6 +771,9 @@ package body Observation is
                  (" After An_Element.Observed_Patches=" &
                   Observation_Of_Patches.Changes_To_Patches.Length (An_Element.Observed_Patches)'
                     Img);
+               Text_IO.Put
+                 (" An_Element.Observed_Pieces=" &
+                  Observation_Of_Pieces.Changes_To_Pieces.Length (An_Element.Observed_Pieces)'Img);
                Text_IO.Put
                  (" An_Element.Pieces_Info=" &
                   Observation_Of_Pieces_Info.Changes_To_Pieces_Info.Length (An_Element.Pieces_Info)'

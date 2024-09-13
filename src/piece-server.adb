@@ -99,32 +99,33 @@ package body Piece.Server is
 
    end Get_Type_Of_Piece_Name;
 
-   function Has_Patch_Free_Slot (P_Patch : in Landscape.Type_Patch) return Boolean
-   is
-      Trav : Piece.Server.Pieces_Server_List.Cursor;
+   function Has_Patch_Free_Slot (P_Patch : in Landscape.Type_Patch) return Boolean is
+      Trav             : Piece.Server.Pieces_Server_List.Cursor;
       A_Piece_Position : Type_Piece_Position;
       Number_Of_Pieces : Ada.Containers.Count_Type := 0;
 
       use Ada.Containers;
       use Hexagon;
    begin
-      Trav := Piece.Server.Pieces_Server_List.First(Piece.Server.All_Pieces_In_Game);
-      while Piece.Server.Pieces_Server_List.Has_Element(Trav) loop
-         A_Piece_Position := Piece.Server.Pieces_Server_List.Element(Trav);
+      Trav := Piece.Server.Pieces_Server_List.First (Piece.Server.All_Pieces_In_Game);
+      while Piece.Server.Pieces_Server_List.Has_Element (Trav) loop
+         A_Piece_Position := Piece.Server.Pieces_Server_List.Element (Trav);
 
          if A_Piece_Position.Actual_Pos = P_Patch.Pos then
             Number_Of_Pieces := Number_Of_Pieces + 1;
          end if;
 
-         Trav := Piece.Server.Pieces_Server_List.Next(Trav);
+         Trav := Piece.Server.Pieces_Server_List.Next (Trav);
       end loop;
 
-      return Number_Of_Pieces <
-        Ada.Containers.Count_Type (Landscape.Server.Get_Landscape_Info(P_Patch.Landscape_Here).Max_Pieces_Here);
+      return
+        Number_Of_Pieces <
+        Ada.Containers.Count_Type
+          (Landscape.Server.Get_Landscape_Info (P_Patch.Landscape_Here).Max_Pieces_Here);
    end Has_Patch_Free_Slot;
 
-   procedure New_Piece (P_Piece : in     Piece.Type_Piece;
-      P_Server_Piece            :    out Piece.Server.Type_Piece_Access_Class)
+   procedure New_Piece
+     (P_Piece : in Piece.Type_Piece; P_Server_Piece : out Piece.Server.Type_Piece_Access_Class)
    is
    begin
       if Verbose then
@@ -307,7 +308,8 @@ package body Piece.Server is
       while Piece.Server.Pieces_Server_List.Has_Element (Trav) loop
 
          if Piece.Server.Pieces_Server_List.Element (Trav).Actual_Piece.Player_Id = P_Player_Id and
-           Piece.Server.Pieces_Server_List.Element (Trav).Actual_Pos.P_Valid then
+           Piece.Server.Pieces_Server_List.Element (Trav).Actual_Pos.P_Valid
+         then
             Text_IO.Put
               ("All_Pieces_In_Game(Trav).Actual_Piece.Id=" &
                Piece.Server.Pieces_Server_List.Element (Trav).Actual_Piece.Id'Img &
@@ -325,7 +327,8 @@ package body Piece.Server is
       return All_Pieces_In_Game;
    end Get_All_Pieces_Positions;
 
-   procedure Get_Effects_On_Piece (P_Piece : in     Piece.Server.Type_Piece;
+   procedure Get_Effects_On_Piece
+     (P_Piece         : in     Piece.Server.Type_Piece;
       P_Pieces_Effect : out Observation.Observation_Of_Pieces_Effects.Observations_Of_Pieces_Effects
         .Set)
    is
@@ -359,8 +362,9 @@ package body Piece.Server is
 
    end Get_Effects_On_Piece;
 
-   procedure Get_Effects_On_Patch (P_Patch : in     Hexagon.Server_Map.Type_Server_Patch;
-      P_Observed_Patches_Effects           : in out Observation.Observation_Of_Patches_Effects
+   procedure Get_Effects_On_Patch
+     (P_Patch                    : in     Hexagon.Server_Map.Type_Server_Patch;
+      P_Observed_Patches_Effects : in out Observation.Observation_Of_Patches_Effects
         .Observations_Of_Patches_Effects
         .Set)
    is
@@ -386,20 +390,20 @@ package body Piece.Server is
       end if;
    end Get_Effects_On_Patch;
 
-   procedure Get_Pieces_Report (P_Player_Id : in     Player.Type_Player_Id;
-      P_Pieces_Report                       :    out Type_Pieces_Report)
+   procedure Get_Pieces_Report
+     (P_Player_Id : in Player.Type_Player_Id; P_Pieces_Report : out Type_Pieces_Report)
    is
       Area_To_Check : Hexagon.Area.Server_Area.Type_Action_Capabilities_Access;
 
-      Observing_Piece_Pos, Observed_Pos            : Hexagon.Type_Hexagon_Position;
-      Pos_A, Pos_B                                 : Integer;
+      Observing_Piece_Pos, Observed_Pos : Hexagon.Type_Hexagon_Position;
+      Pos_A, Pos_B                      : Integer;
       --Patch_Observer_Adress,
-      Patch_Observed_Adress : Hexagon.Server_Map.Type_Server_Patch_Adress;
-      Observing_Piece, Observed_Piece              : Piece.Server.Type_Piece_Access_Class;
-      Trav_Observed_Pieces                         : Piece.Server.Pieces_Server_List.Cursor;
+      Patch_Observed_Adress           : Hexagon.Server_Map.Type_Server_Patch_Adress;
+      Observing_Piece, Observed_Piece : Piece.Server.Type_Piece_Access_Class;
+      Trav_Observed_Pieces            : Piece.Server.Pieces_Server_List.Cursor;
       --      Trav_Observing_Pieces, Trav_Observed_Pieces  : Landscape.Pieces_Here_List.Cursor;
-      Observed_Pieces                              : Piece.Server.Pieces_Server_List.Vector;
-      Trav_All_Pieces                              : Piece.Server.Pieces_Server_List.Cursor;
+      Here_Observed_Pieces : Piece.Server.Pieces_Server_List.Vector;
+      Trav_All_Pieces      : Piece.Server.Pieces_Server_List.Cursor;
 
       use Player;
       use Hexagon;
@@ -414,7 +418,8 @@ package body Piece.Server is
       while Piece.Server.Pieces_Server_List.Has_Element (Trav_All_Pieces) loop
 
          if Piece.Server.Pieces_Server_List.Element (Trav_All_Pieces).Actual_Piece.Player_Id =
-           P_Player_Id then
+           P_Player_Id
+         then
             -- Calculate the area that the piece can observe
             if Piece.Server.Pieces_Server_List.Element (Trav_All_Pieces).Actual_Pos.P_Valid then
 
@@ -424,7 +429,6 @@ package body Piece.Server is
                Observing_Piece :=
                  Piece.Server.Pieces_Server_List.Element (Trav_All_Pieces).Actual_Piece;
 
-
                if Verbose then
                   Text_IO.Put_Line
                     ("Piece.Server.Get_Pieces_Report - calculate area for piece at A=" &
@@ -433,84 +437,98 @@ package body Piece.Server is
 
                Area_To_Check := Observation_Area (Observing_Piece.all);
 
+               -- Could not get any area of observation for this Type_Of_Piece
+               if Area_To_Check = null then
+                  raise Type_Of_Piece_Missing_Implementation;
+               end if;
 
-                  -- Could not get any area of observation for this Type_Of_Piece
-                  if Area_To_Check = null then
-                     raise Type_Of_Piece_Missing_Implementation;
-                  end if;
+               -- Traverser observasjonsomraadet
+               for Trav_Obs in Area_To_Check'First .. Area_To_Check'Last loop
 
-                  -- Traverser observasjonsomraadet
-                  for Trav_Obs in Area_To_Check'First .. Area_To_Check'Last loop
+                  Pos_A := Integer (Observing_Piece_Pos.A) + Integer (Area_To_Check (Trav_Obs).A);
+                  Pos_B := Integer (Observing_Piece_Pos.B) + Integer (Area_To_Check (Trav_Obs).B);
 
-                     Pos_A :=
-                       Integer (Observing_Piece_Pos.A) + Integer (Area_To_Check (Trav_Obs).A);
-                     Pos_B :=
-                       Integer (Observing_Piece_Pos.B) + Integer (Area_To_Check (Trav_Obs).B);
+                  if Pos_A in
+                      Integer (Hexagon.Type_Hexagon_Numbers'First) ..
+                            Integer (Hexagon.Type_Hexagon_Numbers'Last) and
+                    Pos_B in
+                      Integer (Hexagon.Type_Hexagon_Numbers'First) ..
+                            Integer (Hexagon.Type_Hexagon_Numbers'Last)
+                  then
 
-                     if Pos_A in
-                         Integer (Hexagon.Type_Hexagon_Numbers'First) ..
-                               Integer (Hexagon.Type_Hexagon_Numbers'Last) and
-                       Pos_B in
-                         Integer (Hexagon.Type_Hexagon_Numbers'First) ..
-                               Integer (Hexagon.Type_Hexagon_Numbers'Last)
-                     then
-
-                        Observed_Pos :=
-                          Hexagon.Type_Hexagon_Position'
-                            (True, Hexagon.Type_Hexagon_Numbers (Pos_A),
-                             Hexagon.Type_Hexagon_Numbers (Pos_B));
-                        if Verbose then
-                           Text_IO.Put_Line
-                             ("Piece.Server.Get_Pieces_Report - and area is A=" &
-                              Observed_Pos.A'Img & " B=" & Observed_Pos.B'Img);
-                        end if;
-
-                        Patch_Observed_Adress :=
-                          Hexagon.Server_Map.Get_Patch_Adress_From_AB
-                            (Observed_Pos.A, Observed_Pos.B);
-                        Observation.Observation_Of_Patches.Observations_Of_Patches.Include
-                          (P_Pieces_Report.Observed_Patches,
-                           Observation.Observation_Of_Patches.Type_Observed_Patch'
-                             (Observed_Pos.A, Observed_Pos.B, True));
-
-                        -- Observe effects on the patches in observation area
-                        Get_Effects_On_Patch
-                          (Patch_Observed_Adress.all, P_Pieces_Report.Observed_Patches_Effects);
-
-                     -- Observed pieces includes enemy and neutral pieces
-                     -- find all pieces on this patch
-                     Observed_Pieces := Piece.Server.Get_Pieces_On_Patch(Patch_Observed_Adress.all);
-
-                     Trav_Observed_Pieces :=
-                       Piece.Server.Pieces_Server_List.First (Observed_Pieces);
-
-                        while Piece.Server.Pieces_Server_List.Has_Element (Trav_Observed_Pieces) loop
-                           Observed_Piece := Piece.Server.Pieces_Server_List.Element(Trav_Observed_Pieces)
-                               .Actual_Piece;
-
-                           -- Include piece that we have observed in the observation area.
-                           Observation.Observation_Of_Pieces_Info.Observations_Of_Pieces_Info
-                             .Include
-                             (P_Pieces_Report.Observed_Pieces_Info,
-                              Observation.Observation_Of_Pieces_Info.Type_Observed_Piece_Info'
-                                (Piece.Type_Piece (Observed_Piece.all), True));
-
-                           -- Effects for this piece
-                           --
-                           Piece.Server.Get_Effects_On_Piece
-                             (Piece.Server.Type_Piece (Observed_Piece.all),
-                              P_Pieces_Report.Observed_Pieces_Effects);
-
-                           Trav_Observed_Pieces :=
-                          Piece.Server.Pieces_Server_List.Next (Trav_Observed_Pieces);
-
-                        end loop; -- Trav all pieces on patch
-
+                     Observed_Pos :=
+                       Hexagon.Type_Hexagon_Position'
+                         (True, Hexagon.Type_Hexagon_Numbers (Pos_A),
+                          Hexagon.Type_Hexagon_Numbers (Pos_B));
+                     if Verbose then
+                        Text_IO.Put_Line
+                          ("Piece.Server.Get_Pieces_Report - and area is A=" & Observed_Pos.A'Img &
+                           " B=" & Observed_Pos.B'Img);
                      end if;
 
-                  end loop;
+                     Patch_Observed_Adress :=
+                       Hexagon.Server_Map.Get_Patch_Adress_From_AB (Observed_Pos.A, Observed_Pos.B);
+                     Observation.Observation_Of_Patches.Observations_Of_Patches.Include
+                       (P_Pieces_Report.Observed_Patches,
+                        Observation.Observation_Of_Patches.Type_Observed_Patch'
+                          (Observed_Pos.A, Observed_Pos.B, True));
 
+                     -- Observe effects on the patches in observation area
+                     Get_Effects_On_Patch
+                       (Patch_Observed_Adress.all, P_Pieces_Report.Observed_Patches_Effects);
 
+                     Text_IO.Put_Line ("Observed_Pieces before");
+                     -- Observed pieces includes enemy and neutral pieces find all pieces on this
+                     -- patch
+                     Here_Observed_Pieces :=
+                       Piece.Server.Get_Pieces_On_Patch (Patch_Observed_Adress.all);
+                     Trav_Observed_Pieces :=
+                       Piece.Server.Pieces_Server_List.First (Here_Observed_Pieces);
+                     while Piece.Server.Pieces_Server_List.Has_Element (Trav_Observed_Pieces) loop
+
+                        Observation.Observation_Of_Pieces.Observations_Of_Pieces.Include
+                          (P_Pieces_Report.Observed_Pieces,
+                           Observation.Observation_Of_Pieces.Type_Observed_Piece'
+                             (Piece.Server.Pieces_Server_List.Element (Trav_Observed_Pieces)
+                                .Actual_Pos,
+                              Piece.Server.Pieces_Server_List.Element (Trav_Observed_Pieces)
+                                .Actual_Piece.all
+                                .Id));
+                        Trav_Observed_Pieces :=
+                          Piece.Server.Pieces_Server_List.Next (Trav_Observed_Pieces);
+                     end loop;
+
+                     Text_IO.Put_Line
+                       ("Observed_Pieces here after:" &
+                        Piece.Server.Pieces_Server_List.Length (Here_Observed_Pieces)'Img);
+                     Trav_Observed_Pieces :=
+                       Piece.Server.Pieces_Server_List.First (Here_Observed_Pieces);
+
+                     while Piece.Server.Pieces_Server_List.Has_Element (Trav_Observed_Pieces) loop
+                        Observed_Piece :=
+                          Piece.Server.Pieces_Server_List.Element (Trav_Observed_Pieces)
+                            .Actual_Piece;
+                        Text_IO.Put_Line ("Observed_Pieces- loop");
+                        -- Include piece that we have observed in the observation area.
+                        Observation.Observation_Of_Pieces_Info.Observations_Of_Pieces_Info.Include
+                          (P_Pieces_Report.Observed_Pieces_Info,
+                           Observation.Observation_Of_Pieces_Info.Type_Observed_Piece_Info'
+                             (Piece.Type_Piece (Observed_Piece.all), True));
+
+                        -- Effects for this piece
+                        --
+                        Piece.Server.Get_Effects_On_Piece
+                          (Piece.Server.Type_Piece (Observed_Piece.all),
+                           P_Pieces_Report.Observed_Pieces_Effects);
+
+                        Trav_Observed_Pieces :=
+                          Piece.Server.Pieces_Server_List.Next (Trav_Observed_Pieces);
+
+                     end loop; -- Trav all pieces on patch
+
+                  end if;
+
+               end loop;
 
             end if;
 
@@ -539,48 +557,47 @@ package body Piece.Server is
       --can be on any
       --patch, so it is
       --enough to test
-                                                                                           --one of them
+      --one of them
 
-      while Piece.Server.Pieces_Server_List.Has_Element(Trav) loop
-         A_Piece_Position := Piece.Server.Pieces_Server_List.Element(Trav);
+      while Piece.Server.Pieces_Server_List.Has_Element (Trav) loop
+         A_Piece_Position := Piece.Server.Pieces_Server_List.Element (Trav);
 
          if A_Piece_Position.Actual_Pos = P_Patch.Pos then
-           Ret := A_Piece_Position.Actual_Piece.all.Player_Id;
+            Ret := A_Piece_Position.Actual_Piece.all.Player_Id;
          end if;
-         Trav := Piece.Server.Pieces_Server_List.Next(Trav);
+         Trav := Piece.Server.Pieces_Server_List.Next (Trav);
       end loop;
 
-
       if Verbose then
-         Text_IO.Put_Line
-           ("Piece.Server.Get_Pieces_Players -   Player_Id=" & Ret'Img);
+         Text_IO.Put_Line ("Piece.Server.Get_Pieces_Players -   Player_Id=" & Ret'Img);
       end if;
 
       return Ret;
 
    end Get_Pieces_Players;
 
-   function Is_Effect_On_Piece (P_Player_Id : in Player.Type_Player_Id;
-      P_Piece                               : in Piece.Server.Type_Piece;
-      P_Effect_Name                         : in Effect.Type_Effect_Name) return Boolean
+   function Is_Effect_On_Piece
+     (P_Player_Id   : in Player.Type_Player_Id; P_Piece : in Piece.Server.Type_Piece;
+      P_Effect_Name : in Effect.Type_Effect_Name) return Boolean
    is
       use Effect.Effect_List;
    begin
-      return Effect.Effect_List.Find (P_Piece.Effects_On_Piece, P_Effect_Name) /=
+      return
+        Effect.Effect_List.Find (P_Piece.Effects_On_Piece, P_Effect_Name) /=
         Effect.Effect_List.No_Element;
    end Is_Effect_On_Piece;
 
-   function Get_Effect_Aux_On_Piece (P_Player_Id : in Player.Type_Player_Id;
-      P_Piece                                    : in Piece.Server.Type_Piece;
-      P_Effect_Name                              : in Effect.Type_Effect_Name) return Natural
+   function Get_Effect_Aux_On_Piece
+     (P_Player_Id   : in Player.Type_Player_Id; P_Piece : in Piece.Server.Type_Piece;
+      P_Effect_Name : in Effect.Type_Effect_Name) return Natural
    is
       use Effect.Effect_List;
    begin
       return Effect.Effect_List.Element (P_Piece.Effects_On_Piece, P_Effect_Name).Aux;
    end Get_Effect_Aux_On_Piece;
 
-   function Is_Players_Piece (P_Piece : in Type_Piece;
-      P_Player_Id                     : in Player.Type_Player_Id) return Boolean
+   function Is_Players_Piece
+     (P_Piece : in Type_Piece; P_Player_Id : in Player.Type_Player_Id) return Boolean
    is
       Ret : Boolean := True;
 
@@ -605,11 +622,12 @@ package body Piece.Server is
       return Ret;
    end Is_Players_Piece;
 
-   function Is_Type_Of_Piece_Here (P_Patch : in Hexagon.Server_Map.Type_Server_Patch;
-      P_Type_Of_Piece                      :    Piece.Type_Piece_Type) return Boolean
+   function Is_Type_Of_Piece_Here
+     (P_Patch : in Hexagon.Server_Map.Type_Server_Patch; P_Type_Of_Piece : Piece.Type_Piece_Type)
+      return Boolean
    is
-      Found   : Boolean := False;
-      Trav    : Piece.Server.Pieces_Server_List.Cursor;
+      Found            : Boolean := False;
+      Trav             : Piece.Server.Pieces_Server_List.Cursor;
       A_Piece_Position : Piece.Server.Type_Piece_Position;
 
       use Hexagon;
@@ -630,11 +648,11 @@ package body Piece.Server is
       return Found;
    end Is_Type_Of_Piece_Here;
 
-   function Is_Piece_Here (P_Patch : in Landscape.Type_Patch;
-      P_Piece                      : in Piece.Type_Piece) return Boolean
+   function Is_Piece_Here
+     (P_Patch : in Landscape.Type_Patch; P_Piece : in Piece.Type_Piece) return Boolean
    is
-      Found : Boolean := False;
-      Trav  : Piece.Server.Pieces_Server_List.Cursor;
+      Found            : Boolean := False;
+      Trav             : Piece.Server.Pieces_Server_List.Cursor;
       A_Piece_Position : Piece.Server.Type_Piece_Position;
 
       use Hexagon;
@@ -663,23 +681,22 @@ package body Piece.Server is
    end Is_Piece_Here;
 
    function Is_Patch_Empty (P_Patch : in Landscape.Type_Patch) return Boolean is
-      Trav : Piece.Server.Pieces_Server_List.Cursor;
+      Trav  : Piece.Server.Pieces_Server_List.Cursor;
       Found : Boolean;
 
       use Hexagon;
    begin
-      Trav := Piece.Server.Pieces_Server_List.First(Piece.Server.All_Pieces_In_Game);
+      Trav := Piece.Server.Pieces_Server_List.First (Piece.Server.All_Pieces_In_Game);
 
       Found := False;
-      while not Found and then Piece.Server.Pieces_Server_List.Has_Element(Trav) loop
-         Found := Piece.Server.Pieces_Server_List.Element(Trav).Actual_Pos = P_Patch.Pos;
+      while not Found and then Piece.Server.Pieces_Server_List.Has_Element (Trav) loop
+         Found := Piece.Server.Pieces_Server_List.Element (Trav).Actual_Pos = P_Patch.Pos;
 
-         Trav := Piece.Server.Pieces_Server_List.Next(Trav);
+         Trav := Piece.Server.Pieces_Server_List.Next (Trav);
       end loop;
 
       return not Found; -- If we found a piece the patch is not empty.
    end Is_Patch_Empty;
-
 
    --DENNE REGNER IKKE UT DET SAMME SOM FØR
 --   function Find_Slot_Of_Pieces (P_Patch : in Landscape.Type_Patch;
@@ -705,30 +722,49 @@ package body Piece.Server is
 --      return Piece.Server.Pieces_Here_List.To_Index (Trav);
 --   end Find_Slot_Of_Pieces;
 
-   function Get_Pieces_On_Patch (P_Patch : in Hexagon.Server_Map.Type_Server_Patch)
-                                 return Piece.Server.Pieces_Server_List.Vector
+   function Get_Pieces_On_Patch
+     (P_Patch : in Hexagon.Server_Map.Type_Server_Patch)
+      return Piece.Server.Pieces_Server_List.Vector
    is
-      Ret : Piece.Server.Pieces_Server_List.Vector;
+      Ret              : Piece.Server.Pieces_Server_List.Vector;
       A_Piece_Position : Piece.Server.Type_Piece_Position;
-      Trav : Piece.Server.Pieces_Server_List.Cursor;
+      Trav             : Piece.Server.Pieces_Server_List.Cursor;
 
       use Hexagon;
    begin
-      Trav := Piece.Server.Pieces_Server_List.First(Piece.Server.All_Pieces_In_Game);
-      while Piece.Server.Pieces_Server_List.Has_Element(Trav) loop
-         A_Piece_Position := Piece.Server.Pieces_Server_List.Element(Trav);
+      Text_IO.Put_Line
+        ("Get_Pieces_On_Patch... for å se etter pieces on " & Hexagon.To_String (P_Patch.Pos));
+      Trav := Piece.Server.Pieces_Server_List.First (Piece.Server.All_Pieces_In_Game);
+      while Piece.Server.Pieces_Server_List.Has_Element (Trav) loop
+         A_Piece_Position := Piece.Server.Pieces_Server_List.Element (Trav);
+         Text_IO.Put_Line
+           ("Get_Pieces_On_Patch... for å se etter pieces - LOOP:  " &
+            A_Piece_Position.Actual_Piece.all.Id'Img);
 
-         if A_Piece_Position.Actual_Pos = P_Patch.Pos then
-            Piece.Server.Pieces_Server_List.Append(Ret, A_Piece_Position );
+         if A_Piece_Position.Actual_Pos.P_Valid then
+            Text_IO.Put_Line (" Pos: " & Hexagon.To_String (A_Piece_Position.Actual_Pos));
          end if;
 
+         if A_Piece_Position.Actual_Pos = P_Patch.Pos then
+            Piece.Server.Pieces_Server_List.Append (Ret, A_Piece_Position);
+
+            Text_IO.Put_Line ("Get_Pieces_On_Patch... for å se etter pieces-FUNNET EN PIECE");
+         end if;
+
+         Trav := Piece.Server.Pieces_Server_List.Next (Trav);
       end loop;
 
+      Text_IO.Put_Line
+        ("returnert disse pieces:" & Piece.Server.Pieces_Server_List.Length (Ret)'Img);
       return Ret;
+   exception
+      when others =>
+         Text_IO.Put_Line ("en eller annen exceptino!!!!!");
+         raise;
    end Get_Pieces_On_Patch;
 
-   function Patch_Belongs_To_Player (P_Patch : in Landscape.Type_Patch;
-      P_Player_Id                            : in Player.Type_Player_Id) return Boolean
+   function Patch_Belongs_To_Player
+     (P_Patch : in Landscape.Type_Patch; P_Player_Id : in Player.Type_Player_Id) return Boolean
    is
       Ret : Boolean := True;
 
@@ -752,9 +788,9 @@ package body Piece.Server is
       return Ret;
    end Patch_Belongs_To_Player;
 
-   procedure Validate_Target_Patch_And_Piece (P_Patch : in     Landscape.Type_Patch;
-      P_Piece : in     Piece.Type_Piece; P_Player_Id : in Player.Type_Player_Id;
-      P_Status                                        :    out Status.Type_Status)
+   procedure Validate_Target_Patch_And_Piece
+     (P_Patch     : in Landscape.Type_Patch; P_Piece : in Piece.Type_Piece;
+      P_Player_Id : in Player.Type_Player_Id; P_Status : out Status.Type_Status)
    is
 
       use Landscape;
@@ -765,7 +801,8 @@ package body Piece.Server is
       P_Status := Status.Ok;
 
       if not Piece.Server.Has_Patch_Free_Slot (P_Patch) or
-        not Patch_Belongs_To_Player (P_Patch, P_Player_Id) then
+        not Patch_Belongs_To_Player (P_Patch, P_Player_Id)
+      then
          P_Status := Status.Patch_Occupied;
       elsif P_Piece.Category = Piece.Fighting_Piece
         and then
@@ -788,8 +825,8 @@ package body Piece.Server is
 
    end Validate_Target_Patch_And_Piece;
 
-   function Validate_Grant_Revoke_Effect_Piece (P_Piece : in Type_Piece;
-      P_Player_Id                                       : in Player.Type_Player_Id) return Boolean
+   function Validate_Grant_Revoke_Effect_Piece
+     (P_Piece : in Type_Piece; P_Player_Id : in Player.Type_Player_Id) return Boolean
    is
       Ret : Boolean := True;
 
@@ -814,11 +851,10 @@ package body Piece.Server is
       return Ret;
    end Validate_Grant_Revoke_Effect_Piece;
 
-   procedure Put_Piece (P_Player_Id : in     Player.Type_Player_Id;
-                        P_Action_Type : in     Action.Type_Action_Type;
-                        P_Patch : in out Landscape.Type_Patch;
-                        P_Piece                       : in out Type_Piece;
-                        P_Status : out Status.Type_Status)
+   procedure Put_Piece
+     (P_Player_Id : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Patch     : in out Landscape.Type_Patch; P_Piece : in out Type_Piece;
+      P_Status    :    out Status.Type_Status)
    is
 
       use Status;
@@ -848,8 +884,8 @@ package body Piece.Server is
       end if;
    end Put_Piece;
 
-   function Validate_Removing_Piece (P_Piece : in Type_Piece;
-      P_Player_Id                            : in Player.Type_Player_Id) return Boolean
+   function Validate_Removing_Piece
+     (P_Piece : in Type_Piece; P_Player_Id : in Player.Type_Player_Id) return Boolean
    is
       Ret : Boolean := True;
 
@@ -874,11 +910,10 @@ package body Piece.Server is
       return Ret;
    end Validate_Removing_Piece;
 
-   procedure Remove_Piece (P_Player_Id : in     Player.Type_Player_Id;
-                           P_Action_Type : in     Action.Type_Action_Type;
-                           P_Patch : in out Landscape.Type_Patch;
-                           P_Piece                          : in out Type_Piece;
-                           P_Status : out Status.Type_Status)
+   procedure Remove_Piece
+     (P_Player_Id : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Patch     : in out Landscape.Type_Patch; P_Piece : in out Type_Piece;
+      P_Status    :    out Status.Type_Status)
    is
       A_Piece : Piece.Server.Type_Piece_Access_Class;
 
@@ -893,7 +928,8 @@ package body Piece.Server is
       A_Piece := Piece.Server.Find_Piece_In_List (P_Piece.Id).Actual_Piece;
 
       if not Piece.Server.Validate_Removing_Piece
-          (Piece.Server.Type_Piece (A_Piece.all), P_Player_Id) then
+          (Piece.Server.Type_Piece (A_Piece.all), P_Player_Id)
+      then
          P_Status := Status.Not_Players_Piece;
       else
          Piece.Server.Unset_Position (P_Piece, P_Patch.Pos);
@@ -905,11 +941,10 @@ package body Piece.Server is
       end if;
    end Remove_Piece;
 
-   procedure Grant_Piece_Effect (P_Player_Id : in Player.Type_Player_Id;
-                                 P_Action_Type : in Action.Type_Action_Type;
-                                 P_Piece : in out Type_Piece;
-                                 P_Effect : in Effect.Type_Effect;
-                                 P_Status : out Status.Type_Status)
+   procedure Grant_Piece_Effect
+     (P_Player_Id : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Piece     : in out Type_Piece; P_Effect : in Effect.Type_Effect;
+      P_Status    :    out Status.Type_Status)
    is
    begin
       if Verbose then
@@ -930,11 +965,10 @@ package body Piece.Server is
       end if;
    end Grant_Piece_Effect;
 
-   procedure Revoke_Piece_Effect (P_Player_Id : in Player.Type_Player_Id;
-                                  P_Action_Type : in Action.Type_Action_Type;
-                                  P_Piece : in out Type_Piece;
-                                  P_Effect_Name : in Effect.Type_Effect_Name;
-                                  P_Status : out Status.Type_Status)
+   procedure Revoke_Piece_Effect
+     (P_Player_Id : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Piece     : in out Type_Piece; P_Effect_Name : in Effect.Type_Effect_Name;
+      P_Status    :    out Status.Type_Status)
    is
    begin
       if Verbose then
@@ -956,9 +990,9 @@ package body Piece.Server is
    end Revoke_Piece_Effect;
    --
 
-   function Validate_Grant_Revoke_Effect_Patch (P_Piece : in Type_Piece;
-      P_Player_Id                                       : in Player.Type_Player_Id;
-      P_Area : in Hexagon.Area.Type_Action_Capabilities_A) return Boolean
+   function Validate_Grant_Revoke_Effect_Patch
+     (P_Piece : in Type_Piece; P_Player_Id : in Player.Type_Player_Id;
+      P_Area  : in Hexagon.Area.Type_Action_Capabilities_A) return Boolean
    is
       Ret : Boolean := True;
 
@@ -990,12 +1024,10 @@ package body Piece.Server is
       return Ret;
    end Validate_Grant_Revoke_Effect_Patch;
 
-   procedure Grant_Patch_Effect (P_Player_Id : in     Player.Type_Player_Id;
-                                 P_Action_Type                          : in Action.Type_Action_Type;
-                                 P_Piece : in Type_Piece;
-                                 P_Effect : in     Effect.Type_Effect;
-                                 P_Area : in Hexagon.Area.Type_Action_Capabilities_A;
-                                 P_Status                               :    out Status.Type_Status)
+   procedure Grant_Patch_Effect
+     (P_Player_Id : in Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Piece     : in Type_Piece; P_Effect : in Effect.Type_Effect;
+      P_Area      : in Hexagon.Area.Type_Action_Capabilities_A; P_Status : out Status.Type_Status)
    is
       A_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress := null;
    begin
@@ -1027,12 +1059,10 @@ package body Piece.Server is
       end if;
    end Grant_Patch_Effect;
 
-   procedure Revoke_Patch_Effect (P_Player_Id : in Player.Type_Player_Id;
-                                  P_Action_Type                           : in Action.Type_Action_Type;
-                                  P_Piece : in Type_Piece;
-                                  P_Effect_Name                           : in Effect.Type_Effect_Name;
-                                  P_Area : in Hexagon.Area.Type_Action_Capabilities_A;
-                                  P_Status : out Status.Type_Status)
+   procedure Revoke_Patch_Effect
+     (P_Player_Id : in Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Piece     : in Type_Piece; P_Effect_Name : in Effect.Type_Effect_Name;
+      P_Area      : in Hexagon.Area.Type_Action_Capabilities_A; P_Status : out Status.Type_Status)
    is
       A_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress := null;
    begin
@@ -1121,7 +1151,8 @@ package body Piece.Server is
             if A_Piece.all.Player_Id = P_Player_Id then
 
                if Piece.Server.Pieces_Server_List.Element (Trav).Actual_Piece.Category =
-                 Piece.Fighting_Piece then
+                 Piece.Fighting_Piece
+               then
                   begin
                      Piece.Server.Fighting_Piece.Upkeep
                        (A_Patch, Piece.Server.Fighting_Piece.Type_Piece'Class (A_Piece.all));
@@ -1136,7 +1167,8 @@ package body Piece.Server is
                   end;
 
                elsif Piece.Server.Pieces_Server_List.Element (Trav).Actual_Piece.Category =
-                 Piece.House_Piece then
+                 Piece.House_Piece
+               then
                   begin
                      Piece.Server.House_Piece.Upkeep
                        (A_Patch, Piece.Server.House_Piece.Type_House'Class (A_Piece.all));
@@ -1163,8 +1195,9 @@ package body Piece.Server is
       end if;
    end Upkeep_All;
 
-   procedure Save_Pieces (P_File_Name : in Ada.Strings.Unbounded.Unbounded_String;
-      P_Piece_List                    : in Pieces_Server_List.Vector)
+   procedure Save_Pieces
+     (P_File_Name  : in Ada.Strings.Unbounded.Unbounded_String;
+      P_Piece_List : in Pieces_Server_List.Vector)
    is
       Trav          : Pieces_Server_List.Cursor;
       An_Element    : Type_Piece_Position;
@@ -1195,8 +1228,8 @@ package body Piece.Server is
          An_Element := Pieces_Server_List.Element (Trav);
          Piece.Type_Piece_Id'Write (Write_Stream, An_Element.Actual_Piece.all.Id);
          Piece.Type_Category'Write (Write_Stream, An_Element.Actual_Piece.all.Category);
-         Piece.Type_Piece'Class'Write (Write_Stream,
-            Piece.Type_Piece'Class (An_Element.Actual_Piece.all));
+         Piece.Type_Piece'Class'Write
+           (Write_Stream, Piece.Type_Piece'Class (An_Element.Actual_Piece.all));
          Hexagon.Type_Hexagon_Position'Write (Write_Stream, An_Element.Actual_Pos);
 
          Trav := Pieces_Server_List.Next (Trav);
@@ -1209,8 +1242,9 @@ package body Piece.Server is
       end if;
    end Save_Pieces;
 
-   procedure Load_Pieces (P_File_Name : in     Ada.Strings.Unbounded.Unbounded_String;
-      P_Piece_List                    :    out Pieces_Server_List.Vector)
+   procedure Load_Pieces
+     (P_File_Name  : in     Ada.Strings.Unbounded.Unbounded_String;
+      P_Piece_List :    out Pieces_Server_List.Vector)
    is
       An_Element    : Type_Piece_Position;
       Piece_Id      : Piece.Type_Piece_Id;
@@ -1248,8 +1282,8 @@ package body Piece.Server is
               new Piece.Server.Type_Piece'Class'(Piece.Server.Fighting_Piece.Piece_Class.all);
 
          end if;
-         Piece.Type_Piece'Class'Read (Read_Stream,
-            Piece.Type_Piece'Class (An_Element.Actual_Piece.all));
+         Piece.Type_Piece'Class'Read
+           (Read_Stream, Piece.Type_Piece'Class (An_Element.Actual_Piece.all));
 
          Hexagon.Type_Hexagon_Position'Read (Read_Stream, An_Element.Actual_Pos);
          Pieces_Server_List.Append (P_Piece_List, An_Element);

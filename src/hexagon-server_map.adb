@@ -203,26 +203,6 @@ package body Hexagon.Server_Map is
       end loop;
    end Reset_Visit;
 
-   procedure Reset_Pieces_On_Patches is
---      Trav  : Landscape.Pieces_Here_List.Cursor;
-      Index : Positive;
-
-   begin
-      for ArrayX in A_Map'First (1) .. A_Map'Last (1) loop -- Horisontal
-         for ArrayY in A_Map'First (2) .. A_Map'Last (2) loop -- Vertical
-            null;
-
---            Trav := Landscape.Pieces_Here_List.First (A_Map (ArrayX, ArrayY).all.Pieces_Here);
---            while Landscape.Pieces_Here_List.Has_Element (Trav) loop
---               Index := Landscape.Pieces_Here_List.To_Index (Trav);
-
---               Landscape.Pieces_Here_List.Delete (A_Map (ArrayX, ArrayY).all.Pieces_Here, Index);
---               Landscape.Pieces_Here_List.Next (Trav);
---            end loop;
-         end loop;
-      end loop;
-   end Reset_Pieces_On_Patches;
-
    procedure Traverse
      (P_Patch : in out Type_Server_Patch_Adress;
       P_Visit : in     Type_Visit_Procedure)

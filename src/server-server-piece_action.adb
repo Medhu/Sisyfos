@@ -24,7 +24,7 @@ with Ada.Strings.Unbounded;
 
 package body Server.Server.Piece_Action is
 
-   Verbose : constant Boolean := False;
+   Verbose : constant Boolean := True;
 
    procedure Execute_Cmds (P_Cmd_List : in out Server.Cmd.Cmd_List_Pkg.Vector) is
 
@@ -45,7 +45,7 @@ package body Server.Server.Piece_Action is
          A_Cmd := Server.Cmd.Cmd_List_Pkg.Element (Trav);
 
          if A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Create_Price then
-            if Attempt.Get_Command_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
+            if Attempt.Get_Command_Status (A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -55,8 +55,7 @@ package body Server.Server.Piece_Action is
                   Server.Piece_Action.Init_Piece
                     (A_Cmd.all.Create_Piece_Details.Player_Id,
                      A_Cmd.all.Create_Piece_Details.Action_Type, A_Cmd.all.Create_Piece_Details.Pos,
-                     A_Cmd.all.Create_Piece_Details.Piece_To_Create,
-                     A_Cmd.all.Attempt_Info);
+                     A_Cmd.all.Create_Piece_Details.Piece_To_Create, A_Cmd.all.Attempt_Info);
 
                   if Attempt_Info_Before_Call = A_Cmd.all.Attempt_Info then
                      -- This may cause commands never to complete
@@ -70,7 +69,7 @@ package body Server.Server.Piece_Action is
             end if;
 
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Put_Piece then
-            if Attempt.Get_Command_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
+            if Attempt.Get_Command_Status (A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -78,10 +77,8 @@ package body Server.Server.Piece_Action is
                begin
 
                   Server.Piece_Action.Put_Piece
-                    (A_Cmd.all.Put_Piece_Details.Player_Id,
-                     A_Cmd.all.Put_Piece_Details.Action_Type,
-                     A_Cmd.all.Put_Piece_Details.Pos,
-                     A_Cmd.all.Put_Piece_Details.Piece_Id_To_Put,
+                    (A_Cmd.all.Put_Piece_Details.Player_Id, A_Cmd.all.Put_Piece_Details.Action_Type,
+                     A_Cmd.all.Put_Piece_Details.Pos, A_Cmd.all.Put_Piece_Details.Piece_Id_To_Put,
                      A_Cmd.all.Attempt_Info);
 
                   if Attempt_Info_Before_Call = A_Cmd.all.Attempt_Info then
@@ -95,7 +92,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Remove_Piece then
-            if Attempt.Get_Command_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
+            if Attempt.Get_Command_Status (A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -105,8 +102,7 @@ package body Server.Server.Piece_Action is
                   Server.Piece_Action.Remove_Piece
                     (A_Cmd.all.Remove_Piece_Details.Player_Id,
                      A_Cmd.all.Remove_Piece_Details.Action_Type,
-                     A_Cmd.all.Remove_Piece_Details.Piece_Id_To_Remove,
-                     A_Cmd.all.Attempt_Info);
+                     A_Cmd.all.Remove_Piece_Details.Piece_Id_To_Remove, A_Cmd.all.Attempt_Info);
 
                   if Attempt_Info_Before_Call = A_Cmd.all.Attempt_Info then
                      -- This may cause commands never to complete
@@ -119,7 +115,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Perform_Attack then
-            if Attempt.Get_Command_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
+            if Attempt.Get_Command_Status (A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -130,8 +126,7 @@ package body Server.Server.Piece_Action is
                     (A_Cmd.all.Perform_Attack_Details.Player_Id,
                      A_Cmd.all.Perform_Attack_Details.Action_Type,
                      A_Cmd.all.Perform_Attack_Details.Attacking_Piece_Id,
-                     A_Cmd.all.Perform_Attack_Details.Attacked_Piece_Id,
-                     A_Cmd.all.Attempt_Info);
+                     A_Cmd.all.Perform_Attack_Details.Attacked_Piece_Id, A_Cmd.all.Attempt_Info);
 
                   if Attempt_Info_Before_Call = A_Cmd.all.Attempt_Info then
                      -- This may cause commands never to complete
@@ -144,7 +139,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Perform_Ranged_Attack then
-            if Attempt.Get_Command_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
+            if Attempt.Get_Command_Status (A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -169,7 +164,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Perform_Move then
-            if Attempt.Get_Command_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
+            if Attempt.Get_Command_Status (A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -180,8 +175,7 @@ package body Server.Server.Piece_Action is
                     (A_Cmd.all.Perform_Move_Details.Player_Id,
                      A_Cmd.all.Perform_Move_Details.Action_Type,
                      A_Cmd.all.Perform_Move_Details.Moving_Piece_Id,
-                     A_Cmd.all.Perform_Move_Details.To_Pos,
-                     A_Cmd.all.Attempt_Info);
+                     A_Cmd.all.Perform_Move_Details.To_Pos, A_Cmd.all.Attempt_Info);
 
                   if Attempt_Info_Before_Call = A_Cmd.all.Attempt_Info then
                      -- This may cause commands never to complete
@@ -194,7 +188,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Perform_Patch_Effect then
-            if Attempt.Get_Command_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
+            if Attempt.Get_Command_Status (A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -206,8 +200,7 @@ package body Server.Server.Piece_Action is
                      A_Cmd.all.Perform_Patch_Effect_Details.Action_Type,
                      A_Cmd.all.Perform_Patch_Effect_Details.Piece_Id_To_Perform_Effect_On,
                      A_Cmd.all.Perform_Patch_Effect_Details.Effect_Name_To_Perform,
-                     A_Cmd.all.Perform_Patch_Effect_Details.Area.all,
-                     A_Cmd.all.Attempt_Info);
+                     A_Cmd.all.Perform_Patch_Effect_Details.Area.all, A_Cmd.all.Attempt_Info);
 
                   if Attempt_Info_Before_Call = A_Cmd.all.Attempt_Info then
                      -- This may cause commands never to complete
@@ -220,7 +213,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Perform_Piece_Effect then
-            if Attempt.Get_Command_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
+            if Attempt.Get_Command_Status (A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -245,7 +238,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Grant_Piece_Effect then
-            if Attempt.Get_Command_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
+            if Attempt.Get_Command_Status (A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -255,8 +248,7 @@ package body Server.Server.Piece_Action is
                     (A_Cmd.all.Grant_Piece_Effect_Details.Player_Id,
                      A_Cmd.all.Grant_Piece_Effect_Details.Action_Type,
                      A_Cmd.all.Grant_Piece_Effect_Details.Piece_Id_To_Grant_Piece_Effect_On,
-                     A_Cmd.all.Grant_Piece_Effect_Details.Effect_To_Grant,
-                     A_Cmd.all.Attempt_Info);
+                     A_Cmd.all.Grant_Piece_Effect_Details.Effect_To_Grant, A_Cmd.all.Attempt_Info);
 
                   if Attempt_Info_Before_Call = A_Cmd.all.Attempt_Info then
                      -- This may cause commands never to complete
@@ -269,7 +261,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Revoke_Piece_Effect then
-            if Attempt.Get_Command_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
+            if Attempt.Get_Command_Status (A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -294,7 +286,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Grant_Patch_Effect then
-            if Attempt.Get_Command_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
+            if Attempt.Get_Command_Status (A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -306,8 +298,7 @@ package body Server.Server.Piece_Action is
                      A_Cmd.all.Grant_Patch_Effect_Details.Action_Type,
                      A_Cmd.all.Grant_Patch_Effect_Details.Granting_Piece_Id,
                      A_Cmd.all.Grant_Patch_Effect_Details.Effect_To_Grant,
-                     A_Cmd.all.Grant_Patch_Effect_Details.Area.all,
-                     A_Cmd.all.Attempt_Info);
+                     A_Cmd.all.Grant_Patch_Effect_Details.Area.all, A_Cmd.all.Attempt_Info);
 
                   if Attempt_Info_Before_Call = A_Cmd.all.Attempt_Info then
                      -- This may cause commands never to complete
@@ -320,7 +311,7 @@ package body Server.Server.Piece_Action is
                Server.Observe_Game (1);
             end if;
          elsif A_Cmd.all.P_Cmd_Type = Server.Cmd.Cmd_Revoke_Patch_Effect then
-            if Attempt.Get_Command_Status(A_Cmd.all.Attempt_Info) /= Attempt.Done then
+            if Attempt.Get_Command_Status (A_Cmd.all.Attempt_Info) /= Attempt.Done then
                A_Cmd.all.Attempt_Number := A_Cmd.all.Attempt_Number + 1;
 
                declare
@@ -332,8 +323,7 @@ package body Server.Server.Piece_Action is
                      A_Cmd.all.Revoke_Patch_Effect_Details.Action_Type,
                      A_Cmd.all.Revoke_Patch_Effect_Details.Revoking_Piece_Id,
                      A_Cmd.all.Revoke_Patch_Effect_Details.Effect_Name_To_Revoke,
-                     A_Cmd.all.Revoke_Patch_Effect_Details.Area.all,
-                     A_Cmd.all.Attempt_Info);
+                     A_Cmd.all.Revoke_Patch_Effect_Details.Area.all, A_Cmd.all.Attempt_Info);
 
                   if Attempt_Info_Before_Call = A_Cmd.all.Attempt_Info then
                      -- This may cause commands never to complete
@@ -355,7 +345,7 @@ package body Server.Server.Piece_Action is
 
          A_Cmd := Server.Cmd.Cmd_List_Pkg.Element (Trav);
 
-         if Attempt.Get_Command_Status(A_Cmd.all.Attempt_Info) = Attempt.Done then
+         if Attempt.Get_Command_Status (A_Cmd.all.Attempt_Info) = Attempt.Done then
             Server.Cmd.Free_Cmd (A_Cmd);
             Server.Cmd.Cmd_List_Pkg.Delete (P_Cmd_List, Trav);
          end if;
@@ -376,12 +366,12 @@ package body Server.Server.Piece_Action is
            (Text_IO.Current_Error,
             "Attempting command:" & A_Cmd.all.P_Cmd_Type'Img & " at attempt number:" &
             A_Cmd.all.Attempt_Number'Img & " attempt info:" &
-            Attempt.To_String(A_Cmd.all.Attempt_Info));
+            Attempt.To_String (A_Cmd.all.Attempt_Info));
          raise;
    end Execute_Cmds;
 
-   procedure New_Piece (P_Piece : in     Piece.Type_Piece;
-      P_Piece_Server            :    out Piece.Server.Type_Piece_Access_Class)
+   procedure New_Piece
+     (P_Piece : in Piece.Type_Piece; P_Piece_Server : out Piece.Server.Type_Piece_Access_Class)
    is
    begin
       if Verbose then
@@ -408,14 +398,15 @@ package body Server.Server.Piece_Action is
       end if;
    end Delete_Piece;
 
-   procedure Init_Piece (P_Player_Id : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type; P_Pos : in Hexagon.Type_Hexagon_Position;
-      P_Piece : in out Piece.Server.Type_Piece_Access_Class;
-      P_Attempt_Info           : in out Attempt.Type_Attempt_Info; P_Force : in Boolean := False)
+   procedure Init_Piece
+     (P_Player_Id    : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Pos          : in     Hexagon.Type_Hexagon_Position;
+      P_Piece        : in out Piece.Server.Type_Piece_Access_Class;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info; P_Force : in Boolean := False)
    is
-      A_Patch       : Hexagon.Server_Map.Type_Server_Patch_Adress;
+      A_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
 
-      Attempt_Status    : Status.Type_Status;
+      Attempt_Status : Status.Type_Status;
       use Status;
       use Attempt;
    begin
@@ -423,10 +414,10 @@ package body Server.Server.Piece_Action is
          Text_IO.Put_Line ("Server.Server.Piece_Action.Init_Piece - enter");
       end if;
 
-      Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Ok);
+      Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Ok);
 
       if not P_Pos.P_Valid then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -435,16 +426,16 @@ package body Server.Server.Piece_Action is
       else
          A_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (P_Pos.A, P_Pos.B);
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             Piece.Server.Before_Create_Piece
               (P_Player_Id, P_Action_Type, P_Pos, P_Piece.all, P_Attempt_Info);
 
-            if Attempt.Get_Command_Status(P_Attempt_Info) /= Attempt.Proceed then
-               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Not_Before_Create_Piece);
+            if Attempt.Get_Command_Status (P_Attempt_Info) /= Attempt.Proceed then
+               Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Not_Before_Create_Piece);
             end if;
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             P_Piece.all.Id := Piece.Server.Generate_Piece_Id;
 
             Piece.Server.Pieces_Server_List.Append
@@ -455,13 +446,14 @@ package body Server.Server.Piece_Action is
 --
 --           -- Put the piece on the map
             Piece.Server.Put_Piece
-              (P_Player_Id, P_Action_Type, Landscape.Type_Patch (A_Patch.all), P_Piece.all, Attempt_Status);
-            Attempt.Set_Attempt_Status(P_Attempt_Info, Attempt_Status);
+              (P_Player_Id, P_Action_Type, Landscape.Type_Patch (A_Patch.all), P_Piece.all,
+               Attempt_Status);
+            Attempt.Set_Attempt_Status (P_Attempt_Info, Attempt_Status);
 
          end if;
 
          -- We succeeded in placing the piece
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             Piece.Set_Name
               (Piece.Type_Piece (P_Piece.all),
                Utilities.RemoteString.To_Unbounded_String
@@ -476,7 +468,9 @@ package body Server.Server.Piece_Action is
       end if;
 
       if Verbose then
-         Text_IO.Put_Line ("Server.Server.Piece_Action.Init_Piece - exit P_Status=" & Attempt.To_String(P_Attempt_Info) );
+         Text_IO.Put_Line
+           ("Server.Server.Piece_Action.Init_Piece - exit P_Status=" &
+            Attempt.To_String (P_Attempt_Info));
       end if;
    exception
       when others =>
@@ -493,15 +487,14 @@ package body Server.Server.Piece_Action is
          Text_IO.Put_Line
            (Text_IO.Current_Error,
             " P_Piece:" & P_Piece.all.Id'Img & " P_Attempts_Info:" &
-              Attempt.To_String(P_Attempt_Info)
-             );
+            Attempt.To_String (P_Attempt_Info));
          raise;
    end Init_Piece;
 
-   procedure Put_Piece (P_Player_Id : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type; P_Pos : in Hexagon.Type_Hexagon_Position;
-      P_Piece_Id                    : in     Piece.Type_Piece_Id;
-      P_Attempt_Info          : in out Attempt.Type_Attempt_Info)
+   procedure Put_Piece
+     (P_Player_Id    : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Pos          : in     Hexagon.Type_Hexagon_Position; P_Piece_Id : in Piece.Type_Piece_Id;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       A_Patch          : Hexagon.Server_Map.Type_Server_Patch_Adress;
       A_Piece_Position : Piece.Server.Type_Piece_Position;
@@ -515,7 +508,7 @@ package body Server.Server.Piece_Action is
       if Verbose then
          Text_IO.Put_Line ("Server.Server.Piece_Action.Put_Piece - enter");
       end if;
-      Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Ok);
+      Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Ok);
 
       begin
          A_Piece_Position := Piece.Server.Find_Piece_In_List (P_Piece_Id);
@@ -526,14 +519,14 @@ package body Server.Server.Piece_Action is
       end;
 
       if A_Piece_Position.Actual_Piece = null then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
             Utilities.RemoteString.To_Unbounded_String
               ("Put Piece Piece_Id:" & P_Piece_Id'Img & " not valid. Command will be cancelled."));
       elsif not P_Pos.P_Valid then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -542,32 +535,32 @@ package body Server.Server.Piece_Action is
       else
          A_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (P_Pos.A, P_Pos.B);
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             Piece.Server.Before_Put_Piece
               (P_Player_Id, P_Action_Type, P_Pos,
                Piece.Server.Type_Piece'Class (A_Piece_Position.Actual_Piece.all), P_Attempt_Info);
 
-            if Attempt.Get_Command_Status(P_Attempt_Info) /= Attempt.Proceed then
-               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Not_Before_Put_Piece);
+            if Attempt.Get_Command_Status (P_Attempt_Info) /= Attempt.Proceed then
+               Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Not_Before_Put_Piece);
             end if;
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             Piece.Server.Put_Piece
               (P_Player_Id, P_Action_Type, Landscape.Type_Patch (A_Patch.all),
                A_Piece_Position.Actual_Piece.all, Attempt_Status);
-            Attempt.Set_Attempt_Status(P_Attempt_Info, Attempt_Status);
+            Attempt.Set_Attempt_Status (P_Attempt_Info, Attempt_Status);
          end if;
 
          Piece.Server.End_Put_Piece
            (P_Player_Id, P_Action_Type, P_Pos,
-            Piece.Server.Type_Piece'Class (A_Piece_Position.Actual_Piece.all),
-            P_Attempt_Info);
+            Piece.Server.Type_Piece'Class (A_Piece_Position.Actual_Piece.all), P_Attempt_Info);
 
       end if;
 
       if Verbose then
-         Text_IO.Put_Line ("Server.Server.Piece_Action.Put_Piece - exit " & Attempt.To_String(P_Attempt_Info) );
+         Text_IO.Put_Line
+           ("Server.Server.Piece_Action.Put_Piece - exit " & Attempt.To_String (P_Attempt_Info));
       end if;
    exception
       when others =>
@@ -582,14 +575,13 @@ package body Server.Server.Piece_Action is
             Text_IO.Put (Text_IO.Current_Error, " P_Pos:Invalid");
          end if;
          Text_IO.Put_Line
-           (Text_IO.Current_Error, " P_Attempts_Info:" &
-              Attempt.To_String(P_Attempt_Info));
+           (Text_IO.Current_Error, " P_Attempts_Info:" & Attempt.To_String (P_Attempt_Info));
          raise;
    end Put_Piece;
 
-   procedure Remove_Piece (P_Player_Id : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
-      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
+   procedure Remove_Piece
+     (P_Player_Id : in Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id  : in Piece.Type_Piece_Id; P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       A_Piece_Position : Piece.Server.Type_Piece_Position;
       A_Patch          : Hexagon.Server_Map.Type_Server_Patch_Adress;
@@ -603,7 +595,7 @@ package body Server.Server.Piece_Action is
       if Verbose then
          Text_IO.Put_Line ("Server.Server.Piece_Action.Remove_Piece - enter");
       end if;
-      Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Ok);
+      Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Ok);
 
       begin
          A_Piece_Position := Piece.Server.Find_Piece_In_List (P_Piece_Id);
@@ -614,7 +606,7 @@ package body Server.Server.Piece_Action is
       end;
 
       if A_Piece_Position.Actual_Piece = null then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -622,7 +614,7 @@ package body Server.Server.Piece_Action is
               ("Remove Piece Piece_Id:" & P_Piece_Id'Img &
                " not valid. Command will be cancelled."));
       elsif not A_Piece_Position.Actual_Pos.P_Valid then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -633,32 +625,32 @@ package body Server.Server.Piece_Action is
            Hexagon.Server_Map.Get_Patch_Adress_From_AB
              (A_Piece_Position.Actual_Pos.A, A_Piece_Position.Actual_Pos.B);
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             Piece.Server.Before_Remove_Piece
               (P_Player_Id, P_Action_Type,
                Piece.Server.Type_Piece'Class (A_Piece_Position.Actual_Piece.all), P_Attempt_Info);
 
-            if Attempt.Get_Command_Status(P_Attempt_Info) /= Attempt.Proceed then
-               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Not_Before_Remove_Piece);
+            if Attempt.Get_Command_Status (P_Attempt_Info) /= Attempt.Proceed then
+               Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Not_Before_Remove_Piece);
             end if;
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             Piece.Server.Remove_Piece
               (P_Player_Id, P_Action_Type, Landscape.Type_Patch (A_Patch.all),
                A_Piece_Position.Actual_Piece.all, Attempt_Status);
-            Attempt.Set_Attempt_Status(P_Attempt_Info, Attempt_Status);
+            Attempt.Set_Attempt_Status (P_Attempt_Info, Attempt_Status);
          end if;
 
          Piece.Server.End_Remove_Piece
            (P_Player_Id, P_Action_Type, Landscape.Type_Patch (A_Patch.all),
-            Piece.Server.Type_Piece'Class (A_Piece_Position.Actual_Piece.all),
-            P_Attempt_Info);
+            Piece.Server.Type_Piece'Class (A_Piece_Position.Actual_Piece.all), P_Attempt_Info);
 
       end if;
 
       if Verbose then
-         Text_IO.Put_Line ("Server.Server.Piece_Action.Remove_Piece - exit " & Attempt.To_String(P_Attempt_Info));
+         Text_IO.Put_Line
+           ("Server.Server.Piece_Action.Remove_Piece - exit " & Attempt.To_String (P_Attempt_Info));
       end if;
    exception
       when others =>
@@ -667,18 +659,18 @@ package body Server.Server.Piece_Action is
          Text_IO.Put_Line
            (Text_IO.Current_Error,
             "Player_Id:" & P_Player_Id'Img & " P_Action_Type:" & P_Action_Type'Img & " P_Piece:" &
-            P_Piece_Id'Img & " P_Attempts_Info:" & Attempt.To_String(P_Attempt_Info));
+            P_Piece_Id'Img & " P_Attempts_Info:" & Attempt.To_String (P_Attempt_Info));
          raise;
    end Remove_Piece;
 
-   procedure Perform_Attack (P_Player_Id        : in     Player.Type_Player_Id;
-      P_Action_Type                             : in     Action.Type_Action_Type;
+   procedure Perform_Attack
+     (P_Player_Id : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
       P_Attacking_Piece_Id, P_Attacked_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
+      P_Attempt_Info                            : in out Attempt.Type_Attempt_Info)
    is
       An_Attacking_Patch, An_Attacked_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
       An_Attacking_Piece_Position, An_Attacked_Piece_Position : Piece.Server.Type_Piece_Position;
-      Attempt_Status                                           : Status.Type_Status;
+      Attempt_Status                                          : Status.Type_Status;
 
       A_Winner : Player.Type_Player_Id;
 
@@ -689,7 +681,7 @@ package body Server.Server.Piece_Action is
       if Verbose then
          Text_IO.Put_Line ("Server.Server.Piece_Action.Perform_Attack - enter");
       end if;
-      Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Ok);
+      Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Ok);
 
       begin
          An_Attacking_Piece_Position := Piece.Server.Find_Piece_In_List (P_Attacking_Piece_Id);
@@ -710,7 +702,7 @@ package body Server.Server.Piece_Action is
       end;
 
       if An_Attacking_Piece_Position.Actual_Piece = null then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -718,7 +710,7 @@ package body Server.Server.Piece_Action is
               ("Perform Attack Attacking Piece Id:" & P_Attacking_Piece_Id'Img &
                " not valid. Command will be cancelled."));
       elsif An_Attacked_Piece_Position.Actual_Piece = null then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -726,14 +718,14 @@ package body Server.Server.Piece_Action is
               ("Perform Attack Attacked Piece Id:" & P_Attacked_Piece_Id'Img &
                " not valid. Command will be cancelled."));
       elsif not An_Attacking_Piece_Position.Actual_Pos.P_Valid then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
             Utilities.RemoteString.To_Unbounded_String
               ("Perform Attack Attacking Piece Position not valid. Command will be cancelled."));
       elsif not An_Attacked_Piece_Position.Actual_Pos.P_Valid then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -747,7 +739,7 @@ package body Server.Server.Piece_Action is
            Hexagon.Server_Map.Get_Patch_Adress_From_AB
              (An_Attacked_Piece_Position.Actual_Pos.A, An_Attacked_Piece_Position.Actual_Pos.B);
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             Piece.Server.Fighting_Piece.Before_Perform_Attack
               (P_Player_Id, P_Action_Type,
                Piece.Server.Fighting_Piece.Type_Piece'Class
@@ -755,14 +747,14 @@ package body Server.Server.Piece_Action is
                Piece.Server.Fighting_Piece.Type_Piece'Class
                  (An_Attacked_Piece_Position.Actual_Piece.all),
                An_Attacking_Piece_Position.Actual_Pos, An_Attacked_Piece_Position.Actual_Pos,
-              P_Attempt_Info);
+               P_Attempt_Info);
 
-            if Attempt.Get_Command_Status(P_Attempt_Info) /= Attempt.Proceed then
-               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Not_Before_Perform_Attack);
+            if Attempt.Get_Command_Status (P_Attempt_Info) /= Attempt.Proceed then
+               Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Not_Before_Perform_Attack);
             end if;
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
 
             Piece.Server.Fighting_Piece.Calculate_Attack_Result
               (P_Player_Id, P_Action_Type,
@@ -770,8 +762,7 @@ package body Server.Server.Piece_Action is
                  (An_Attacking_Piece_Position.Actual_Piece.all),
                Piece.Server.Fighting_Piece.Type_Piece'Class
                  (An_Attacked_Piece_Position.Actual_Piece.all),
-               An_Attacking_Patch.all.Pos, An_Attacked_Patch.all.Pos, A_Winner,
-              P_Attempt_Info);
+               An_Attacking_Patch.all.Pos, An_Attacked_Patch.all.Pos, A_Winner, P_Attempt_Info);
 
             Piece.Server.Fighting_Piece.Perform_Attack
               (P_Player_Id, P_Action_Type,
@@ -779,9 +770,8 @@ package body Server.Server.Piece_Action is
                  (An_Attacking_Piece_Position.Actual_Piece.all),
                Piece.Server.Fighting_Piece.Type_Piece (An_Attacked_Piece_Position.Actual_Piece.all),
                Landscape.Type_Patch (An_Attacking_Patch.all),
-               Landscape.Type_Patch (An_Attacked_Patch.all), A_Winner,
-               Attempt_Status);
-            Attempt.Set_Attempt_Status(P_Attempt_Info, Attempt_Status);
+               Landscape.Type_Patch (An_Attacked_Patch.all), A_Winner, Attempt_Status);
+            Attempt.Set_Attempt_Status (P_Attempt_Info, Attempt_Status);
 
          end if;
 
@@ -791,14 +781,14 @@ package body Server.Server.Piece_Action is
               (An_Attacking_Piece_Position.Actual_Piece.all),
             Piece.Server.Fighting_Piece.Type_Piece'Class
               (An_Attacked_Piece_Position.Actual_Piece.all),
-            An_Attacking_Patch.all.Pos, An_Attacked_Patch.all.Pos, A_Winner,
-            P_Attempt_Info);
+            An_Attacking_Patch.all.Pos, An_Attacked_Patch.all.Pos, A_Winner, P_Attempt_Info);
 
       end if;
 
       if Verbose then
          Text_IO.Put_Line
-           ("Server.Server.Piece_Action.Perform_Attack - exit P_Attempt_Info=" & Attempt.To_String(P_Attempt_Info) );
+           ("Server.Server.Piece_Action.Perform_Attack - exit P_Attempt_Info=" &
+            Attempt.To_String (P_Attempt_Info));
       end if;
    exception
       when others =>
@@ -808,21 +798,21 @@ package body Server.Server.Piece_Action is
            (Text_IO.Current_Error,
             "Player_Id:" & P_Player_Id'Img & " P_Action_Type:" & P_Action_Type'Img &
             " P_Attacking_Piece:" & P_Attacking_Piece_Id'Img & " P_Attacked_Piece:" &
-            P_Attacked_Piece_Id'Img & " P_Attempts_Info:" & Attempt.To_String(P_Attempt_Info));
+            P_Attacked_Piece_Id'Img & " P_Attempts_Info:" & Attempt.To_String (P_Attempt_Info));
          raise;
    end Perform_Attack;
 
-   procedure Perform_Ranged_Attack (P_Player_Id : in     Player.Type_Player_Id;
-      P_Action_Type                             : in     Action.Type_Action_Type;
+   procedure Perform_Ranged_Attack
+     (P_Player_Id : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
       P_Attacking_Piece_Id, P_Attacked_Piece_Id : in     Piece.Type_Piece_Id;
-      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
+      P_Attempt_Info                            : in out Attempt.Type_Attempt_Info)
    is
       An_Attacking_Piece_Position, An_Attacked_Piece_Position : Piece.Server.Type_Piece_Position;
       An_Attacking_Patch, An_Attacked_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress;
 
       A_Winner : Player.Type_Player_Id := Player.Undefined_Player_Id;
 
-      Attempt_Status                                           : Status.Type_Status;
+      Attempt_Status : Status.Type_Status;
 
       use Attempt;
       use Piece.Server;
@@ -831,7 +821,7 @@ package body Server.Server.Piece_Action is
       if Verbose then
          Text_IO.Put_Line ("Server.Server.Piece_Action.Perform_Ranged_Attack - enter");
       end if;
-      Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Ok);
+      Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Ok);
 
       begin
          An_Attacking_Piece_Position := Piece.Server.Find_Piece_In_List (P_Attacking_Piece_Id);
@@ -852,7 +842,7 @@ package body Server.Server.Piece_Action is
       end;
 
       if An_Attacking_Piece_Position.Actual_Piece = null then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -860,7 +850,7 @@ package body Server.Server.Piece_Action is
               ("Perform Ranged Attack Attacking Piece Id:" & P_Attacking_Piece_Id'Img &
                " not valid. Command will be cancelled."));
       elsif An_Attacked_Piece_Position.Actual_Piece = null then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -868,14 +858,14 @@ package body Server.Server.Piece_Action is
               ("Perform Ranged Attack Attacked Piece Id:" & P_Attacked_Piece_Id'Img &
                " not valid. Command will be cancelled."));
       elsif not An_Attacking_Piece_Position.Actual_Pos.P_Valid then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
             Utilities.RemoteString.To_Unbounded_String
               ("Perform Ranged Attack Attacking Piece Position not valid. Command will be cancelled."));
       elsif not An_Attacked_Piece_Position.Actual_Pos.P_Valid then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -889,7 +879,7 @@ package body Server.Server.Piece_Action is
            Hexagon.Server_Map.Get_Patch_Adress_From_AB
              (An_Attacked_Piece_Position.Actual_Pos.A, An_Attacked_Piece_Position.Actual_Pos.B);
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             Piece.Server.Fighting_Piece.Before_Perform_Ranged_Attack
               (P_Player_Id, P_Action_Type,
                Piece.Server.Fighting_Piece.Type_Piece'Class
@@ -899,12 +889,12 @@ package body Server.Server.Piece_Action is
                An_Attacking_Piece_Position.Actual_Pos, An_Attacked_Piece_Position.Actual_Pos,
                P_Attempt_Info);
 
-            if Attempt.Get_Command_Status(P_Attempt_Info) /= Attempt.Proceed then
-               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Not_Before_Perform_Ranged_Attack);
+            if Attempt.Get_Command_Status (P_Attempt_Info) /= Attempt.Proceed then
+               Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Not_Before_Perform_Ranged_Attack);
             end if;
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
 
             Piece.Server.Fighting_Piece.Calculate_Ranged_Attack_Result
               (P_Player_Id, P_Action_Type,
@@ -912,8 +902,7 @@ package body Server.Server.Piece_Action is
                  (An_Attacking_Piece_Position.Actual_Piece.all),
                Piece.Server.Fighting_Piece.Type_Piece'Class
                  (An_Attacked_Piece_Position.Actual_Piece.all),
-               An_Attacking_Patch.all.Pos, An_Attacked_Patch.all.Pos, A_Winner,
-              P_Attempt_Info);
+               An_Attacking_Patch.all.Pos, An_Attacked_Patch.all.Pos, A_Winner, P_Attempt_Info);
 
             Piece.Server.Fighting_Piece.Perform_Ranged_Attack
               (P_Player_Id, P_Action_Type,
@@ -921,9 +910,8 @@ package body Server.Server.Piece_Action is
                  (An_Attacking_Piece_Position.Actual_Piece.all),
                Piece.Server.Fighting_Piece.Type_Piece (An_Attacked_Piece_Position.Actual_Piece.all),
                Landscape.Type_Patch (An_Attacking_Patch.all),
-               Landscape.Type_Patch (An_Attacked_Patch.all), A_Winner,
-               Attempt_Status);
-            Attempt.Set_Attempt_Status(P_Attempt_Info, Attempt_Status);
+               Landscape.Type_Patch (An_Attacked_Patch.all), A_Winner, Attempt_Status);
+            Attempt.Set_Attempt_Status (P_Attempt_Info, Attempt_Status);
 
          end if;
 
@@ -933,13 +921,13 @@ package body Server.Server.Piece_Action is
               (An_Attacking_Piece_Position.Actual_Piece.all),
             Piece.Server.Fighting_Piece.Type_Piece'Class
               (An_Attacked_Piece_Position.Actual_Piece.all),
-            An_Attacking_Patch.all.Pos, An_Attacked_Patch.all.Pos, A_Winner,
-            P_Attempt_Info);
+            An_Attacking_Patch.all.Pos, An_Attacked_Patch.all.Pos, A_Winner, P_Attempt_Info);
       end if;
 
       if Verbose then
          Text_IO.Put_Line
-           ("Server.Server.Piece_Action.Perform_Ranged_Attack - exit P_Status=" & Attempt.To_String(P_Attempt_Info) );
+           ("Server.Server.Piece_Action.Perform_Ranged_Attack - exit P_Status=" &
+            Attempt.To_String (P_Attempt_Info));
       end if;
    exception
       when others =>
@@ -949,16 +937,14 @@ package body Server.Server.Piece_Action is
            (Text_IO.Current_Error,
             "Player_Id:" & P_Player_Id'Img & " P_Action_Type:" & P_Action_Type'Img &
             " P_Attacking_Piece:" & P_Attacking_Piece_Id'Img & " P_Attacked_Piece:" &
-              P_Attacked_Piece_Id'Img & " P_Attempts_Info:" &
-              Attempt.To_String(P_Attempt_Info));
+            P_Attacked_Piece_Id'Img & " P_Attempts_Info:" & Attempt.To_String (P_Attempt_Info));
          raise;
    end Perform_Ranged_Attack;
 
-   procedure Perform_Move (P_Player_Id : in     Player.Type_Player_Id;
-                           P_Action_Type : in     Action.Type_Action_Type;
-                           P_Piece_Id : in Piece.Type_Piece_Id;
-                           P_End_Pos : in     Hexagon.Type_Hexagon_Position;
-                           P_Attempt_Info             : in out Attempt.Type_Attempt_Info)
+   procedure Perform_Move
+     (P_Player_Id    : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id     : in     Piece.Type_Piece_Id; P_End_Pos : in Hexagon.Type_Hexagon_Position;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       A_Moving_Piece_Position  : Piece.Server.Type_Piece_Position;
       A_From_Patch, A_To_Patch : Hexagon.Server_Map.Type_Server_Patch_Adress := null;
@@ -979,7 +965,7 @@ package body Server.Server.Piece_Action is
            ("Server.Server.Piece_Action.Perform_Move - enter P_Piece_Id=" & P_Piece_Id'Img);
       end if;
 
-      Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Ok);
+      Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Ok);
 
       begin
          A_Moving_Piece_Position := Piece.Server.Find_Piece_In_List (P_Piece_Id);
@@ -990,7 +976,7 @@ package body Server.Server.Piece_Action is
       end;
 
       if A_Moving_Piece_Position.Actual_Piece = null then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -998,7 +984,7 @@ package body Server.Server.Piece_Action is
               ("Perform Move Piece Id:" & P_Piece_Id'Img &
                " not valid. Command will be cancelled."));
       elsif not A_Moving_Piece_Position.Actual_Pos.P_Valid then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -1012,27 +998,26 @@ package body Server.Server.Piece_Action is
 
          Piece.Server.Fighting_Piece.Before_Perform_Move
            (P_Player_Id, P_Action_Type,
-            Piece.Server.Fighting_Piece.Type_Piece'Class
-              (A_Moving_Piece_Position.Actual_Piece.all),
+            Piece.Server.Fighting_Piece.Type_Piece'Class (A_Moving_Piece_Position.Actual_Piece.all),
             A_From_Pos, A_To_Pos, P_End_Pos, P_Attempt_Info);
 
-         if Attempt.Get_Command_Status(P_Attempt_Info) /= Attempt.Proceed then
-            Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Not_Before_Perform_Move);
+         if Attempt.Get_Command_Status (P_Attempt_Info) /= Attempt.Proceed then
+            Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Not_Before_Perform_Move);
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
-            Text_IO.Put_Line("Beregn Path!");
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
+            Text_IO.Put_Line ("Beregn Path!");
             Hexagon.Server_Navigation.Find_Path
               (Hexagon.Server_Navigation.Get_Navigation
                  (Hexagon.Server_Navigation.A_Navigation_List, 1).all,
                P_Player_Id, P_Action_Type,
                Piece.Server.Fighting_Piece.Type_Piece (A_Moving_Piece_Position.Actual_Piece.all),
                A_From_Pos, P_End_Pos, Attempt_Status, Move_Path);
-            Attempt.Set_Attempt_Status(P_Attempt_Info, Attempt_Status);
+            Attempt.Set_Attempt_Status (P_Attempt_Info, Attempt_Status);
 
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             -- next patch in the current path
             Next_Path_Cursor := Hexagon.Server_Navigation.Path_Pkg.First (Move_Path);
             Next_Path_Cursor := Hexagon.Server_Navigation.Path_Pkg.Next (Next_Path_Cursor);
@@ -1040,31 +1025,33 @@ package body Server.Server.Piece_Action is
             A_To_Pos   := Hexagon.Server_Navigation.Path_Pkg.Element (Next_Path_Cursor).all.Pos;
             A_To_Patch := Hexagon.Server_Map.Get_Patch_Adress_From_AB (A_To_Pos.A, A_To_Pos.B);
 
-            if not Piece.Server.Has_Patch_Free_Slot (Landscape.Type_Patch(A_To_Patch.all)) then
-               Attempt.Set_Failed_Attempt(P_Attempt_Info);
-               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Target_Patch_Occupied );
+            if not Piece.Server.Has_Patch_Free_Slot (Landscape.Type_Patch (A_To_Patch.all)) then
+               Attempt.Set_Failed_Attempt (P_Attempt_Info);
+               Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Target_Patch_Occupied);
             end if;
 
-            if not Piece.Server.Patch_Belongs_To_Player(Landscape.Type_Patch(A_To_Patch.all), P_Player_Id) then
-               Attempt.Set_Failed_Attempt(P_Attempt_Info);
-               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Target_Patch_Occupied );
+            if not Piece.Server.Patch_Belongs_To_Player
+                (Landscape.Type_Patch (A_To_Patch.all), P_Player_Id)
+            then
+               Attempt.Set_Failed_Attempt (P_Attempt_Info);
+               Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Target_Patch_Occupied);
             end if;
 
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             Piece.Server.Fighting_Piece.Before_Perform_Move_Step
               (P_Player_Id, P_Action_Type,
                Piece.Server.Fighting_Piece.Type_Piece'Class
                  (A_Moving_Piece_Position.Actual_Piece.all),
                A_From_Pos, A_To_Pos, P_End_Pos, P_Attempt_Info);
 
-            if Attempt.Get_Command_Status(P_Attempt_Info) /= Attempt.Proceed then
-               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Not_Before_Perform_Move_Step);
+            if Attempt.Get_Command_Status (P_Attempt_Info) /= Attempt.Proceed then
+               Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Not_Before_Perform_Move_Step);
             end if;
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
 
             Piece.Server.Fighting_Piece.Perform_Move_Step
               (P_Player_Id, P_Action_Type,
@@ -1072,10 +1059,10 @@ package body Server.Server.Piece_Action is
                Landscape.Type_Patch (A_From_Patch.all), Landscape.Type_Patch (A_To_Patch.all),
                Attempt_Status);
 
-            Attempt.Set_Attempt_Status(P_Attempt_Info, Attempt_Status);
+            Attempt.Set_Attempt_Status (P_Attempt_Info, Attempt_Status);
 
             if A_To_Pos = P_End_Pos then
-               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Completed_Ok);
+               Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Completed_Ok);
             end if;
 
             Hexagon.Server_Navigation.Path_Pkg.Clear (Move_Path);
@@ -1090,7 +1077,8 @@ package body Server.Server.Piece_Action is
 
       if Verbose then
          Text_IO.Put_Line
-           ("Server.Server.Piece_Action.Perform_Move - exit P_Status=" & Attempt.To_String(P_Attempt_Info) );
+           ("Server.Server.Piece_Action.Perform_Move - exit P_Status=" &
+            Attempt.To_String (P_Attempt_Info));
       end if;
    exception
       when others =>
@@ -1107,17 +1095,15 @@ package body Server.Server.Piece_Action is
             Text_IO.Put (Text_IO.Current_Error, " P_End_Pos:Invalid");
          end if;
          Text_IO.Put_Line
-           (Text_IO.Current_Error, " P_Attempts_Info:" &
-              Attempt.To_String(P_Attempt_Info) );
+           (Text_IO.Current_Error, " P_Attempts_Info:" & Attempt.To_String (P_Attempt_Info));
          raise;
    end Perform_Move;
 
-   procedure Perform_Patch_Effect (P_Player_Id : in     Player.Type_Player_Id;
-                                   P_Action_Type : in     Action.Type_Action_Type;
-                                   P_Piece_Id : in Piece.Type_Piece_Id;
-                                   P_Effect_Name : in     Effect.Type_Effect_Name;
-                                   P_Area : in Hexagon.Area.Type_Action_Capabilities_A;
-                                   P_Attempt_Info : in out Attempt.Type_Attempt_Info)
+   procedure Perform_Patch_Effect
+     (P_Player_Id    : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id     : in     Piece.Type_Piece_Id; P_Effect_Name : in Effect.Type_Effect_Name;
+      P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       A_Piece_Position : Piece.Server.Type_Piece_Position;
       A_Patch          : Hexagon.Server_Map.Type_Server_Patch_Adress := null;
@@ -1134,7 +1120,7 @@ package body Server.Server.Piece_Action is
             P_Piece_Id'Img);
       end if;
 
-      Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Ok);
+      Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Ok);
 
       begin
          A_Piece_Position := Piece.Server.Find_Piece_In_List (P_Piece_Id);
@@ -1145,7 +1131,7 @@ package body Server.Server.Piece_Action is
       end;
 
       if A_Piece_Position.Actual_Piece = null then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -1153,7 +1139,7 @@ package body Server.Server.Piece_Action is
               ("Perform Patch Effect Piece Id:" & P_Piece_Id'Img &
                " not valid. Command will be cancelled."));
       elsif not A_Piece_Position.Actual_Pos.P_Valid then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -1161,30 +1147,29 @@ package body Server.Server.Piece_Action is
               ("Perform Patch Effect Piece Position not valid. Command will be cancelled."));
       else
          if not Piece.Server.Validate_Perform_Patch_Effect
-             (P_Player_Id, P_Action_Type, A_Piece_Position.Actual_Piece.all, P_Effect_Name,
-              P_Area)
+             (P_Player_Id, P_Action_Type, A_Piece_Position.Actual_Piece.all, P_Effect_Name, P_Area)
          then
-            Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Patch_Effect_Not_Here);
+            Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Patch_Effect_Not_Here);
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             Piece.Server.Before_Perform_Patch_Effect
               (P_Player_Id, P_Action_Type,
-               Piece.Server.Type_Piece'Class (A_Piece_Position.Actual_Piece.all), P_Effect_Name, P_Area,
-               P_Attempt_Info);
+               Piece.Server.Type_Piece'Class (A_Piece_Position.Actual_Piece.all), P_Effect_Name,
+               P_Area, P_Attempt_Info);
 
-            if Attempt.Get_Command_Status(P_Attempt_Info) /= Attempt.Proceed then
-               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Not_Before_Perform_Patch_Effect);
+            if Attempt.Get_Command_Status (P_Attempt_Info) /= Attempt.Proceed then
+               Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Not_Before_Perform_Patch_Effect);
 
             end if;
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
 
             Piece.Server.Perform_Patch_Effect
               (P_Player_Id, P_Action_Type,
-               Piece.Server.Type_Piece'Class (A_Piece_Position.Actual_Piece.all), P_Area, P_Effect_Name,
-              P_Attempt_Info);
+               Piece.Server.Type_Piece'Class (A_Piece_Position.Actual_Piece.all), P_Area,
+               P_Effect_Name, P_Attempt_Info);
 
          end if;
 
@@ -1195,7 +1180,8 @@ package body Server.Server.Piece_Action is
 
       if Verbose then
          Text_IO.Put_Line
-           ("Server.Server.Piece_Action.Perform_Patch_Effect - exit P_Status=" & Attempt.To_String(P_Attempt_Info) );
+           ("Server.Server.Piece_Action.Perform_Patch_Effect - exit P_Status=" &
+            Attempt.To_String (P_Attempt_Info));
       end if;
    exception
       when others =>
@@ -1204,16 +1190,15 @@ package body Server.Server.Piece_Action is
          Text_IO.Put_Line
            (Text_IO.Current_Error,
             "Player_Id:" & P_Player_Id'Img & " P_Action_Type:" & P_Action_Type'Img & " P_Piece:" &
-            P_Piece_Id'Img & " P_Effect:" & P_Effect_Name'Img &
-            " P_Area: --  P_Attempts_Info:" & Attempt.To_String(P_Attempt_Info));
+            P_Piece_Id'Img & " P_Effect:" & P_Effect_Name'Img & " P_Area: --  P_Attempts_Info:" &
+            Attempt.To_String (P_Attempt_Info));
          raise;
    end Perform_Patch_Effect;
 
-   procedure Perform_Piece_Effect (P_Player_Id : in     Player.Type_Player_Id;
-                                   P_Action_Type : in     Action.Type_Action_Type;
-                                   P_Piece_Id : in Piece.Type_Piece_Id;
-                                   P_Effect_Name : in     Effect.Type_Effect_Name;
-                                   P_Attempt_Info                     : in out Attempt.Type_Attempt_Info)
+   procedure Perform_Piece_Effect
+     (P_Player_Id    : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id     : in     Piece.Type_Piece_Id; P_Effect_Name : in Effect.Type_Effect_Name;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       A_Piece_Position : Piece.Server.Type_Piece_Position;
       --Attempt_Status    : Status.Type_Status;
@@ -1227,7 +1212,7 @@ package body Server.Server.Piece_Action is
            ("Server.Server.Piece_Action.Perform_Piece_Effect - enter P_Piece_Id=" & P_Piece_Id'Img);
       end if;
 
-      Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Ok);
+      Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Ok);
 
       begin
          A_Piece_Position := Piece.Server.Find_Piece_In_List (P_Piece_Id);
@@ -1238,7 +1223,7 @@ package body Server.Server.Piece_Action is
       end;
 
       if A_Piece_Position.Actual_Piece = null then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -1246,7 +1231,7 @@ package body Server.Server.Piece_Action is
               ("Perform Piece Effect Piece Id:" & P_Piece_Id'Img &
                " not valid. Command will be cancelled."));
       elsif not A_Piece_Position.Actual_Pos.P_Valid then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -1257,22 +1242,22 @@ package body Server.Server.Piece_Action is
          if not Piece.Server.Validate_Perform_Piece_Effect
              (P_Player_Id, P_Action_Type, A_Piece_Position.Actual_Piece.all, P_Effect_Name)
          then
-            Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Piece_Effect_Not_Here);
+            Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Piece_Effect_Not_Here);
 
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             Piece.Server.Before_Perform_Piece_Effect
               (P_Player_Id, P_Action_Type,
                Piece.Server.Type_Piece'Class (A_Piece_Position.Actual_Piece.all), P_Effect_Name,
                P_Attempt_Info);
 
-            if Attempt.Get_Command_Status(P_Attempt_Info) /= Attempt.Proceed then
-               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Not_Before_Perform_Piece_Effect);
+            if Attempt.Get_Command_Status (P_Attempt_Info) /= Attempt.Proceed then
+               Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Not_Before_Perform_Piece_Effect);
             end if;
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
 
             Piece.Server.Perform_Piece_Effect
               (P_Player_Id, P_Action_Type,
@@ -1290,7 +1275,8 @@ package body Server.Server.Piece_Action is
 
       if Verbose then
          Text_IO.Put_Line
-           ("Server.Server.Piece_Action.Perform_Piece_Effect - exit P_Status=" & Attempt.To_String(P_Attempt_Info) );
+           ("Server.Server.Piece_Action.Perform_Piece_Effect - exit P_Status=" &
+            Attempt.To_String (P_Attempt_Info));
       end if;
    exception
       when others =>
@@ -1299,19 +1285,18 @@ package body Server.Server.Piece_Action is
          Text_IO.Put_Line
            (Text_IO.Current_Error,
             "Player_Id:" & P_Player_Id'Img & " P_Action_Type:" & P_Action_Type'Img & " P_Piece:" &
-            P_Piece_Id'Img & " P_Effect:" & P_Effect_Name'Img &
-            " P_Attempts_Info:" & Attempt.To_String(P_Attempt_Info));
+            P_Piece_Id'Img & " P_Effect:" & P_Effect_Name'Img & " P_Attempts_Info:" &
+            Attempt.To_String (P_Attempt_Info));
          raise;
    end Perform_Piece_Effect;
 
-   procedure Grant_Piece_Effect (P_Player_Id : in     Player.Type_Player_Id;
-                                 P_Action_Type : in     Action.Type_Action_Type;
-                                 P_Piece_Id : in Piece.Type_Piece_Id;
-                                 P_Effect : in     Effect.Type_Effect;
-                                 P_Attempt_Info : in out Attempt.Type_Attempt_Info)
+   procedure Grant_Piece_Effect
+     (P_Player_Id    : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id     : in     Piece.Type_Piece_Id; P_Effect : in Effect.Type_Effect;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       A_Piece_Position : Piece.Server.Type_Piece_Position;
-      Attempt_Status    : Status.Type_Status;
+      Attempt_Status   : Status.Type_Status;
 
       use Attempt;
       use Piece.Server;
@@ -1320,7 +1305,7 @@ package body Server.Server.Piece_Action is
       if Verbose then
          Text_IO.Put_Line ("Server.Server.Piece_Action.Grant_Piece_Effect- enter");
       end if;
-      Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Ok);
+      Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Ok);
 
       begin
          A_Piece_Position := Piece.Server.Find_Piece_In_List (P_Piece_Id);
@@ -1331,7 +1316,7 @@ package body Server.Server.Piece_Action is
       end;
 
       if A_Piece_Position.Actual_Piece = null then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -1339,28 +1324,29 @@ package body Server.Server.Piece_Action is
               ("Grant Piece Effect Piece Id:" & P_Piece_Id'Img &
                " not valid. Command will be cancelled."));
       elsif not A_Piece_Position.Actual_Pos.P_Valid then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
             Utilities.RemoteString.To_Unbounded_String
               ("Grant Piece Effect Piece Position not valid. Command will be cancelled."));
       else
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             Piece.Server.Before_Grant_Piece_Effect
               (P_Player_Id, P_Action_Type,
                Piece.Server.Type_Piece'Class (A_Piece_Position.Actual_Piece.all), P_Effect,
                P_Attempt_Info);
 
-            if Attempt.Get_Command_Status(P_Attempt_Info) /= Attempt.Proceed then
-               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Not_Before_Grant_Piece_Effect);
+            if Attempt.Get_Command_Status (P_Attempt_Info) /= Attempt.Proceed then
+               Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Not_Before_Grant_Piece_Effect);
             end if;
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
 
             Piece.Server.Grant_Piece_Effect
-              (P_Player_Id, P_Action_Type, A_Piece_Position.Actual_Piece.all, P_Effect, Attempt_Status);
+              (P_Player_Id, P_Action_Type, A_Piece_Position.Actual_Piece.all, P_Effect,
+               Attempt_Status);
          end if;
 
          Piece.Server.End_Grant_Piece_Effect
@@ -1380,18 +1366,17 @@ package body Server.Server.Piece_Action is
            (Text_IO.Current_Error,
             "Player_Id:" & P_Player_Id'Img & " P_Action_Type:" & P_Action_Type'Img & " P_Piece:" &
             P_Piece_Id'Img & " P_Effect:" & P_Effect.Effect_Name'Img & " " & P_Effect.Aux'Img &
-            " P_Attempts_Info:" & Attempt.To_String(P_Attempt_Info) );
+            " P_Attempts_Info:" & Attempt.To_String (P_Attempt_Info));
          raise;
    end Grant_Piece_Effect;
 
-   procedure Revoke_Piece_Effect (P_Player_Id : in     Player.Type_Player_Id;
-                                  P_Action_Type : in     Action.Type_Action_Type;
-                                  P_Piece_Id : in Piece.Type_Piece_Id;
-                                  P_Effect_Name : in     Effect.Type_Effect_Name;
-                                  P_Attempt_Info                    : in out Attempt.Type_Attempt_Info)
+   procedure Revoke_Piece_Effect
+     (P_Player_Id    : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id     : in     Piece.Type_Piece_Id; P_Effect_Name : in Effect.Type_Effect_Name;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       A_Piece_Position : Piece.Server.Type_Piece_Position;
-      Attempt_Status    : Status.Type_Status;
+      Attempt_Status   : Status.Type_Status;
 
       use Attempt;
       use Piece.Server;
@@ -1401,7 +1386,7 @@ package body Server.Server.Piece_Action is
          Text_IO.Put_Line ("Server.Server.Piece_Action.Revoke_Piece_Effect- enter");
       end if;
 
-      Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Ok);
+      Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Ok);
 
       begin
          A_Piece_Position := Piece.Server.Find_Piece_In_List (P_Piece_Id);
@@ -1412,7 +1397,7 @@ package body Server.Server.Piece_Action is
       end;
 
       if A_Piece_Position.Actual_Piece = null then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -1420,30 +1405,30 @@ package body Server.Server.Piece_Action is
               ("Revoke Piece Effect Piece Id:" & P_Piece_Id'Img &
                " not valid. Command will be cancelled."));
       elsif not A_Piece_Position.Actual_Pos.P_Valid then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
             Utilities.RemoteString.To_Unbounded_String
               ("Revoke Piece Effect Piece Position not valid. Command will be cancelled."));
       else
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             Piece.Server.Before_Revoke_Piece_Effect
               (P_Player_Id, P_Action_Type, A_Piece_Position.Actual_Piece.all, P_Effect_Name,
                P_Attempt_Info);
 
-            if Attempt.Get_Command_Status(P_Attempt_Info) /= Attempt.Proceed then
-               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Not_Before_Revoke_Piece_Effect);
+            if Attempt.Get_Command_Status (P_Attempt_Info) /= Attempt.Proceed then
+               Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Not_Before_Revoke_Piece_Effect);
 
             end if;
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
 
             Piece.Server.Revoke_Piece_Effect
               (P_Player_Id, P_Action_Type, A_Piece_Position.Actual_Piece.all, P_Effect_Name,
                Attempt_Status);
-            Attempt.Set_Attempt_Status(P_Attempt_Info, Attempt_Status);
+            Attempt.Set_Attempt_Status (P_Attempt_Info, Attempt_Status);
          end if;
 
          Piece.Server.End_Revoke_Piece_Effect
@@ -1464,16 +1449,15 @@ package body Server.Server.Piece_Action is
            (Text_IO.Current_Error,
             "Player_Id:" & P_Player_Id'Img & " P_Action_Type:" & P_Action_Type'Img & " P_Piece:" &
             P_Piece_Id'Img & " P_Effect_Name:" & P_Effect_Name'Img & " P_Attempts_Info:" &
-            Attempt.To_String(P_Attempt_Info) );
+            Attempt.To_String (P_Attempt_Info));
          raise;
    end Revoke_Piece_Effect;
 
-   procedure Grant_Patch_Effect (P_Player_Id : in     Player.Type_Player_Id;
-                                 P_Action_Type : in     Action.Type_Action_Type;
-                                 P_Piece_Id : in Piece.Type_Piece_Id;
-                                 P_Effect : in     Effect.Type_Effect;
-                                 P_Area : in Hexagon.Area.Type_Action_Capabilities_A;
-                                 P_Attempt_Info : in out Attempt.Type_Attempt_Info)
+   procedure Grant_Patch_Effect
+     (P_Player_Id    : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id     : in     Piece.Type_Piece_Id; P_Effect : in Effect.Type_Effect;
+      P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
       A_Piece_Position : Piece.Server.Type_Piece_Position;
 
@@ -1485,7 +1469,7 @@ package body Server.Server.Piece_Action is
       if Verbose then
          Text_IO.Put_Line ("Server.Server.Piece_Action.Grant_Patch_Effect- enter");
       end if;
-      Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Ok);
+      Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Ok);
 
       begin
          A_Piece_Position := Piece.Server.Find_Piece_In_List (P_Piece_Id);
@@ -1496,7 +1480,7 @@ package body Server.Server.Piece_Action is
       end;
 
       if A_Piece_Position.Actual_Piece = null then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -1504,26 +1488,26 @@ package body Server.Server.Piece_Action is
               ("Grant Patch Effect Piece Id:" & P_Piece_Id'Img &
                " not valid. Command will be cancelled."));
       elsif not A_Piece_Position.Actual_Pos.P_Valid then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
             Utilities.RemoteString.To_Unbounded_String
               ("Grant Patch Effect Piece Position not valid. Command will be cancelled."));
       else
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
 
             Piece.Server.Before_Grant_Patch_Effect
               (P_Player_Id, P_Action_Type,
                Piece.Server.Type_Piece'Class (A_Piece_Position.Actual_Piece.all), P_Area, P_Effect,
                P_Attempt_Info);
 
-            if Attempt.Get_Command_Status(P_Attempt_Info) /= Attempt.Proceed then
-               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Not_Before_Grant_Patch_Effect);
+            if Attempt.Get_Command_Status (P_Attempt_Info) /= Attempt.Proceed then
+               Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Not_Before_Grant_Patch_Effect);
             end if;
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
 
             Piece.Server.Grant_Patch_Effect
               (P_Player_Id, P_Action_Type, A_Piece_Position.Actual_Piece.all, P_Effect, P_Area,
@@ -1548,17 +1532,17 @@ package body Server.Server.Piece_Action is
            (Text_IO.Current_Error,
             "Player_Id:" & P_Player_Id'Img & " P_Action_Type:" & P_Action_Type'Img & " P_Piece:" &
             P_Piece_Id'Img & " P_Effect:" & P_Effect.Effect_Name'Img & " P_Area: -- " &
-            P_Effect.Aux'Img & " P_Attempts_Info:" & Attempt.To_String(P_Attempt_Info) );
+            P_Effect.Aux'Img & " P_Attempts_Info:" & Attempt.To_String (P_Attempt_Info));
          raise;
    end Grant_Patch_Effect;
 
-   procedure Revoke_Patch_Effect (P_Player_Id : in     Player.Type_Player_Id;
-      P_Action_Type : in     Action.Type_Action_Type; P_Piece_Id : in Piece.Type_Piece_Id;
-      P_Effect_Name                           : in     Effect.Type_Effect_Name;
-      P_Area : in     Hexagon.Area.Type_Action_Capabilities_A;
-      P_Attempt_Info                    : in out Attempt.Type_Attempt_Info)
+   procedure Revoke_Patch_Effect
+     (P_Player_Id    : in     Player.Type_Player_Id; P_Action_Type : in Action.Type_Action_Type;
+      P_Piece_Id     : in     Piece.Type_Piece_Id; P_Effect_Name : in Effect.Type_Effect_Name;
+      P_Area         : in     Hexagon.Area.Type_Action_Capabilities_A;
+      P_Attempt_Info : in out Attempt.Type_Attempt_Info)
    is
-      Attempt_Status    : Status.Type_Status;
+      Attempt_Status   : Status.Type_Status;
       A_Piece_Position : Piece.Server.Type_Piece_Position;
 
       use Attempt;
@@ -1569,7 +1553,7 @@ package body Server.Server.Piece_Action is
          Text_IO.Put_Line
            ("Server.Server.Piece_Action.Revoke_Patch_Effect- enter P_Piece_Id=" & P_Piece_Id'Img);
       end if;
-      Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Ok);
+      Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Ok);
 
       begin
          A_Piece_Position := Piece.Server.Find_Piece_In_List (P_Piece_Id);
@@ -1580,7 +1564,7 @@ package body Server.Server.Piece_Action is
       end;
 
       if A_Piece_Position.Actual_Piece = null then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -1588,7 +1572,7 @@ package body Server.Server.Piece_Action is
               ("Revoke Patch Effect Piece Id:" & P_Piece_Id'Img &
                " not valid. Command will be cancelled."));
       elsif not A_Piece_Position.Actual_Pos.P_Valid then
-         Attempt.Set_Done_Attempt(P_Attempt_Info);
+         Attempt.Set_Done_Attempt (P_Attempt_Info);
 
          Server.Player_Activity_Report_Append
            (1, P_Player_Id,
@@ -1596,18 +1580,18 @@ package body Server.Server.Piece_Action is
               ("Revoke Patch Effect Piece Position not valid. Command will be cancelled."));
       else
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
             Piece.Server.Before_Revoke_Patch_Effect
               (P_Player_Id, P_Action_Type,
                Piece.Server.Type_Piece'Class (A_Piece_Position.Actual_Piece.all), P_Area,
                P_Effect_Name, P_Attempt_Info);
 
-            if Attempt.Get_Command_Status(P_Attempt_Info) /= Attempt.Proceed then
-               Attempt.Set_Attempt_Status(P_Attempt_Info, Status.Not_Before_Revoke_Patch_Effect);
+            if Attempt.Get_Command_Status (P_Attempt_Info) /= Attempt.Proceed then
+               Attempt.Set_Attempt_Status (P_Attempt_Info, Status.Not_Before_Revoke_Patch_Effect);
             end if;
          end if;
 
-         if Attempt.Get_Attempt_Status(P_Attempt_Info) = Status.Ok then
+         if Attempt.Get_Attempt_Status (P_Attempt_Info) = Status.Ok then
 
             Piece.Server.Revoke_Patch_Effect
               (P_Player_Id, P_Action_Type, A_Piece_Position.Actual_Piece.all, P_Effect_Name, P_Area,
@@ -1633,13 +1617,13 @@ package body Server.Server.Piece_Action is
            (Text_IO.Current_Error,
             "Player_Id:" & P_Player_Id'Img & " P_Action_Type:" & P_Action_Type'Img & " P_Piece:" &
             P_Piece_Id'Img & " P_Effect:" & P_Effect_Name'Img & " P_Attempts_Info:" &
-            Attempt.To_String(P_Attempt_Info) );
+            Attempt.To_String (P_Attempt_Info));
          raise;
    end Revoke_Patch_Effect;
 
-   function Is_Effect_On_Piece (P_Player_Id : in Player.Type_Player_Id;
-      P_Piece_Id                            : in Piece.Type_Piece_Id;
-      P_Effect_Name                         : in Effect.Type_Effect_Name) return Boolean
+   function Is_Effect_On_Piece
+     (P_Player_Id   : in Player.Type_Player_Id; P_Piece_Id : in Piece.Type_Piece_Id;
+      P_Effect_Name : in Effect.Type_Effect_Name) return Boolean
    is
       A_Piece_Position : Piece.Server.Type_Piece_Position;
       Ret              : Boolean;
@@ -1667,9 +1651,9 @@ package body Server.Server.Piece_Action is
       return Ret;
    end Is_Effect_On_Piece;
 
-   function Get_Effect_Aux_On_Piece (P_Player_Id : in Player.Type_Player_Id;
-      P_Piece_Id                                 : in Piece.Type_Piece_Id;
-      P_Effect_Name                              : in Effect.Type_Effect_Name) return Natural
+   function Get_Effect_Aux_On_Piece
+     (P_Player_Id   : in Player.Type_Player_Id; P_Piece_Id : in Piece.Type_Piece_Id;
+      P_Effect_Name : in Effect.Type_Effect_Name) return Natural
    is
       A_Piece_Position : Piece.Server.Type_Piece_Position;
       Ret              : Natural;

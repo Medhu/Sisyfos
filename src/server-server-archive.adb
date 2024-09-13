@@ -28,12 +28,13 @@ with Text_IO;
 
 package body Server.Server.Archive is
 
-   Verbose : constant Boolean := False;
+   Verbose : constant Boolean := True;
 
-   procedure Creating_Game (P_Directory : in     Utilities.RemoteString.Type_String;
-      P_Create_File_Name                : in     Utilities.RemoteString.Type_String;
-      P_Scenario_Name                   :    out Utilities.RemoteString.Type_String;
-      P_Player_List                     : out Server.Type_Player_List; P_Countdown : out Positive)
+   procedure Creating_Game
+     (P_Directory        : in     Utilities.RemoteString.Type_String;
+      P_Create_File_Name : in     Utilities.RemoteString.Type_String;
+      P_Scenario_Name    :    out Utilities.RemoteString.Type_String;
+      P_Player_List      :    out Server.Type_Player_List; P_Countdown : out Positive)
    is
       Create_File   : Ada.Streams.Stream_IO.File_Type;
       Create_Stream : Ada.Streams.Stream_IO.Stream_Access;
@@ -48,7 +49,7 @@ package body Server.Server.Archive is
       end if;
 
       Piece.Server.Reset_Positions;
-      Hexagon.Server_Map.Reset_Pieces_On_Patches;
+
       Hexagon.Server_Navigation.Reset_Navigation_List;
 
       Ada.Streams.Stream_IO.Open
@@ -76,8 +77,7 @@ package body Server.Server.Archive is
          Hexagon.Server_Map.A_Map);
 
       --
-      Hexagon.Server_Navigation.Create_Navigation
-        (Hexagon.Server_Navigation.A_Navigation_List);
+      Hexagon.Server_Navigation.Create_Navigation (Hexagon.Server_Navigation.A_Navigation_List);
 
       Hexagon.Server_Navigation.Load_Navigation
         (Ada.Strings.Unbounded.To_Unbounded_String
@@ -105,7 +105,8 @@ package body Server.Server.Archive is
       end if;
    end Creating_Game;
 
-   procedure Saving_Game (P_Directory   : in Utilities.RemoteString.Type_String;
+   procedure Saving_Game
+     (P_Directory                       : in Utilities.RemoteString.Type_String;
       P_Save_File_Name, P_Scenario_Name : in Utilities.RemoteString.Type_String;
       P_Player_List                     : in Server.Type_Player_List; P_Countdown : in Positive)
    is
@@ -130,8 +131,8 @@ package body Server.Server.Archive is
 
       -- write all players - add statuses about if they are in scenario etc
       for Trav_Player in P_Player_List'First .. P_Player_List'Last loop
-         Utilities.RemoteString.Type_String'Write (Save_Stream,
-            P_Player_List (Trav_Player).Player_Name);
+         Utilities.RemoteString.Type_String'Write
+           (Save_Stream, P_Player_List (Trav_Player).Player_Name);
          Boolean'Write (Save_Stream, P_Player_List (Trav_Player).In_Scenario);
          Boolean'Write (Save_Stream, P_Player_List (Trav_Player).Is_Observing);
       end loop;
@@ -169,10 +170,11 @@ package body Server.Server.Archive is
       end if;
    end Saving_Game;
 
-   procedure Loading_Game (P_Directory : in     Utilities.RemoteString.Type_String;
-      P_Load_File_Name                 : in     Utilities.RemoteString.Type_String;
-      P_Scenario_Name                  :    out Utilities.RemoteString.Type_String;
-      P_Player_List                    :    out Server.Type_Player_List; P_Countdown : out Positive)
+   procedure Loading_Game
+     (P_Directory      : in     Utilities.RemoteString.Type_String;
+      P_Load_File_Name : in     Utilities.RemoteString.Type_String;
+      P_Scenario_Name  :    out Utilities.RemoteString.Type_String;
+      P_Player_List    :    out Server.Type_Player_List; P_Countdown : out Positive)
    is
       Load_File   : Ada.Streams.Stream_IO.File_Type;
       Load_Stream : Ada.Streams.Stream_IO.Stream_Access;
@@ -186,7 +188,7 @@ package body Server.Server.Archive is
       end if;
 
       Piece.Server.Reset_Positions;
-      Hexagon.Server_Map.Reset_Pieces_On_Patches;
+
       Hexagon.Server_Navigation.Reset_Navigation_List;
 
       Ada.Streams.Stream_IO.Open
@@ -201,8 +203,8 @@ package body Server.Server.Archive is
       Player.Type_Player_Id'Read (Load_Stream, Dummy);
 
       for Trav_Player in P_Player_List'First .. P_Player_List'Last loop
-         Utilities.RemoteString.Type_String'Read (Load_Stream,
-            P_Player_List (Trav_Player).Player_Name);
+         Utilities.RemoteString.Type_String'Read
+           (Load_Stream, P_Player_List (Trav_Player).Player_Name);
          Boolean'Read (Load_Stream, P_Player_List (Trav_Player).In_Scenario);
          Boolean'Read (Load_Stream, P_Player_List (Trav_Player).Is_Observing);
       end loop;
@@ -216,8 +218,7 @@ package body Server.Server.Archive is
          Hexagon.Server_Map.A_Map);
 
       --
-      Hexagon.Server_Navigation.Create_Navigation
-        (Hexagon.Server_Navigation.A_Navigation_List);
+      Hexagon.Server_Navigation.Create_Navigation (Hexagon.Server_Navigation.A_Navigation_List);
 
       Hexagon.Server_Navigation.Load_Navigation
         (Ada.Strings.Unbounded.To_Unbounded_String

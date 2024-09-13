@@ -21,7 +21,7 @@ with Text_IO;
 
 package body Piece.Server.House_Piece is
 
-   Verbose              : constant Boolean := False;
+   Verbose              : constant Boolean := True;
    House_Type_Info_List : Type_House_Type_Info_List_Access;
 
    procedure Init
@@ -59,12 +59,12 @@ package body Piece.Server.House_Piece is
    end Get_Type_Of_Piece_Name;
 
    function Can_Construct_On_Land
-     (P_Type_Of_Piece : in Type_Piece_Type;
-      P_Landscape     : in Landscape.Type_Landscape) return Boolean
+     (P_Type_Of_Piece : in Type_Piece_Type; P_Landscape : in Landscape.Type_Landscape)
+      return Boolean
    is
    begin
-      return Piece.Server.House_Piece.House_Type_Info_List (P_Type_Of_Piece)
-          .Construct_Landscape
+      return
+        Piece.Server.House_Piece.House_Type_Info_List (P_Type_Of_Piece).Construct_Landscape
           (P_Landscape);
    end Can_Construct_On_Land;
 
