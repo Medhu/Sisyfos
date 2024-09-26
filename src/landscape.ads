@@ -40,7 +40,6 @@ package Landscape is
    type Type_Patch (P_Known : Boolean) is new Type_Land with record
       case P_Known is
          when True =>
---            Pieces_Here        : Pieces_Here_List.Vector;
             Effects_Here       : Effect.Effect_List.Map;
          when False =>
             null;

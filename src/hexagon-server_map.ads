@@ -78,7 +78,6 @@ package Hexagon.Server_Map is
      (True,
       Type_Hexagon_Position'(P_Valid => False),
       Landscape.Undefined_Landscape,
---      Landscape.Pieces_Here_List.Empty_Vector,
       Effect.Effect_List.Empty_Map,
       False,
       Neighbours =>
